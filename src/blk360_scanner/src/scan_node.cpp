@@ -25,9 +25,11 @@
 #include <algorithm>
 #include <atomic>
 #include <cctype>
+#include <filesystem>
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <thread>
 
 namespace
@@ -54,7 +56,7 @@ public:
     {
         device_address_ = declare_parameter<std::string>("device_address", "192.168.10.90:8081");
         trigger_command_ = declare_parameter<std::string>("trigger_command", "scan");
-        output_dir_ = declare_parameter<std::string>("output_dir", ".");
+        output_dir_ = declare_parameter<std::string>("output_dir", "scans");
         density_param_ = declare_parameter<std::string>("point_cloud_density", "medium");
         panorama_param_ = declare_parameter<std::string>("panorama_mode", "ldr");
 
@@ -152,12 +154,27 @@ private:
 
     std::ofstream createOutputFile(Blk360_scanId_t scanId)
     {
-        const std::string path = output_dir_ + "/pointcloud_" + std::to_string(scanId) + ".csv";
+        // ofstream won't create missing parent directories, so make them first.
+        if (!output_dir_.empty())
+        {
+            std::error_code ec;
+            std::filesystem::create_directories(output_dir_, ec);
+            if (ec)
+            {
+                RCLCPP_ERROR(get_logger(), "Could not create output directory %s: %s",
+                             output_dir_.c_str(), ec.message().c_str());
+                return std::ofstream{};  // not open -> caller reports the failure
+            }
+        }
+
+        const std::filesystem::path path =
+            std::filesystem::path(output_dir_) / ("pointcloud_" + std::to_string(scanId) + ".csv");
         std::ofstream file(path, std::ios_base::out);
         if (file.is_open())
         {
             file << "x [m],y [m],z [m],r,g,b\n";
-            RCLCPP_INFO(get_logger(), "Writing point cloud to %s", path.c_str());
+            RCLCPP_INFO(get_logger(), "Writing point cloud to %s",
+                        std::filesystem::absolute(path).c_str());
         }
         else
         {
