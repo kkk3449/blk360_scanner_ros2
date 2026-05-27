@@ -1,0 +1,14 @@
+# colcon build artifacts (machine-specific, must be rebuilt per machine)
+build/
+install/
+log/
+
+# Scan outputs (large, regenerated on every scan)
+*.csv
+
+# Editor / OS cruft
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
