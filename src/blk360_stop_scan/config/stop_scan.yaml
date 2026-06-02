@@ -1,0 +1,33 @@
+blk360_stop_scan_sequencer:
+  ros__parameters:
+    # Distance (metres of robot travel) between BLK360 scans.
+    scan_interval_m: 2.0
+
+    # Frames used to measure travel distance via TF.
+    global_frame: map
+    robot_base_frame: base_footprint
+
+    # Odometry used to confirm the robot has fully stopped before scanning.
+    odom_topic: /odom
+    stop_settle_timeout_s: 8.0
+    stopped_speed_eps: 0.02
+
+    # BLK360 scanner interface (matches blk360_scanner node).
+    scan_trigger_topic: /blk360/scan_trigger
+    scan_status_topic: /blk360/scan_status
+    scan_command: scan
+    scan_timeout_s: 240.0
+
+    # frontier_exploration_ros2 control service (STOP/START exploration).
+    control_service_name: /control_exploration
+
+    # Scan once at the very start before any motion.
+    scan_at_start: true
+
+    # Reconnect-and-retry on a dropped BLK360 link. Each retry re-triggers the
+    # scanner, which opens a fresh device session (i.e. reconnects).
+    max_scan_retries: 5
+    reconnect_delay_s: 5.0
+    on_scan_failure: resume   # "resume" keeps exploring; "abort" halts the sequencer.
+
+    control_rate_hz: 5.0

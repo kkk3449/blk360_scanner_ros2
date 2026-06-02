@@ -12,3 +12,10 @@ log/
 *.swp
 *~
 .DS_Store
+
+# Sim test logs (regenerated)
+scripts/last_test/
+
+# Python cache
+__pycache__/
+*.pyc
