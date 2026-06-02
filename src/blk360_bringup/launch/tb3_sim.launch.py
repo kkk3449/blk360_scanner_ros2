@@ -30,14 +30,11 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration("use_sim_time")
     gui = LaunchConfiguration("gui")
     model = LaunchConfiguration("model")
-    world_name = LaunchConfiguration("world")
     x_pose = LaunchConfiguration("x_pose")
     y_pose = LaunchConfiguration("y_pose")
 
-    world = PathJoinSubstitution([
-        FindPackageShare("turtlebot3_gazebo"), "worlds",
-        [LaunchConfiguration("world"), ".world"],
-    ])
+    # `world` is a full path to an SDF .world file (defaults to turtlebot3_world).
+    world = LaunchConfiguration("world")
 
     gz_sim_launch = os.path.join(ros_gz_sim, "launch", "gz_sim.launch.py")
 
@@ -67,8 +64,10 @@ def generate_launch_description():
         DeclareLaunchArgument("gui", default_value="false"),
         DeclareLaunchArgument("model", default_value="waffle",
                               description="TurtleBot3 model: burger | waffle | waffle_pi"),
-        DeclareLaunchArgument("world", default_value="turtlebot3_world",
-                              description="World basename in turtlebot3_gazebo/worlds (no .world)"),
+        DeclareLaunchArgument(
+            "world",
+            default_value=os.path.join(tb3_gazebo, "worlds", "turtlebot3_world.world"),
+            description="Full path to an SDF .world file (default: turtlebot3_world)"),
         DeclareLaunchArgument("x_pose", default_value="-2.0"),
         DeclareLaunchArgument("y_pose", default_value="-0.5"),
 

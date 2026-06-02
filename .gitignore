@@ -19,3 +19,6 @@ scripts/last_test/
 # Python cache
 __pycache__/
 *.pyc
+
+# e57 processing venv
+.e57venv/
