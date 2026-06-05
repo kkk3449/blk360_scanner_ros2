@@ -263,14 +263,16 @@ ros2 topic pub --once /blk360/scan_trigger std_msgs/msg/String "{data: 'scan'}"
 
 ## 9. Requirements & notes
 
-- **x86-64 Linux**, ROS 2 **Jazzy**. `third_party/lib/libBLK360.so` is a prebuilt x86-64
-  binary (won't run on ARM); resolved at runtime via `$ORIGIN`, no path editing after clone.
-- `build/`, `install/`, `log/`, `*.csv`, and `.e57venv/` are git-ignored — on a new machine
-  just `git clone` then `colcon build`.
+- **x86-64 Linux**, ROS 2 **Jazzy**.
+- **`libBLK360.so` is NOT in this repo** (proprietary Leica, not redistributable). To build
+  `blk360_scanner`, obtain it from Leica's BLK360 SDK and drop it at
+  `src/blk360_scanner/third_party/lib/libBLK360.so` (see that folder's README). Everything
+  else builds without it: `colcon build --packages-skip blk360_scanner`.
+- `build/`, `install/`, `log/`, `*.csv`, `.e57venv/`, and the `.so` are git-ignored.
 - **Known issue:** occasionally the real BLK360 reports
   `ERROR: PointCloudColorizer_AddPanorama: Panorama must be processed` — likely the colorize
   step disturbed by driving during download (WiFi); that scan's cloud is lost but exploration
   continues.
 
-> `libBLK360.so` is proprietary Leica software vendored for portability. Keep the repository
-> **private** unless you have permission to redistribute it.
+> `libBLK360.so` (and the `BLK360.h` headers under `third_party/include/`) are proprietary
+> Leica software. The `.so` is excluded from this repository; do not re-add it.

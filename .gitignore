@@ -22,3 +22,7 @@ __pycache__/
 
 # e57 processing venv
 .e57venv/
+
+# Proprietary Leica BLK360 runtime library — NOT redistributable.
+# Supply it locally to build blk360_scanner (see third_party/lib/README.md).
+src/blk360_scanner/third_party/lib/*.so
