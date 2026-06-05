@@ -112,10 +112,11 @@ frontier_explorer:
     # Minimum seconds to wait before selecting the next frontier after a successful goal.
     post_goal_min_settle: 1.50
 
-    # Enable temporary suppression for frontiers that repeatedly fail or stall.
-    # Use if you are having issues with SLAM or Nav2.
-    # ON: in this complex/narrow map, a frontier the robot can't reach gets
-    # suppressed quickly so it moves on to another instead of getting stuck.
+    # Suppress frontier areas the robot keeps failing to make progress toward, so
+    # it stops re-visiting the same unreachable/occluded spots. ON, but made
+    # PERMANENT below (see frontier_suppression_timeout_s) so a suppressed area is
+    # excluded from the candidate set for the rest of the run -- the earlier
+    # "give up then come back" was the 90 s temporary timeout re-enabling them.
     frontier_suppression_enabled: true
 
     # Behavior when frontiers exist but all of them are temporarily suppressed:
@@ -199,8 +200,10 @@ frontier_explorer:
     # PRIMARY "rough completion" lever: completion fires only when the raw
     # frontier set is empty, so a larger value makes the explorer ignore small
     # leftover nooks and declare done once the room is roughly covered.
-    # 20 cells @ 0.05 m ~= a 1.0 m unknown edge (rougher; ignores more nooks).
-    min_frontier_size_cells: 20
+    # 25 cells @ 0.05 m ~= a 1.25 m unknown edge. Rough enough to ignore small
+    # unmapped wall slivers / nooks so the run completes once the map is roughly
+    # done, instead of chasing tiny leftover frontiers.
+    min_frontier_size_cells: 25
 
     # Spatial sigma of the bilateral filter in map cells.
     # Larger values smooth over wider neighborhoods before frontier extraction.
@@ -257,11 +260,16 @@ frontier_explorer:
     frontier_suppression_expansion_size_m: 0.5
 
     # Suppression entry lifetime in seconds before old regions and attempts are removed.
-    frontier_suppression_timeout_s: 90.0
+    # Effectively PERMANENT (~28 h): once an area is suppressed it stays excluded
+    # from the candidate set for the whole run, so the robot never returns to a
+    # spot it already gave up on.
+    frontier_suppression_timeout_s: 100000.0
 
     # Maximum allowed time in seconds without meaningful progress before a frontier goal is canceled.
-    # Shortened so the robot abandons an unreachable/narrow frontier quickly.
-    frontier_suppression_no_progress_timeout_s: 12.0
+    # 20 s (not the earlier eager 12 s) so the robot really tries to reach a
+    # frontier before counting a failed attempt -- only genuinely stuck ones
+    # accumulate attempts and get (permanently) suppressed.
+    frontier_suppression_no_progress_timeout_s: 20.0
 
     # Minimum distance_remaining improvement in meters required to count as progress.
     frontier_suppression_progress_epsilon_m: 0.25

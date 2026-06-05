@@ -202,10 +202,13 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        # Keep-away buffer around obstacles. 0.70 was too conservative (blocked
-        # narrow gaps); 0.10 was too tight (robot wedged against walls and
-        # stalled). 0.25 is the middle ground: passes most gaps without wedging.
-        inflation_radius: 0.25
+        # Keep-away buffer around obstacles. Kept at the original 0.70: it gives a
+        # smooth, wide cost gradient so ONE route is clearly preferred. Lowering it
+        # flattened the cost field in open areas, making near-equal routes tie and
+        # the global path flip-flop (robot dithered left/right). Narrow-spot access
+        # is handled by frontier suppression (abandon + explore elsewhere), not by
+        # shrinking this.
+        inflation_radius: 0.70
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -262,8 +265,8 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        # See local_costmap note: tight keep-away buffer for narrow gaps.
-        inflation_radius: 0.25
+        # See local_costmap note: original 0.70 for stable global paths.
+        inflation_radius: 0.70
       always_send_full_costmap: True
 
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
@@ -289,7 +292,11 @@ planner_server:
       plugin: "nav2_navfn_planner::NavfnPlanner"
       tolerance: 0.5
       use_astar: false
-      allow_unknown: true
+      # false: don't route the global path through unknown cells. In the sealed
+      # room, unmapped gaps in a wall are 'unknown', and allow_unknown=true let
+      # the planner draw paths through them to the (unreachable) outside. Frontier
+      # goals inside the room are still reachable through known-free space.
+      allow_unknown: false
 
 smoother_server:
   ros__parameters:

@@ -1,9 +1,15 @@
 blk360_stop_scan_sequencer:
   ros__parameters:
-    # Straight-line distance (metres) in the global map frame from the last scan
-    # pose before taking the next BLK360 scan. NOT path length travelled -- the
-    # robot may wander, only its net displacement from the last scan counts.
-    scan_interval_m: 3.0
+    # Distance factor: straight-line metres (map frame) travelled between
+    # *evaluating* whether to scan (a scan candidate is raised this often).
+    scan_interval_m: 2.0
+    # Coverage factor: rough effective coverage radius of a BLK360-G1 scan. A
+    # candidate within this radius of any previous scan is treated as already
+    # covered and SKIPPED, so scans end up ~this far apart (less overlap than a
+    # pure distance trigger) while still overlapping enough for registration.
+    # BLK360-G1 ranges to ~60 m, but this is the useful/registerable radius, not
+    # the max laser range. Bigger -> sparser scans; smaller -> denser/more overlap.
+    scan_coverage_radius_m: 4.0
 
     # Frames used to measure travel distance via TF.
     global_frame: map

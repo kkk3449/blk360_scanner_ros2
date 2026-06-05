@@ -41,6 +41,12 @@ Visualization Manager:
       Enabled: true
       Topic:
         Value: /explore/frontiers
+    - Class: rviz_default_plugins/MarkerArray
+      Name: ScanCoverage
+      Enabled: true
+      Topic:
+        Value: /blk360/scan_coverage
+        Durability Policy: Transient Local
     - Class: rviz_default_plugins/Path
       Name: GlobalPlan
       Enabled: true

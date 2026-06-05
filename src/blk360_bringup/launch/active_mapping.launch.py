@@ -41,6 +41,7 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz")
     use_mock_scanner = LaunchConfiguration("use_mock_scanner")
     scan_interval_m = LaunchConfiguration("scan_interval_m")
+    scan_coverage_radius_m = LaunchConfiguration("scan_coverage_radius_m")
     fail_first_n_scans = LaunchConfiguration("fail_first_n_scans")
     mock_scan_duration_s = LaunchConfiguration("mock_scan_duration_s")
     mock_download_duration_s = LaunchConfiguration("mock_download_duration_s")
@@ -53,7 +54,8 @@ def generate_launch_description():
         DeclareLaunchArgument("use_sim_time", default_value="true"),
         DeclareLaunchArgument("use_rviz", default_value="true"),
         DeclareLaunchArgument("use_mock_scanner", default_value="true"),
-        DeclareLaunchArgument("scan_interval_m", default_value="3.0"),
+        DeclareLaunchArgument("scan_interval_m", default_value="2.0"),
+        DeclareLaunchArgument("scan_coverage_radius_m", default_value="4.0"),
         DeclareLaunchArgument("fail_first_n_scans", default_value="0"),
         DeclareLaunchArgument("mock_scan_duration_s", default_value="4.0"),
         DeclareLaunchArgument("mock_download_duration_s", default_value="10.0"),
@@ -118,6 +120,7 @@ def generate_launch_description():
                 {
                     "use_sim_time": use_sim_time,
                     "scan_interval_m": scan_interval_m,
+                    "scan_coverage_radius_m": scan_coverage_radius_m,
                 },
             ],
         ),

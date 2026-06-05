@@ -35,9 +35,13 @@ import math
 import os
 import time
 
+import colorsys
+
 import rclpy
 from geometry_msgs.msg import TransformStamped  # noqa: F401  (documentation)
 from nav_msgs.msg import Odometry
+from std_msgs.msg import ColorRGBA
+from visualization_msgs.msg import Marker, MarkerArray
 from rclpy.node import Node
 from rclpy.duration import Duration
 from rclpy.executors import ExternalShutdownException
@@ -65,7 +69,19 @@ class StopScanSequencer(Node):
         super().__init__("blk360_stop_scan_sequencer")
 
         # --- Parameters ---
+        # Distance factor: how far the robot travels (straight line, map frame)
+        # between *evaluating* whether to scan. A scan candidate is raised every
+        # this many metres.
         self.scan_interval_m = self.declare_parameter("scan_interval_m", 2.0).value
+        # Coverage factor: rough effective coverage radius of a BLK360-G1 scan for
+        # registration purposes. A candidate whose position lies within this radius
+        # of any previous scan is considered already covered and is SKIPPED -- so
+        # scans end up ~this far apart (less overlap than pure distance), while
+        # still close enough to overlap for registration. (BLK360-G1 ranges to
+        # ~60 m but accuracy/occlusion limit the useful, dense, registerable area;
+        # this is that rough effective radius, not the max laser range.)
+        self.scan_coverage_radius_m = self.declare_parameter(
+            "scan_coverage_radius_m", 4.0).value
         self.global_frame = self.declare_parameter("global_frame", "map").value
         self.robot_base_frame = self.declare_parameter("robot_base_frame", "base_footprint").value
         self.odom_topic = self.declare_parameter("odom_topic", "/odom").value
@@ -119,7 +135,9 @@ class StopScanSequencer(Node):
 
         # --- State ---
         self.state = INIT
-        self._last_scan_xy = None        # map-frame pose of the last scan (#1 metric)
+        self._last_scan_xy = None        # reference pose for the next candidate
+        self.scan_positions = []         # (x,y) map-frame centres of taken scans
+        self.scans_skipped = 0           # candidates skipped as already-covered
         self.last_speed = 0.0
         self.scan_count = 0              # physical scans taken (CAPTURED)
         self.retry_count = 0
@@ -173,15 +191,18 @@ class StopScanSequencer(Node):
         # Latched Bool: false now, true once finished.
         self.done_pub = self.create_publisher(Bool, self.done_topic, completion_qos)
         self.done_pub.publish(Bool(data=False))
+        # Latched per-scan coverage markers (colored disks + centres) for RViz.
+        self.coverage_pub = self.create_publisher(
+            MarkerArray, "/blk360/scan_coverage", completion_qos)
 
         self.control_cli = self.create_client(ControlExploration, self.control_service_name)
 
         self.timer = self.create_timer(1.0 / max(self.control_rate_hz, 1.0), self._tick)
 
         self.get_logger().info(
-            f"BLK360 stop-scan sequencer up. interval={self.scan_interval_m} m, "
-            f"scan_at_start={self.scan_at_start}, max_retries={self.max_scan_retries}, "
-            f"control_service='{self.control_service_name}'")
+            f"BLK360 stop-scan sequencer up. candidate every {self.scan_interval_m} m, "
+            f"skip if within coverage R={self.scan_coverage_radius_m} m, "
+            f"scan_at_start={self.scan_at_start}, max_retries={self.max_scan_retries}.")
 
     # ------------------------------------------------------------------ IO
     def _on_odom(self, msg: Odometry):
@@ -335,6 +356,7 @@ class StopScanSequencer(Node):
             f"BLK360 STOP-SCAN SUMMARY  ({reason})",
             f"  Scan-completion time : {total:.1f} s  ({mm}m {ss:04.1f}s, sim clock)",
             f"  BLK360 scans taken   : {self.scan_count}",
+            f"  Scans skipped (cover): {self.scans_skipped}",
             f"  Downloads completed  : {self.downloads_done}",
         ]
         if self.scan_times:
@@ -404,11 +426,89 @@ class StopScanSequencer(Node):
 
     def _tick_exploring(self):
         # Completion is handled centrally in _tick (works from any state).
+        # Distance factor: evaluate a scan candidate every scan_interval_m.
         d = self._displacement_from_last_scan()
-        if d >= self.scan_interval_m:
+        if d < self.scan_interval_m:
+            return
+        xy = self._current_xy()
+        self._mark_scan_pose()   # re-measure the next candidate from here
+        # Coverage factor: skip if this spot is already inside a previous scan.
+        d_near = self._dist_to_nearest_scan(xy)
+        if xy is not None and d_near < self.scan_coverage_radius_m:
+            self.scans_skipped += 1
             self.get_logger().info(
-                f"{d:.2f} m from last scan (>= {self.scan_interval_m} m): stopping to scan.")
-            self._begin_stop()
+                f"Candidate at {d:.1f} m moved, but {d_near:.1f} m from a previous scan "
+                f"(< R={self.scan_coverage_radius_m:.1f} m): already covered, skipping "
+                f"(skips={self.scans_skipped}).")
+            return
+        self.get_logger().info(
+            f"Candidate at {d:.1f} m moved, {d_near:.1f} m from nearest scan "
+            f"(>= R): stopping to scan.")
+        self._begin_stop()
+
+    def _dist_to_nearest_scan(self, xy):
+        if xy is None or not self.scan_positions:
+            return float("inf")
+        return min(math.dist(xy, p) for p in self.scan_positions)
+
+    # ----------------------------------------------- coverage markers
+    def _scan_color(self, i):
+        """Distinct color per scan index (golden-ratio hue spacing)."""
+        return colorsys.hsv_to_rgb((i * 0.6180339887) % 1.0, 0.85, 0.95)
+
+    def _publish_coverage_markers(self):
+        arr = MarkerArray()
+        now = self.get_clock().now().to_msg()
+        R = self.scan_coverage_radius_m
+        for i, (x, y) in enumerate(self.scan_positions):
+            r, g, b = self._scan_color(i)
+            disk = Marker()
+            disk.header.frame_id = self.global_frame
+            disk.header.stamp = now
+            disk.ns = "scan_coverage"
+            disk.id = i
+            disk.type = Marker.CYLINDER
+            disk.action = Marker.ADD
+            disk.pose.position.x = float(x)
+            disk.pose.position.y = float(y)
+            disk.pose.position.z = 0.01
+            disk.pose.orientation.w = 1.0
+            disk.scale.x = disk.scale.y = 2.0 * R
+            disk.scale.z = 0.02
+            disk.color = ColorRGBA(r=float(r), g=float(g), b=float(b), a=0.18)
+            arr.markers.append(disk)
+
+            ctr = Marker()
+            ctr.header.frame_id = self.global_frame
+            ctr.header.stamp = now
+            ctr.ns = "scan_center"
+            ctr.id = i
+            ctr.type = Marker.SPHERE
+            ctr.action = Marker.ADD
+            ctr.pose.position.x = float(x)
+            ctr.pose.position.y = float(y)
+            ctr.pose.position.z = 0.15
+            ctr.pose.orientation.w = 1.0
+            ctr.scale.x = ctr.scale.y = ctr.scale.z = 0.3
+            ctr.color = ColorRGBA(r=float(r), g=float(g), b=float(b), a=0.95)
+            arr.markers.append(ctr)
+
+            txt = Marker()
+            txt.header.frame_id = self.global_frame
+            txt.header.stamp = now
+            txt.ns = "scan_label"
+            txt.id = i
+            txt.type = Marker.TEXT_VIEW_FACING
+            txt.action = Marker.ADD
+            txt.pose.position.x = float(x)
+            txt.pose.position.y = float(y)
+            txt.pose.position.z = 0.5
+            txt.pose.orientation.w = 1.0
+            txt.scale.z = 0.4
+            txt.color = ColorRGBA(r=1.0, g=1.0, b=1.0, a=0.95)
+            txt.text = f"#{i + 1}"
+            arr.markers.append(txt)
+        self.coverage_pub.publish(arr)
 
     def _begin_stop(self):
         self._stop_sent = False
@@ -480,6 +580,11 @@ class StopScanSequencer(Node):
                 t = self._elapsed_since_start()
                 self.scan_times.append(round(t, 1))
                 self._t_capture_settle = self.get_clock().now()
+                # Remember + visualize where this scan was taken.
+                pos = self._current_xy() or self._last_scan_xy
+                if pos is not None:
+                    self.scan_positions.append(pos)
+                    self._publish_coverage_markers()
                 if self._download_instant:
                     self.get_logger().info(
                         f"Scan #{self.scan_count} done at t={t:.1f}s (single-phase scanner).")
