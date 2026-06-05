@@ -43,6 +43,7 @@ def generate_launch_description():
     scan_interval_m = LaunchConfiguration("scan_interval_m")
     fail_first_n_scans = LaunchConfiguration("fail_first_n_scans")
     mock_scan_duration_s = LaunchConfiguration("mock_scan_duration_s")
+    mock_download_duration_s = LaunchConfiguration("mock_download_duration_s")
     device_address = LaunchConfiguration("device_address")
     output_dir = LaunchConfiguration("output_dir")
 
@@ -52,11 +53,16 @@ def generate_launch_description():
         DeclareLaunchArgument("use_sim_time", default_value="true"),
         DeclareLaunchArgument("use_rviz", default_value="true"),
         DeclareLaunchArgument("use_mock_scanner", default_value="true"),
-        DeclareLaunchArgument("scan_interval_m", default_value="2.0"),
+        DeclareLaunchArgument("scan_interval_m", default_value="3.0"),
         DeclareLaunchArgument("fail_first_n_scans", default_value="0"),
         DeclareLaunchArgument("mock_scan_duration_s", default_value="4.0"),
+        DeclareLaunchArgument("mock_download_duration_s", default_value="10.0"),
         DeclareLaunchArgument("device_address", default_value="192.168.10.90:8081"),
         DeclareLaunchArgument("output_dir", default_value="scans"),
+        # exploration_monitor: stall-based early stop (no ground-truth needed).
+        DeclareLaunchArgument("auto_stop_on_stall", default_value="true"),
+        DeclareLaunchArgument("stall_timeout_s", default_value="300.0"),
+        DeclareLaunchArgument("min_progress_cells", default_value="80"),
 
         # --- Mapping / navigation / exploration ---
         IncludeLaunchDescription(
@@ -79,6 +85,7 @@ def generate_launch_description():
                     parameters=[{
                         "use_sim_time": use_sim_time,
                         "scan_duration_s": mock_scan_duration_s,
+                        "download_duration_s": mock_download_duration_s,
                         "fail_first_n_scans": fail_first_n_scans,
                     }],
                 ),
@@ -113,5 +120,19 @@ def generate_launch_description():
                     "scan_interval_m": scan_interval_m,
                 },
             ],
+        ),
+
+        # --- Exploration progress monitor + stall-based early stop ---
+        Node(
+            package="blk360_stop_scan",
+            executable="exploration_monitor",
+            name="exploration_monitor",
+            output="screen",
+            parameters=[{
+                "use_sim_time": use_sim_time,
+                "auto_stop": LaunchConfiguration("auto_stop_on_stall"),
+                "stall_timeout_s": LaunchConfiguration("stall_timeout_s"),
+                "min_progress_cells": LaunchConfiguration("min_progress_cells"),
+            }],
         ),
     ])

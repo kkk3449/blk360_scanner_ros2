@@ -6,7 +6,8 @@
 //
 // Topics:
 //   sub  /blk360/scan_trigger  (std_msgs/String)  -> start scan when data == trigger_command
-//   pub  /blk360/scan_status    (std_msgs/String)  -> IDLE | SCANNING | DONE | ERROR
+//   pub  /blk360/scan_status    (std_msgs/String)  -> IDLE | SCANNING | CAPTURED | DONE | ERROR
+//        CAPTURED = physical scan finished (robot may move); DONE = data fully downloaded
 //   pub  /blk360/scan_progress  (std_msgs/String)  -> human readable progress lines
 //
 // Parameters:
@@ -296,6 +297,13 @@ private:
         }
 
         publishProgress("Image panorama for scan " + std::to_string(scanId) + " finished.");
+
+        // The physical capture is done here: the BLK360 no longer needs the robot
+        // to stay still. Everything below (download + colorize + point-cloud
+        // processing) is pure data transfer, so the orchestrator can resume
+        // driving while it runs. CAPTURED marks that hand-off; DONE still fires at
+        // the very end once the data is fully downloaded and written.
+        publishStatus("CAPTURED");
 
         // Stop listening for measurement events, restart a larger queue for downloads.
         Blk360_EventQueue_Release(queue_);

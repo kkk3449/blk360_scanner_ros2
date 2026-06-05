@@ -1,7 +1,9 @@
 blk360_stop_scan_sequencer:
   ros__parameters:
-    # Distance (metres of robot travel) between BLK360 scans.
-    scan_interval_m: 2.0
+    # Straight-line distance (metres) in the global map frame from the last scan
+    # pose before taking the next BLK360 scan. NOT path length travelled -- the
+    # robot may wander, only its net displacement from the last scan counts.
+    scan_interval_m: 3.0
 
     # Frames used to measure travel distance via TF.
     global_frame: map
@@ -11,6 +13,18 @@ blk360_stop_scan_sequencer:
     odom_topic: /odom
     stop_settle_timeout_s: 8.0
     stopped_speed_eps: 0.02
+
+    # After the robot is stopped and the previous scan's download has finished,
+    # wait this long for the BLK360 to stabilize before triggering the next scan.
+    pre_scan_settle_s: 4.0
+    # After a capture (CAPTURED), hold the robot still this long before resuming
+    # so the BLK360 settles before it downloads while the robot drives.
+    post_capture_settle_s: 5.0
+    # End-of-run summary is appended here (empty -> ~/blk360_exploration_summary.log).
+    summary_log_path: ""
+    # Cap on how long to wait at a scan point for a previous download to report
+    # DONE before giving up and scanning anyway (prevents a missed DONE locking up).
+    download_wait_timeout_s: 300.0
 
     # BLK360 scanner interface (matches blk360_scanner node).
     scan_trigger_topic: /blk360/scan_trigger

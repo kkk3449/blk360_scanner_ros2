@@ -25,6 +25,7 @@ setup(
         "console_scripts": [
             "stop_scan_sequencer = blk360_stop_scan.stop_scan_sequencer:main",
             "mock_blk360_scanner = blk360_stop_scan.mock_blk360_scanner:main",
+            "exploration_monitor = blk360_stop_scan.exploration_monitor:main",
         ],
     },
 )
