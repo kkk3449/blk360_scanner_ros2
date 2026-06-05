@@ -40,6 +40,53 @@ CROP_BIAS_BOTTOM = 0.8     # of the rows removed for the crop, fraction taken fr
                            # the bottom (low y). 0.5=symmetric, ->1.0 keeps the top.
 TOP_TRIM_EXTRA = 7         # extra cells trimmed off the top (high y) only, after
                            # the crop, leaving the bottom edge unchanged (~0.35 m).
+# Declutter: remove free-standing interior obstacle islands (furniture) smaller
+# than a cell-count threshold so the sim is less cramped. Perimeter-connected
+# structure (walls) is always kept. The left fraction of the room (a cluttered
+# scan region) is decluttered more aggressively.
+DECLUTTER_MIN_CELLS = 150
+LEFT_DECLUTTER_FRAC = 0.35
+LEFT_DECLUTTER_MIN_CELLS = 500
+
+
+def declutter(occ, r0, r1, c0, c1):
+    """Remove free-standing interior obstacle islands (furniture) below a size
+    threshold; anything connected to the perimeter (walls) is kept. The left
+    fraction of the room is decluttered with a larger threshold."""
+    H, W = occ.shape
+    left_x = c0 + (c1 - c0) * LEFT_DECLUTTER_FRAC
+    seen = np.zeros_like(occ, dtype=bool)
+    removed = removed_cells = 0
+    ys, xs = np.where(occ)
+    for y0, x0 in zip(ys.tolist(), xs.tolist()):
+        if seen[y0, x0]:
+            continue
+        comp = []
+        touches = False
+        q = deque([(y0, x0)])
+        seen[y0, x0] = True
+        while q:
+            y, x = q.popleft()
+            comp.append((y, x))
+            if y <= r0 + 2 or y >= r1 - 2 or x <= c0 + 2 or x >= c1 - 2:
+                touches = True
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    ny, nx = y + dy, x + dx
+                    if 0 <= ny < H and 0 <= nx < W and occ[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True
+                        q.append((ny, nx))
+        if touches:
+            continue  # perimeter-connected structure -> keep
+        cx = sum(x for _, x in comp) / len(comp)
+        thresh = LEFT_DECLUTTER_MIN_CELLS if cx < left_x else DECLUTTER_MIN_CELLS
+        if len(comp) < thresh:
+            for y, x in comp:
+                occ[y, x] = False
+            removed += 1
+            removed_cells += len(comp)
+    print(f"[seal] decluttered {removed} interior islands ({removed_cells} cells)")
+    return occ
 
 
 def longest_free_run(mask_1d):
@@ -123,6 +170,9 @@ def main():
     c0, c1 = int(cols.min()), int(cols.max())
     print(f"[seal] room footprint rows[{r0},{r1}] cols[{c0},{c1}]"
           f"  ({(c1-c0)*res:.1f} x {(r1-r0)*res:.1f} m)")
+
+    # --- declutter interior furniture islands (keep walls) ---
+    occ = declutter(occ, r0, r1, c0, c1)
 
     # --- optional: crop the vertical (Y) extent to a wide landscape rectangle ---
     if LANDSCAPE_ASPECT:

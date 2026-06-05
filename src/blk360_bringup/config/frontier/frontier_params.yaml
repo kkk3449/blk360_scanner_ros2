@@ -93,7 +93,10 @@ frontier_explorer:
 
     # Replan while navigating if target-pose visible reveal gain for active goal is exhausted.
     # Disable if you are having performance issues.
-    goal_preemption_enabled: true
+    # OFF: in tight/cluttered spaces preemption made the robot switch goals
+    # mid-drive and oscillate back to a just-abandoned plan. Committing to the
+    # current frontier until it is reached/blocked removes that thrashing.
+    goal_preemption_enabled: false
 
      # Minimum seconds between consecutive goal preemption attempts.
     # Also effects performance.
@@ -168,7 +171,8 @@ frontier_explorer:
 
     # Distance used to treat a frontier region as recently visited.
     # Use if you are having navigation loops.
-    frontier_visit_tolerance: 0.40
+    # Raised so a just-left frontier isn't immediately re-selected (anti-loop).
+    frontier_visit_tolerance: 0.80
 
 
     # --------------- Map Optimization --------------- #
