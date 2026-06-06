@@ -31,6 +31,7 @@ The node is intentionally decoupled: it never talks to the BLK360 SDK directly
 It only coordinates via the control service, the scan trigger/status topics and
 TF/odom.
 """
+import json
 import math
 import os
 import time
@@ -132,6 +133,11 @@ class StopScanSequencer(Node):
         if not self.summary_log_path:
             self.summary_log_path = os.path.join(
                 os.path.expanduser("~"), "blk360_exploration_summary.log")
+        # Directory for per-run JSON records (scan positions + metrics) used by
+        # scripts/metrics.py. Empty -> ~/blk360_runs.
+        self.run_data_dir = self.declare_parameter("run_data_dir", "").value
+        if not self.run_data_dir:
+            self.run_data_dir = os.path.join(os.path.expanduser("~"), "blk360_runs")
 
         # --- State ---
         self.state = INIT
@@ -379,6 +385,31 @@ class StopScanSequencer(Node):
             log.info(f"Summary appended to {self.summary_log_path}")
         except Exception as exc:  # noqa: BLE001
             log.warn(f"Could not write summary file '{self.summary_log_path}': {exc}")
+        # Structured per-run record (scan positions + metrics) for offline analysis.
+        try:
+            fstamp = time.strftime("%Y%m%d_%H%M%S")
+            os.makedirs(self.run_data_dir, exist_ok=True)
+            record = {
+                "timestamp": stamp,
+                "reason": reason,
+                "completion_time_s": round(total, 2),
+                "scan_count": self.scan_count,
+                "scans_skipped": self.scans_skipped,
+                "downloads_done": self.downloads_done,
+                "total_retries": self.total_retries,
+                "failed_scans": self.failed_scans,
+                "scan_times_s": [round(t, 2) for t in self.scan_times],
+                "scan_positions": [[round(float(x), 3), round(float(y), 3)]
+                                   for (x, y) in self.scan_positions],
+                "scan_interval_m": self.scan_interval_m,
+                "scan_coverage_radius_m": self.scan_coverage_radius_m,
+            }
+            path = os.path.join(self.run_data_dir, f"run_{fstamp}.json")
+            with open(path, "w") as f:
+                json.dump(record, f, indent=2)
+            log.info(f"Run record written to {path}")
+        except Exception as exc:  # noqa: BLE001
+            log.warn(f"Could not write run record: {exc}")
         # Flip the public completion flag to true (latched).
         self.done_pub.publish(Bool(data=True))
         self._set_state(DONE)

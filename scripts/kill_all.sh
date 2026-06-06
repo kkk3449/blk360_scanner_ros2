@@ -6,7 +6,7 @@ for p in "gz sim" "ros_gz" "parameter_bridge" "robot_state_publisher" "image_bri
          "bt_navigator" "behavior_server" "collision_monitor" "velocity_smoother" \
          "lifecycle_manager" "route_server" "smoother_server" "waypoint_follower" \
          "docking_server" "frontier_explorer" "stop_scan_sequencer" "mock_blk360" \
-         "blk360_scanner" "component_container"; do
+         "exploration_monitor" "rviz2" "blk360_scanner" "component_container"; do
   pkill -9 -f "$p" 2>/dev/null
 done
 sleep 2
