@@ -36,7 +36,7 @@ USE_RVIZ=false
 MOCK_SCAN=1.0          # fast mock capture (s)
 MOCK_DL=2.0            # fast mock download (s)
 STALL_TIMEOUT=90.0     # end via stall if frontiers don't fully exhaust
-RUN_TIMEOUT=1500       # hard cap per config (s)
+RUN_TIMEOUT=600        # hard cap per config (s) -> fail fast if it won't finish
 SIM_WARMUP=18          # s to let Gazebo + the robot come up before active_mapping
 
 log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
@@ -87,6 +87,11 @@ for cfg in "${CONFIGS[@]}"; do
   timeout 40 ros2 run nav2_map_server map_saver_cli -f "$OUT/map_${name}" \
       --ros-args -p map_subscribe_transient_local:=true -p use_sim_time:=true \
       >>"$LOG" 2>&1 && log "  map -> $OUT/map_${name}.pgm" || log "  map save failed"
+
+  # Gracefully SIGINT the sequencer so it finalizes and writes its run JSON even
+  # on timeout (a plain SIGKILL would lose the record). No-op if already DONE.
+  pkill -INT -f stop_scan_sequencer 2>/dev/null
+  sleep 6
 
   newest=$(ls -1t "$RUNS"/run_*.json 2>/dev/null | head -1)
   if [ -n "$newest" ]; then
