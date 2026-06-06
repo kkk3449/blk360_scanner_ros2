@@ -65,12 +65,15 @@ def generate_launch_description():
         DeclareLaunchArgument("auto_stop_on_stall", default_value="true"),
         DeclareLaunchArgument("stall_timeout_s", default_value="300.0"),
         DeclareLaunchArgument("min_progress_cells", default_value="80"),
+        DeclareLaunchArgument("frontier_suppression_enabled", default_value="true"),
 
         # --- Mapping / navigation / exploration ---
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(launch_dir / "exploration.launch.py")),
             launch_arguments={
                 "use_sim_time": use_sim_time,
+                "frontier_suppression_enabled":
+                    LaunchConfiguration("frontier_suppression_enabled"),
                 "use_rviz": use_rviz,
             }.items(),
         ),

@@ -21,11 +21,14 @@ LOG="$WS/scripts/last_test/ablation.log"
 mkdir -p "$OUT" "$RUNS" "$(dirname "$LOG")"
 : > "$LOG"
 
+# name | scan_interval_m | scan_coverage_radius_m | frontier_suppression_enabled
 CONFIGS=(
-  "dist_only_3m|3.0|0.0"
-  "cov_R4|2.0|4.0"
-  "cov_R5|2.0|5.0"
-  "cov_R6|2.0|6.0"
+  "dist_only_3m|3.0|0.0|true"
+  "cov_R3|2.0|3.0|true"
+  "cov_R4|2.0|4.0|true"
+  "cov_R5|2.0|5.0|true"
+  "cov_R6|2.0|6.0|true"
+  "cov_R4_nosupp|2.0|4.0|false"
 )
 
 GUI=false
@@ -51,8 +54,8 @@ is_complete() {
 }
 
 for cfg in "${CONFIGS[@]}"; do
-  IFS='|' read -r name interval R <<< "$cfg"
-  log "===== CONFIG $name  (scan_interval_m=$interval  scan_coverage_radius_m=$R) ====="
+  IFS='|' read -r name interval R supp <<< "$cfg"
+  log "===== CONFIG $name  (interval=$interval  R=$R  suppression=$supp) ====="
   kill_stack
 
   log "launching sim (headless)..."
@@ -63,6 +66,7 @@ for cfg in "${CONFIGS[@]}"; do
   nohup ros2 launch blk360_bringup active_mapping.launch.py \
       use_sim_time:=true use_rviz:=$USE_RVIZ \
       scan_interval_m:=$interval scan_coverage_radius_m:=$R \
+      frontier_suppression_enabled:=$supp \
       mock_scan_duration_s:=$MOCK_SCAN mock_download_duration_s:=$MOCK_DL \
       stall_timeout_s:=$STALL_TIMEOUT >>"$LOG" 2>&1 &
 
@@ -74,9 +78,19 @@ for cfg in "${CONFIGS[@]}"; do
   done
   (( SECONDS - t0 >= RUN_TIMEOUT )) && log "  -> TIMEOUT (collecting whatever was written)"
 
+  # Save the final SLAM map (for GT comparison) while /map is still alive.
+  log "saving SLAM map..."
+  timeout 40 ros2 run nav2_map_server map_saver_cli -f "$OUT/map_${name}" \
+      --ros-args -p map_subscribe_transient_local:=true -p use_sim_time:=true \
+      >>"$LOG" 2>&1 && log "  map -> $OUT/map_${name}.pgm" || log "  map save failed"
+
   newest=$(ls -1t "$RUNS"/run_*.json 2>/dev/null | head -1)
   if [ -n "$newest" ]; then
     cp "$newest" "$OUT/run_${name}.json"
+    # tag the record with the config so metrics.py can report it
+    "$WS/.e57venv/bin/python" -c "import json,sys; p=sys.argv[1]; d=json.load(open(p)); \
+d['config_name']=sys.argv[2]; d['frontier_suppression_enabled']=(sys.argv[3]=='true'); \
+json.dump(d,open(p,'w'),indent=2)" "$OUT/run_${name}.json" "$name" "$supp"
     log "  collected -> $OUT/run_${name}.json ($(basename "$newest"))"
   else
     log "  WARNING: no run JSON produced for $name"

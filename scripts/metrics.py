@@ -66,12 +66,73 @@ def load_gt(yaml_path):
     img = read_pgm(os.path.join(os.path.dirname(yaml_path), img_name))
     H, W = img.shape
     free = img >= 250
+    occ = img <= 50
     rr, cc = np.where(free)                # image rows (0=top) / cols
     # ROS map: row 0 of the pgm is the TOP (highest y) due to the vertical flip.
     fx = xmin + (cc + 0.5) * res
     fy = ymin + (H - 1 - rr + 0.5) * res
     return {"Fx": fx, "Fy": fy, "res": res,
+            "free_mask": free, "occ_mask": occ,
             "free_area": float(free.sum()) * res * res}
+
+
+def _read_map(yaml_path):
+    res, img_name = 0.05, None
+    for line in open(yaml_path):
+        line = line.strip()
+        if line.startswith("resolution:"):
+            res = float(line.split(":")[1])
+        elif line.startswith("image:"):
+            img_name = line.split(":", 1)[1].strip()
+    img = read_pgm(os.path.join(os.path.dirname(yaml_path), img_name))
+    return img, res
+
+
+def _best_shift(occ_a, occ_b):
+    """Integer (dy, dx) translation so occ_b aligned onto occ_a (cross-corr peak).
+    Assumes ~no rotation (true for Cartographer started axis-aligned in sim)."""
+    from scipy.signal import fftconvolve
+    corr = fftconvolve(occ_a.astype(float), occ_b[::-1, ::-1].astype(float), mode="full")
+    pk = np.unravel_index(int(np.argmax(corr)), corr.shape)
+    return pk[0] - (occ_b.shape[0] - 1), pk[1] - (occ_b.shape[1] - 1)
+
+
+def _apply_shift(mask, dy, dx, shape):
+    out = np.zeros(shape, dtype=bool)
+    OH, OW = shape
+    m0, m1 = max(0, dy), min(OH, mask.shape[0] + dy)
+    n0, n1 = max(0, dx), min(OW, mask.shape[1] + dx)
+    if m1 > m0 and n1 > n0:
+        out[m0:m1, n0:n1] = mask[m0 - dy:m1 - dy, n0 - dx:n1 - dx]
+    return out
+
+
+def map_quality(slam_yaml, gt):
+    """Compare a saved SLAM map to the GT map after translation alignment.
+    Returns free-space IoU, GT-free coverage %, and wall RMSE (m)."""
+    from scipy.ndimage import distance_transform_edt
+    img, res = _read_map(slam_yaml)
+    free_s_raw = img >= 250
+    occ_s_raw = img <= 50
+    free_g, occ_g = gt["free_mask"], gt["occ_mask"]
+    shape = free_g.shape
+    dy, dx = _best_shift(occ_g, occ_s_raw)
+    free_s = _apply_shift(free_s_raw, dy, dx, shape)
+    occ_s = _apply_shift(occ_s_raw, dy, dx, shape)
+    inter = np.logical_and(free_g, free_s).sum()
+    union = np.logical_or(free_g, free_s).sum()
+    iou = float(inter) / float(union) if union else 0.0
+    coverage = float(np.logical_and(free_g, free_s).sum()) / float(free_g.sum()) \
+        if free_g.sum() else 0.0
+    # wall RMSE: distance from each GT wall cell to the nearest SLAM wall cell.
+    if occ_s.any() and occ_g.any():
+        dist = distance_transform_edt(~occ_s) * gt["res"]
+        rmse = float(np.sqrt(np.mean(dist[occ_g] ** 2)))
+    else:
+        rmse = float("nan")
+    return {"iou_free": round(iou, 3),
+            "gt_coverage_pct": round(100.0 * coverage, 1),
+            "wall_rmse_m": round(rmse, 3)}
 
 
 def room_coverage_aligned(positions, R, gt):
@@ -121,7 +182,7 @@ def nn_separations(positions):
     return out
 
 
-def run_metrics(rec, gt):
+def run_metrics(rec, gt, slam_yaml=None):
     pos = [tuple(p) for p in rec.get("scan_positions", [])]
     R = float(rec.get("scan_coverage_radius_m", 4.0))
     n = len(pos)
@@ -129,7 +190,8 @@ def run_metrics(rec, gt):
     a_sum = n * math.pi * R * R
     seps = nn_separations(pos)
     room_cov = room_coverage_aligned(pos, R, gt)
-    return {
+    out = {
+        "config": rec.get("config_name", ""),
         "timestamp": rec.get("timestamp", ""),
         "reason": rec.get("reason", ""),
         "scans": n,
@@ -137,6 +199,7 @@ def run_metrics(rec, gt):
         "completion_s": rec.get("completion_time_s", 0.0),
         "R_m": R,
         "interval_m": rec.get("scan_interval_m", 0.0),
+        "suppression": rec.get("frontier_suppression_enabled", ""),
         "nn_sep_min_m": round(min(seps), 2) if seps else 0.0,
         "nn_sep_mean_m": round(sum(seps) / len(seps), 2) if seps else 0.0,
         "nn_sep_max_m": round(max(seps), 2) if seps else 0.0,
@@ -145,7 +208,14 @@ def run_metrics(rec, gt):
         "overlap_ratio": round(1.0 - a_cov / a_sum, 3) if a_sum > 0 else 0.0,
         "area_per_scan_m2": round(a_cov / n, 1) if n else 0.0,
         "room_coverage_pct": round(100.0 * room_cov, 1),
+        "iou_free": "", "gt_coverage_pct": "", "wall_rmse_m": "",
     }
+    if slam_yaml and os.path.exists(slam_yaml) and gt is not None:
+        try:
+            out.update(map_quality(slam_yaml, gt))
+        except Exception as exc:  # noqa: BLE001
+            print(f"[metrics] map quality failed for {os.path.basename(slam_yaml)}: {exc}")
+    return out
 
 
 def plot_run(rec, metrics, out_png):
@@ -225,18 +295,23 @@ def main():
     rows = []
     for fp in files:
         rec = json.load(open(fp))
-        m = run_metrics(rec, gt)
-        m["file"] = os.path.basename(fp)
+        base = os.path.basename(fp)
+        # sibling SLAM map saved by ablation.sh: run_<name>.json -> map_<name>.yaml
+        map_yaml = os.path.join(args.runs_dir,
+                                base.replace("run_", "map_").replace(".json", ".yaml"))
+        m = run_metrics(rec, gt, map_yaml if os.path.exists(map_yaml) else None)
+        m["file"] = base
         rows.append(m)
-        png = os.path.join(args.out, os.path.basename(fp).replace(".json", ".png"))
+        png = os.path.join(args.out, base.replace(".json", ".png"))
         if plot_run(rec, m, png):
             print(f"[metrics] figure -> {png}")
 
     if rows:
-        cols = ["file", "timestamp", "reason", "scans", "skipped", "completion_s",
-                "R_m", "interval_m", "nn_sep_min_m", "nn_sep_mean_m", "nn_sep_max_m",
+        cols = ["config", "file", "timestamp", "reason", "scans", "skipped",
+                "completion_s", "R_m", "interval_m", "suppression",
+                "nn_sep_min_m", "nn_sep_mean_m", "nn_sep_max_m",
                 "A_cov_m2", "A_sum_m2", "overlap_ratio", "area_per_scan_m2",
-                "room_coverage_pct"]
+                "room_coverage_pct", "iou_free", "gt_coverage_pct", "wall_rmse_m"]
         csv_path = os.path.join(args.out, "runs_metrics.csv")
         with open(csv_path, "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=cols)
@@ -245,11 +320,11 @@ def main():
                 w.writerow({k: r.get(k, "") for k in cols})
         print(f"[metrics] wrote {csv_path}  ({len(rows)} runs with positions)")
         print()
-        hdr = ["scans", "skipped", "completion_s", "R_m", "nn_sep_mean_m",
-               "A_cov_m2", "overlap_ratio", "room_coverage_pct"]
-        print("  " + "  ".join(f"{h:>14}" for h in hdr))
+        hdr = ["config", "scans", "skipped", "completion_s", "R_m", "suppression",
+               "overlap_ratio", "room_coverage_pct", "iou_free", "wall_rmse_m"]
+        print("  " + "  ".join(f"{h:>13}" for h in hdr))
         for r in rows:
-            print("  " + "  ".join(f"{str(r[h]):>14}" for h in hdr))
+            print("  " + "  ".join(f"{str(r.get(h, '')):>13}" for h in hdr))
     else:
         print(f"[metrics] no run_*.json in {args.runs_dir} yet "
               "(a completed run with the updated sequencer creates one).")

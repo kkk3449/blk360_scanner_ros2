@@ -20,6 +20,7 @@ from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -30,6 +31,9 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz")
     frontier_params = LaunchConfiguration("frontier_params")
     nav2_params = LaunchConfiguration("nav2_params")
+    # Override of frontier_suppression_enabled (for ablation); empty -> use the
+    # value from frontier_params.yaml.
+    suppression = LaunchConfiguration("frontier_suppression_enabled")
 
     default_frontier_params = str(Path(bringup_share) / "config" / "frontier" / "frontier_params.yaml")
     default_nav2_params = str(Path(bringup_share) / "config" / "nav2" / "nav2_params.yaml")
@@ -43,6 +47,8 @@ def generate_launch_description():
         DeclareLaunchArgument("use_rviz", default_value="true"),
         DeclareLaunchArgument("frontier_params", default_value=default_frontier_params),
         DeclareLaunchArgument("nav2_params", default_value=default_nav2_params),
+        # Matches the yaml default; ablation flips it to compare suppression on/off.
+        DeclareLaunchArgument("frontier_suppression_enabled", default_value="true"),
 
         # Cartographer 2D SLAM -> /map + map->odom TF
         IncludeLaunchDescription(
@@ -67,7 +73,11 @@ def generate_launch_description():
             executable="frontier_explorer",
             name="frontier_explorer",
             output="screen",
-            parameters=[frontier_params, {"use_sim_time": use_sim_time}],
+            parameters=[
+                frontier_params,
+                {"use_sim_time": use_sim_time,
+                 "frontier_suppression_enabled": ParameterValue(suppression, value_type=bool)},
+            ],
         ),
 
         GroupAction(
