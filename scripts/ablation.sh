@@ -41,8 +41,12 @@ SIM_WARMUP=18          # s to let Gazebo + the robot come up before active_mappi
 
 log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 
+# ROS setup scripts reference unset vars; sourcing them under `set -u` exits the
+# whole script. Disable -u just for the sourcing.
+set +u
 source /opt/ros/jazzy/setup.bash 2>/dev/null
 source "$WS/install/setup.bash" 2>/dev/null
+set -u
 
 kill_stack() { bash "$WS/scripts/kill_all.sh" >>"$LOG" 2>&1; sleep 4; }
 
