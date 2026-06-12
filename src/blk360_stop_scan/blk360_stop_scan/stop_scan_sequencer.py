@@ -38,9 +38,13 @@ import time
 
 import colorsys
 
+import numpy as np
 import rclpy
-from geometry_msgs.msg import TransformStamped  # noqa: F401  (documentation)
-from nav_msgs.msg import Odometry
+from action_msgs.msg import GoalStatus
+from geometry_msgs.msg import Point, PoseStamped, TransformStamped  # noqa: F401
+from nav2_msgs.action import NavigateToPose
+from nav_msgs.msg import OccupancyGrid, Odometry
+from rclpy.action import ActionClient
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker, MarkerArray
 from rclpy.node import Node
@@ -53,6 +57,9 @@ from tf2_ros import Buffer, TransformListener, LookupException, ConnectivityExce
 
 from frontier_exploration_ros2.srv import ControlExploration
 
+from blk360_stop_scan.visibility import (
+    new_visible_ratio, union_visible_mask, visible_mask)
+
 
 # FSM states
 INIT = "INIT"
@@ -61,6 +68,7 @@ STOPPING = "STOPPING"
 SCANNING = "SCANNING"
 RECONNECT = "RECONNECT"
 RESUMING = "RESUMING"
+COVERING = "COVERING"   # coverage-completion: driving to an uncovered pocket
 ABORTED = "ABORTED"
 DONE = "DONE"
 
@@ -83,6 +91,49 @@ class StopScanSequencer(Node):
         # this is that rough effective radius, not the max laser range.)
         self.scan_coverage_radius_m = self.declare_parameter(
             "scan_coverage_radius_m", 4.0).value
+        # Coverage model for the skip decision:
+        #   "disk"       -- isotropic: candidate within R of any prior scan is
+        #                   covered (ignores walls; legacy behaviour).
+        #   "visibility" -- occlusion-aware: covered area is the union of
+        #                   ray-cast visibility regions B(s_i, R) on the live
+        #                   occupancy map; a candidate is skipped when the
+        #                   NEW visible area its own region B(c, R) would add
+        #                   is below `min_new_visible_ratio` of |B(c, R)|.
+        self.coverage_model = self.declare_parameter("coverage_model", "disk").value
+        # Rays per visibility region (angular resolution = 360/num_rays deg).
+        self.visibility_num_rays = self.declare_parameter(
+            "visibility_num_rays", 720).value
+        # Marginal-gain thresholds: a candidate triggers a scan when EITHER
+        # criterion says the scan is worthwhile --
+        #   ratio: the fraction of B(c,R) that is new  >= min_new_visible_ratio
+        #   area : the absolute new visible area (m^2) >= min_new_visible_area_m2
+        # The area criterion keeps small occlusion pockets (shadows behind
+        # obstacles) scannable even when they are a small fraction of a large
+        # sensor footprint (with BLK360-scale R the ratio alone dilutes).
+        self.min_new_visible_ratio = self.declare_parameter(
+            "min_new_visible_ratio", 0.30).value
+        self.min_new_visible_area_m2 = self.declare_parameter(
+            "min_new_visible_area_m2", 5.0).value
+        # Occupancy value (0-100) at/above which a cell blocks a ray.
+        self.occupied_thresh = self.declare_parameter("occupied_thresh", 65).value
+        # Unknown cells block rays (conservative: never claim coverage of
+        # space the map has not confirmed free).
+        self.unknown_blocks_ray = self.declare_parameter(
+            "unknown_blocks_ray", True).value
+        self.map_topic = self.declare_parameter("map_topic", "/map").value
+        # Coverage completion (visibility model only): when frontier exploration
+        # finishes, do NOT finalize while uncovered free-space pockets remain.
+        # Cluster the uncovered cells, drive into each pocket with Nav2, scan,
+        # and repeat until every pocket smaller than `min_pocket_area_m2` --
+        # i.e. no white left in the BLK coverage map.
+        self.coverage_completion = self.declare_parameter(
+            "coverage_completion", False).value
+        self.min_pocket_area_m2 = self.declare_parameter(
+            "min_pocket_area_m2", 1.0).value
+        self.covering_nav_timeout_s = self.declare_parameter(
+            "covering_nav_timeout_s", 90.0).value
+        self.covering_max_scans = self.declare_parameter(
+            "covering_max_scans", 8).value
         self.global_frame = self.declare_parameter("global_frame", "map").value
         self.robot_base_frame = self.declare_parameter("robot_base_frame", "base_footprint").value
         self.odom_topic = self.declare_parameter("odom_topic", "/odom").value
@@ -143,7 +194,22 @@ class StopScanSequencer(Node):
         self.state = INIT
         self._last_scan_xy = None        # reference pose for the next candidate
         self.scan_positions = []         # (x,y) map-frame centres of taken scans
+        self.scan_polygons = []          # per-scan visibility polygon (Nx2) or None
+        self.skip_events = []            # per-candidate decision log (for analysis)
         self.scans_skipped = 0           # candidates skipped as already-covered
+        # Latest occupancy map (visibility model input).
+        self._map_grid = None            # int16 (H, W), -1 unknown / 0..100
+        self._map_res = None
+        self._map_origin = None
+        # Coverage-completion phase state.
+        self._covering = False           # in the coverage-completion phase
+        self._cover_pending = False      # completion arrived; start when stable
+        self._cover_done = False         # Nav2 reached the current pocket
+        self._cover_failed = False       # Nav2 rejected/aborted the goal
+        self._cover_goal_handle = None
+        self._cover_target = None        # (x, y) of the current pocket goal
+        self._failed_targets = []        # pocket goals Nav2 could not reach
+        self.covering_scans = 0          # scans taken during coverage completion
         self.last_speed = 0.0
         self.scan_count = 0              # physical scans taken (CAPTURED)
         self.retry_count = 0
@@ -174,6 +240,7 @@ class StopScanSequencer(Node):
         self._start_sent = False
         self._trigger_sent = False
         self._t_state_enter = self.get_clock().now()
+        self._t_last_marker = None
         self._t_scan_sent = None
         self._t_retry_until = None
         self._control_pending = False
@@ -202,15 +269,38 @@ class StopScanSequencer(Node):
             MarkerArray, "/blk360/scan_coverage", completion_qos)
 
         self.control_cli = self.create_client(ControlExploration, self.control_service_name)
+        # Direct Nav2 access for the coverage-completion phase (the frontier
+        # explorer owns Nav2 goals only while exploration is running).
+        self.nav_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
+
+        # Live occupancy map for the visibility coverage model. Volatile sub is
+        # compatible with both volatile and transient_local publishers.
+        map_qos = QoSProfile(
+            depth=2, history=QoSHistoryPolicy.KEEP_LAST,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.VOLATILE)
+        self.create_subscription(OccupancyGrid, self.map_topic, self._on_map, map_qos)
 
         self.timer = self.create_timer(1.0 / max(self.control_rate_hz, 1.0), self._tick)
 
+        cov_desc = (f"visibility B(s,R), tau={self.min_new_visible_ratio}, "
+                    f"{self.visibility_num_rays} rays"
+                    if self.coverage_model == "visibility" else "isotropic disk")
         self.get_logger().info(
             f"BLK360 stop-scan sequencer up. candidate every {self.scan_interval_m} m, "
-            f"skip if within coverage R={self.scan_coverage_radius_m} m, "
+            f"coverage model: {cov_desc}, R={self.scan_coverage_radius_m} m, "
             f"scan_at_start={self.scan_at_start}, max_retries={self.max_scan_retries}.")
 
     # ------------------------------------------------------------------ IO
+    def _on_map(self, msg: OccupancyGrid):
+        if msg.info.width == 0 or msg.info.height == 0:
+            return
+        self._map_grid = np.asarray(msg.data, dtype=np.int16).reshape(
+            msg.info.height, msg.info.width)
+        self._map_res = float(msg.info.resolution)
+        self._map_origin = (float(msg.info.origin.position.x),
+                            float(msg.info.origin.position.y))
+
     def _on_odom(self, msg: Odometry):
         v = msg.twist.twist.linear
         w = msg.twist.twist.angular
@@ -365,6 +455,9 @@ class StopScanSequencer(Node):
             f"  Scans skipped (cover): {self.scans_skipped}",
             f"  Downloads completed  : {self.downloads_done}",
         ]
+        if self.coverage_completion:
+            lines.append(f"  Coverage-completion  : {self.covering_scans} extra "
+                         f"scan(s), {len(self._failed_targets)} unreachable pocket(s)")
         if self.scan_times:
             lines.append("  Scan times (s)       : ["
                          + ", ".join(f"{t:.1f}" for t in self.scan_times) + "]")
@@ -403,7 +496,44 @@ class StopScanSequencer(Node):
                                    for (x, y) in self.scan_positions],
                 "scan_interval_m": self.scan_interval_m,
                 "scan_coverage_radius_m": self.scan_coverage_radius_m,
+                "coverage_model": self.coverage_model,
             }
+            if self.coverage_model == "visibility":
+                record["min_new_visible_ratio"] = self.min_new_visible_ratio
+                record["min_new_visible_area_m2"] = self.min_new_visible_area_m2
+                record["visibility_num_rays"] = self.visibility_num_rays
+                record["skip_events"] = self.skip_events
+                record["coverage_completion"] = self.coverage_completion
+                if self.coverage_completion:
+                    record["covering_scans"] = self.covering_scans
+                    record["min_pocket_area_m2"] = self.min_pocket_area_m2
+                    record["unreachable_pockets"] = [
+                        [round(float(x), 3), round(float(y), 3)]
+                        for (x, y) in self._failed_targets]
+                # Final-map polygons: the panoramic footprint, not the
+                # capture-time wedge clipped by then-unknown space.
+                self._refresh_scan_polygons()
+                record["scan_visibility_polygons"] = [
+                    None if poly is None else
+                    [[round(float(px), 3), round(float(py), 3)]
+                     for (px, py) in poly]
+                    for poly in self.scan_polygons]
+                # Union visible coverage on the final map (the figure-of-merit
+                # the disk model overestimates behind walls).
+                if self._map_grid is not None and self.scan_positions:
+                    cov = union_visible_mask(
+                        self._map_grid, self._map_res, self._map_origin,
+                        self.scan_positions, self.scan_coverage_radius_m,
+                        num_rays=self.visibility_num_rays,
+                        occ_thresh=self.occupied_thresh,
+                        unknown_blocks=self.unknown_blocks_ray)
+                    cell = self._map_res * self._map_res
+                    free = (self._map_grid >= 0) & (self._map_grid <= 25)
+                    record["visible_covered_area_m2"] = round(
+                        float(cov.sum()) * cell, 2)
+                    record["map_free_area_m2"] = round(float(free.sum()) * cell, 2)
+                    record["visible_room_coverage_pct"] = round(
+                        100.0 * float((cov & free).sum()) / max(int(free.sum()), 1), 1)
             path = os.path.join(self.run_data_dir, f"run_{fstamp}.json")
             with open(path, "w") as f:
                 json.dump(record, f, indent=2)
@@ -418,12 +548,36 @@ class StopScanSequencer(Node):
     def _tick(self):
         self._publish_state()
 
+        # Periodically re-render coverage markers on the maturing map so the
+        # visibility polygons grow from capture-time wedges to the full
+        # panoramic footprint as unknown space gets mapped.
+        if (self.coverage_model == "visibility" and self.scan_positions
+                and not self._done):
+            t_now = self.get_clock().now()
+            if (self._t_last_marker is None
+                    or (t_now - self._t_last_marker).nanoseconds * 1e-9 >= 5.0):
+                self._t_last_marker = t_now
+                self._publish_coverage_markers()
+
         # Completion can arrive in ANY state (frontier exhaustion or the
         # exploration_monitor's stall stop). Finalize as soon as we're not in the
-        # middle of a capture, so the summary is never missed.
+        # middle of a capture, so the summary is never missed -- unless coverage
+        # completion is enabled, in which case exploration completion only ends
+        # the FRONTIER phase and uncovered pockets are visited next.
         if self._completion_pending and not self._done:
             if not (self.state == SCANNING and not self._capture_done):
-                self._finalize("exploration complete")
+                if (self.coverage_completion and not self._covering
+                        and self.coverage_model == "visibility"
+                        and self._map_grid is not None):
+                    self._completion_pending = False
+                    self._t_complete = None   # run ends after covering, not now
+                    self._covering = True
+                    self.get_logger().info(
+                        "Frontier exploration complete; entering coverage-"
+                        "completion phase (visiting uncovered pockets).")
+                    self._covering_next()
+                else:
+                    self._finalize("exploration complete")
                 return
 
         if self.state == INIT:
@@ -438,6 +592,8 @@ class StopScanSequencer(Node):
             self._tick_reconnect()
         elif self.state == RESUMING:
             self._tick_resuming()
+        elif self.state == COVERING:
+            self._tick_covering()
         elif self.state in (ABORTED, DONE):
             pass  # terminal
 
@@ -463,51 +619,153 @@ class StopScanSequencer(Node):
             return
         xy = self._current_xy()
         self._mark_scan_pose()   # re-measure the next candidate from here
-        # Coverage factor: skip if this spot is already inside a previous scan.
-        d_near = self._dist_to_nearest_scan(xy)
-        if xy is not None and d_near < self.scan_coverage_radius_m:
+        # Coverage factor: skip if this spot is already covered by prior scans.
+        covered, why = self._candidate_covered(xy)
+        if covered:
             self.scans_skipped += 1
             self.get_logger().info(
-                f"Candidate at {d:.1f} m moved, but {d_near:.1f} m from a previous scan "
-                f"(< R={self.scan_coverage_radius_m:.1f} m): already covered, skipping "
-                f"(skips={self.scans_skipped}).")
+                f"Candidate at {d:.1f} m moved, but {why}: already covered, "
+                f"skipping (skips={self.scans_skipped}).")
             return
         self.get_logger().info(
-            f"Candidate at {d:.1f} m moved, {d_near:.1f} m from nearest scan "
-            f"(>= R): stopping to scan.")
+            f"Candidate at {d:.1f} m moved, {why}: stopping to scan.")
         self._begin_stop()
+
+    def _candidate_covered(self, xy):
+        """Decide whether a scan candidate is already covered.
+
+        Returns (covered, reason). With the visibility model the criterion is
+        the marginal-gain ratio |B(c,R) \\ C| / |B(c,R)| < tau, computed on the
+        live occupancy map; the disk test is the fallback whenever the map (or
+        a usable candidate region) is not available yet.
+        """
+        if xy is None:
+            return False, "no pose available"
+        if self.coverage_model == "visibility" and self._map_grid is not None:
+            gain, cand_area, new_area = new_visible_ratio(
+                self._map_grid, self._map_res, self._map_origin, xy,
+                self.scan_positions, self.scan_coverage_radius_m,
+                num_rays=self.visibility_num_rays,
+                occ_thresh=self.occupied_thresh,
+                unknown_blocks=self.unknown_blocks_ray)
+            if gain is not None:
+                covered = (gain < self.min_new_visible_ratio
+                           and new_area < self.min_new_visible_area_m2)
+                self.skip_events.append({
+                    "xy": [round(float(xy[0]), 3), round(float(xy[1]), 3)],
+                    "t_s": round(self._elapsed_since_start(), 1),
+                    "gain": round(float(gain), 4),
+                    "cand_area_m2": round(float(cand_area), 2),
+                    "new_area_m2": round(float(new_area), 2),
+                    "skipped": bool(covered),
+                })
+                return covered, (
+                    f"new-visible gain {gain:.2f} (tau={self.min_new_visible_ratio:.2f}), "
+                    f"new area {new_area:.1f} m^2 "
+                    f"(A_min={self.min_new_visible_area_m2:.1f}, "
+                    f"|B(c,R)|={cand_area:.1f} m^2)")
+            # Degenerate candidate region: fall through to the distance test.
+        d_near = self._dist_to_nearest_scan(xy)
+        if d_near < self.scan_coverage_radius_m:
+            return True, (f"{d_near:.1f} m from a previous scan "
+                          f"(< R={self.scan_coverage_radius_m:.1f} m)")
+        return False, f"{d_near:.1f} m from nearest scan (>= R)"
 
     def _dist_to_nearest_scan(self, xy):
         if xy is None or not self.scan_positions:
             return float("inf")
         return min(math.dist(xy, p) for p in self.scan_positions)
 
+    def _compute_scan_polygon(self, xy, stride=4):
+        """Visibility polygon at a taken scan pose (downsampled vertices), or
+        None when no map has arrived yet / disk model is active."""
+        if self.coverage_model != "visibility" or self._map_grid is None:
+            return None
+        _, endpoints = visible_mask(
+            self._map_grid, self._map_res, self._map_origin,
+            xy[0], xy[1], self.scan_coverage_radius_m,
+            num_rays=self.visibility_num_rays,
+            occ_thresh=self.occupied_thresh,
+            unknown_blocks=self.unknown_blocks_ray)
+        return endpoints[::stride]
+
     # ----------------------------------------------- coverage markers
     def _scan_color(self, i):
         """Distinct color per scan index (golden-ratio hue spacing)."""
         return colorsys.hsv_to_rgb((i * 0.6180339887) % 1.0, 0.85, 0.95)
 
+    def _refresh_scan_polygons(self):
+        """Recompute every scan's visibility polygon on the LATEST map.
+
+        Capture-time polygons are clipped by then-unknown space; as the map
+        matures the true panoramic (360 deg) footprint emerges, so the stored
+        polygons are refreshed rather than frozen."""
+        if self.coverage_model != "visibility" or self._map_grid is None:
+            return
+        self.scan_polygons = [self._compute_scan_polygon(p)
+                              for p in self.scan_positions]
+
     def _publish_coverage_markers(self):
+        self._refresh_scan_polygons()
         arr = MarkerArray()
         now = self.get_clock().now().to_msg()
         R = self.scan_coverage_radius_m
         for i, (x, y) in enumerate(self.scan_positions):
             r, g, b = self._scan_color(i)
-            disk = Marker()
-            disk.header.frame_id = self.global_frame
-            disk.header.stamp = now
-            disk.ns = "scan_coverage"
-            disk.id = i
-            disk.type = Marker.CYLINDER
-            disk.action = Marker.ADD
-            disk.pose.position.x = float(x)
-            disk.pose.position.y = float(y)
-            disk.pose.position.z = 0.01
-            disk.pose.orientation.w = 1.0
-            disk.scale.x = disk.scale.y = 2.0 * R
-            disk.scale.z = 0.02
-            disk.color = ColorRGBA(r=float(r), g=float(g), b=float(b), a=0.18)
-            arr.markers.append(disk)
+            poly = (self.scan_polygons[i]
+                    if i < len(self.scan_polygons) else None)
+            if poly is not None and len(poly) >= 3:
+                # Occlusion-aware coverage: filled visibility polygon (triangle
+                # fan from the scan pose) + outline.
+                fan = Marker()
+                fan.header.frame_id = self.global_frame
+                fan.header.stamp = now
+                fan.ns = "scan_coverage"
+                fan.id = i
+                fan.type = Marker.TRIANGLE_LIST
+                fan.action = Marker.ADD
+                fan.pose.orientation.w = 1.0
+                fan.scale.x = fan.scale.y = fan.scale.z = 1.0
+                fan.color = ColorRGBA(r=float(r), g=float(g), b=float(b), a=0.18)
+                ctr_pt = Point(x=float(x), y=float(y), z=0.01)
+                n = len(poly)
+                for k in range(n):
+                    p0, p1 = poly[k], poly[(k + 1) % n]
+                    fan.points.append(ctr_pt)
+                    fan.points.append(Point(x=float(p0[0]), y=float(p0[1]), z=0.01))
+                    fan.points.append(Point(x=float(p1[0]), y=float(p1[1]), z=0.01))
+                arr.markers.append(fan)
+
+                edge = Marker()
+                edge.header.frame_id = self.global_frame
+                edge.header.stamp = now
+                edge.ns = "scan_coverage_edge"
+                edge.id = i
+                edge.type = Marker.LINE_STRIP
+                edge.action = Marker.ADD
+                edge.pose.orientation.w = 1.0
+                edge.scale.x = 0.04
+                edge.color = ColorRGBA(r=float(r), g=float(g), b=float(b), a=0.8)
+                edge.points = [Point(x=float(p[0]), y=float(p[1]), z=0.02)
+                               for p in poly] + \
+                              [Point(x=float(poly[0][0]), y=float(poly[0][1]), z=0.02)]
+                arr.markers.append(edge)
+            else:
+                disk = Marker()
+                disk.header.frame_id = self.global_frame
+                disk.header.stamp = now
+                disk.ns = "scan_coverage"
+                disk.id = i
+                disk.type = Marker.CYLINDER
+                disk.action = Marker.ADD
+                disk.pose.position.x = float(x)
+                disk.pose.position.y = float(y)
+                disk.pose.position.z = 0.01
+                disk.pose.orientation.w = 1.0
+                disk.scale.x = disk.scale.y = 2.0 * R
+                disk.scale.z = 0.02
+                disk.color = ColorRGBA(r=float(r), g=float(g), b=float(b), a=0.18)
+                arr.markers.append(disk)
 
             ctr = Marker()
             ctr.header.frame_id = self.global_frame
@@ -608,6 +866,8 @@ class StopScanSequencer(Node):
             if not self._capture_counted:
                 self._capture_counted = True
                 self.scan_count += 1
+                if self._covering:
+                    self.covering_scans += 1
                 t = self._elapsed_since_start()
                 self.scan_times.append(round(t, 1))
                 self._t_capture_settle = self.get_clock().now()
@@ -615,6 +875,7 @@ class StopScanSequencer(Node):
                 pos = self._current_xy() or self._last_scan_xy
                 if pos is not None:
                     self.scan_positions.append(pos)
+                    self.scan_polygons.append(self._compute_scan_polygon(pos))
                     self._publish_coverage_markers()
                 if self._download_instant:
                     self.get_logger().info(
@@ -662,7 +923,150 @@ class StopScanSequencer(Node):
             self._set_state(SCANNING)
             self._trigger_scan()  # fresh session = reconnect attempt
 
+    # ---------------------------------------------- coverage completion
+    def _uncovered_pockets(self):
+        """Cluster uncovered free cells on the live map.
+
+        Returns a list of (area_m2, (x, y)) sorted largest-first, where (x, y)
+        is the pocket cell nearest its centroid (the Nav2 goal: standing inside
+        the pocket guarantees line-of-sight to it)."""
+        grid = self._map_grid
+        res, org = self._map_res, self._map_origin
+        free = (grid >= 0) & (grid <= 25)
+        cov = union_visible_mask(
+            grid, res, org, self.scan_positions, self.scan_coverage_radius_m,
+            num_rays=self.visibility_num_rays, occ_thresh=self.occupied_thresh,
+            unknown_blocks=self.unknown_blocks_ray)
+        uncovered = free & ~cov
+        cell_area = res * res
+        H, W = uncovered.shape
+        seen = np.zeros_like(uncovered, dtype=bool)
+        pockets = []
+        ys, xs = np.where(uncovered)
+        from collections import deque
+        for y0, x0 in zip(ys.tolist(), xs.tolist()):
+            if seen[y0, x0]:
+                continue
+            cells = []
+            q = deque([(y0, x0)])
+            seen[y0, x0] = True
+            while q:
+                y, x = q.popleft()
+                cells.append((y, x))
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        ny, nx = y + dy, x + dx
+                        if (0 <= ny < H and 0 <= nx < W
+                                and uncovered[ny, nx] and not seen[ny, nx]):
+                            seen[ny, nx] = True
+                            q.append((ny, nx))
+            area = len(cells) * cell_area
+            if area < self.min_pocket_area_m2:
+                continue
+            arr = np.asarray(cells, dtype=float)
+            cy, cx = arr.mean(axis=0)
+            k = int(np.argmin((arr[:, 0] - cy) ** 2 + (arr[:, 1] - cx) ** 2))
+            gy, gx = cells[k]
+            wx = org[0] + (gx + 0.5) * res
+            wy = org[1] + (gy + 0.5) * res
+            if any(math.dist((wx, wy), f) < 0.6 for f in self._failed_targets):
+                continue   # Nav2 already failed to reach this pocket
+            pockets.append((area, (wx, wy)))
+        pockets.sort(key=lambda p: -p[0])
+        return pockets
+
+    def _covering_next(self):
+        """Pick the next uncovered pocket and drive there, or finish the run."""
+        if self.covering_scans >= self.covering_max_scans:
+            self.get_logger().warn(
+                f"Coverage completion: scan budget ({self.covering_max_scans}) "
+                "exhausted; finishing.")
+            self._finalize("coverage completion (scan budget)")
+            return
+        pockets = self._uncovered_pockets()
+        if not pockets:
+            self.get_logger().info(
+                "Coverage completion: no uncovered pocket >= "
+                f"{self.min_pocket_area_m2:.1f} m^2 left -- full LOS coverage.")
+            self._finalize("coverage complete")
+            return
+        area, (wx, wy) = pockets[0]
+        self._cover_target = (wx, wy)
+        self._cover_done = False
+        self._cover_failed = False
+        self._cover_goal_handle = None
+        self.get_logger().info(
+            f"Coverage completion: {len(pockets)} uncovered pocket(s) left; "
+            f"driving into the largest ({area:.1f} m^2) at "
+            f"({wx:.2f}, {wy:.2f}).")
+        self._send_cover_goal((wx, wy))
+        self._set_state(COVERING)
+
+    def _send_cover_goal(self, xy):
+        goal = NavigateToPose.Goal()
+        goal.pose.header.frame_id = self.global_frame
+        goal.pose.header.stamp = self.get_clock().now().to_msg()
+        goal.pose.pose.position.x = float(xy[0])
+        goal.pose.pose.position.y = float(xy[1])
+        goal.pose.pose.orientation.w = 1.0
+        if not self.nav_client.wait_for_server(timeout_sec=2.0):
+            self.get_logger().warn("navigate_to_pose server not available.")
+            self._cover_failed = True
+            return
+        fut = self.nav_client.send_goal_async(goal)
+        fut.add_done_callback(self._on_cover_goal_response)
+
+    def _on_cover_goal_response(self, fut):
+        try:
+            gh = fut.result()
+        except Exception as exc:  # noqa: BLE001
+            self.get_logger().warn(f"Coverage goal failed to send: {exc}")
+            self._cover_failed = True
+            return
+        if not gh.accepted:
+            self.get_logger().warn("Coverage goal rejected by Nav2.")
+            self._cover_failed = True
+            return
+        self._cover_goal_handle = gh
+        gh.get_result_async().add_done_callback(self._on_cover_result)
+
+    def _on_cover_result(self, fut):
+        try:
+            status = fut.result().status
+        except Exception:  # noqa: BLE001
+            status = GoalStatus.STATUS_UNKNOWN
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            self._cover_done = True
+        else:
+            self._cover_failed = True
+
+    def _tick_covering(self):
+        if self._cover_done:
+            # Arrived inside the pocket; Nav2 has the robot stopped. Reuse the
+            # STOPPING settle/download-gate/scan path, but the explorer is gone
+            # so mark its stop request as already handled.
+            self._stop_sent = True
+            self._stop_settled = False
+            self._waiting_download_logged = False
+            self._t_gate_cleared = None
+            self._set_state(STOPPING)
+            return
+        if self._cover_failed or self._elapsed_in_state() >= self.covering_nav_timeout_s:
+            if not self._cover_failed and self._cover_goal_handle is not None:
+                self._cover_goal_handle.cancel_goal_async()
+            self.get_logger().warn(
+                f"Coverage goal {self._cover_target} unreachable "
+                "(failed or timed out); skipping this pocket.")
+            if self._cover_target is not None:
+                self._failed_targets.append(self._cover_target)
+            self._covering_next()
+
     def _begin_resume(self):
+        if self._covering:
+            # Coverage-completion phase: after each pocket scan, go straight to
+            # the next uncovered pocket (no frontier explorer to resume).
+            self._covering_next()
+            return
         self._start_sent = False
         self._set_state(RESUMING)
 

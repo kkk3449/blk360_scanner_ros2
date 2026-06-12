@@ -56,6 +56,16 @@ def generate_launch_description():
         DeclareLaunchArgument("use_mock_scanner", default_value="true"),
         DeclareLaunchArgument("scan_interval_m", default_value="2.0"),
         DeclareLaunchArgument("scan_coverage_radius_m", default_value="4.0"),
+        # Coverage model for the scan-skip decision: "disk" (isotropic, legacy)
+        # or "visibility" (occlusion-aware ray-cast region on the live map).
+        DeclareLaunchArgument("coverage_model", default_value="disk"),
+        DeclareLaunchArgument("min_new_visible_ratio", default_value="0.30"),
+        DeclareLaunchArgument("min_new_visible_area_m2", default_value="5.0"),
+        # Coverage completion: after frontier exploration, visit remaining
+        # uncovered pockets until none >= min_pocket_area_m2 is left.
+        DeclareLaunchArgument("coverage_completion", default_value="false"),
+        DeclareLaunchArgument("min_pocket_area_m2", default_value="1.0"),
+        DeclareLaunchArgument("visibility_num_rays", default_value="720"),
         DeclareLaunchArgument("fail_first_n_scans", default_value="0"),
         DeclareLaunchArgument("mock_scan_duration_s", default_value="4.0"),
         DeclareLaunchArgument("mock_download_duration_s", default_value="10.0"),
@@ -64,7 +74,7 @@ def generate_launch_description():
         # exploration_monitor: stall-based early stop (no ground-truth needed).
         DeclareLaunchArgument("auto_stop_on_stall", default_value="true"),
         DeclareLaunchArgument("stall_timeout_s", default_value="300.0"),
-        DeclareLaunchArgument("min_progress_cells", default_value="80"),
+        DeclareLaunchArgument("min_progress_cells", default_value="400"),
         DeclareLaunchArgument("frontier_suppression_enabled", default_value="true"),
 
         # --- Mapping / navigation / exploration ---
@@ -124,6 +134,17 @@ def generate_launch_description():
                     "use_sim_time": use_sim_time,
                     "scan_interval_m": scan_interval_m,
                     "scan_coverage_radius_m": scan_coverage_radius_m,
+                    "coverage_model": LaunchConfiguration("coverage_model"),
+                    "min_new_visible_ratio":
+                        LaunchConfiguration("min_new_visible_ratio"),
+                    "min_new_visible_area_m2":
+                        LaunchConfiguration("min_new_visible_area_m2"),
+                    "coverage_completion":
+                        LaunchConfiguration("coverage_completion"),
+                    "min_pocket_area_m2":
+                        LaunchConfiguration("min_pocket_area_m2"),
+                    "visibility_num_rays":
+                        LaunchConfiguration("visibility_num_rays"),
                 },
             ],
         ),
