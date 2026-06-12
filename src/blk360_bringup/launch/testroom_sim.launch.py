@@ -18,12 +18,14 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     share = get_package_share_directory("blk360_bringup")
-    world = str(Path(share) / "worlds" / "testroom.world")
     tb3_sim = str(Path(share) / "launch" / "tb3_sim.launch.py")
 
     return LaunchDescription([
         DeclareLaunchArgument("gui", default_value="false"),
         DeclareLaunchArgument("model", default_value="waffle"),
+        # World file under worlds/: "testroom" (single room, default) or
+        # "testroom_multiroom" (two partitions -> 3 rooms, offset doorways).
+        DeclareLaunchArgument("world_name", default_value="testroom"),
         # Collision-free spawn computed by occ_to_world.py for this map.
         DeclareLaunchArgument("x_pose", default_value="1.83"),
         DeclareLaunchArgument("y_pose", default_value="-0.62"),
@@ -34,7 +36,8 @@ def generate_launch_description():
                 "use_sim_time": "true",
                 "gui": LaunchConfiguration("gui"),
                 "model": LaunchConfiguration("model"),
-                "world": world,
+                "world": [str(Path(share) / "worlds") + "/",
+                          LaunchConfiguration("world_name"), ".world"],
                 "x_pose": LaunchConfiguration("x_pose"),
                 "y_pose": LaunchConfiguration("y_pose"),
             }.items(),
