@@ -53,15 +53,11 @@ class ExplorationMonitor(Node):
         # --- stall-based stop ---
         self.auto_stop = self.declare_parameter("auto_stop", True).value
         # Known-area gain (cells) below which a window counts as "no progress".
-        self.min_progress_cells = self.declare_parameter("min_progress_cells", 80).value
+        # Big enough to ignore Cartographer's edge-refinement creep (tens of
+        # cells) while real exploration (thousands of cells) still counts.
+        self.min_progress_cells = self.declare_parameter("min_progress_cells", 400).value
         # No-progress duration that declares exploration converged.
         self.stall_timeout_s = self.declare_parameter("stall_timeout_s", 300.0).value
-        # Convergence shortcut: if NO frontier remains for this long while
-        # exploring, declare done even if the known map is still creeping up by a
-        # few cells (Cartographer edge refinement would otherwise reset the stall
-        # timer forever -> "infinite" exploration with nothing left to explore).
-        self.no_frontier_timeout_s = self.declare_parameter(
-            "no_frontier_timeout_s", 30.0).value
         # Ignore stalls during initial bring-up (map not flowing yet).
         self.startup_grace_s = self.declare_parameter("startup_grace_s", 20.0).value
         self.log_period_s = self.declare_parameter("log_period_s", 5.0).value
@@ -92,7 +88,6 @@ class ExplorationMonitor(Node):
         self._baseline_known = 0
         self._t_start = self.get_clock().now()
         self._t_last_progress = self.get_clock().now()
-        self._t_last_frontier = self.get_clock().now()   # last time a frontier existed
         self._t_last_log = self.get_clock().now()
         self._stopped = False
         # Default active so the monitor still works if the sequencer isn't up.
@@ -102,10 +97,9 @@ class ExplorationMonitor(Node):
         self._explorer_active = (msg.data.strip() == "EXPLORING")
 
         self.get_logger().info(
-            f"Exploration monitor up (auto_stop={self.auto_stop}). DONE when no frontier "
-            f"for >{self.no_frontier_timeout_s:.0f}s, OR known map grows "
-            f"<{self.min_progress_cells} cells for >{self.stall_timeout_s:.0f}s "
-            f"(while exploring, after {self.startup_grace_s:.0f}s). Watching /map...")
+            f"Exploration monitor up (auto_stop={self.auto_stop}). DONE when the known "
+            f"map grows <{self.min_progress_cells} cells for >{self.stall_timeout_s:.0f}s "
+            f"while exploring (after {self.startup_grace_s:.0f}s). Watching /map...")
 
     # ------------------------------------------------------------------ map
     def _on_map(self, msg: OccupancyGrid):
@@ -125,38 +119,33 @@ class ExplorationMonitor(Node):
         self.remaining_pub.publish(out)
 
         now = self.get_clock().now()
-        # progress = the known map grew meaningfully -> reset the stall clock
+        # Completion = the KNOWN MAP stops growing. min_progress_cells must be
+        # large enough that Cartographer's slow edge-refinement creep (tens of
+        # cells/cycle) counts as no-progress, while real exploration (thousands
+        # of cells/cycle) resets the clock. (The /map-derived frontier count is
+        # unreliable in a sealed room -- free is bounded by walls, not unknown --
+        # so it is published as a readout only, NOT used to decide completion.)
         if known_cells > self._baseline_known + self.min_progress_cells:
             self._baseline_known = known_cells
             self._t_last_progress = now
-        # a frontier still exists -> reset the no-frontier clock
-        if clusters > 0:
-            self._t_last_frontier = now
-        # Only accumulate stall / no-frontier time while actually exploring; a
-        # scan/download pause keeps the robot still but is NOT convergence.
+        # Don't accumulate stall time during a scan/download pause (map frozen).
         if not self._explorer_active:
             self._t_last_progress = now
-            self._t_last_frontier = now
 
         stalled_for = (now - self._t_last_progress).nanoseconds * 1e-9
-        no_frontier_for = (now - self._t_last_frontier).nanoseconds * 1e-9
         if (now - self._t_last_log).nanoseconds * 1e-9 >= self.log_period_s:
             self._t_last_log = now
             self.get_logger().info(
-                f"frontier clusters={clusters} cells={cells} | known={known_cells} | "
-                f"no-growth {stalled_for:.0f}/{self.stall_timeout_s:.0f}s | "
-                f"no-frontier {no_frontier_for:.0f}/{self.no_frontier_timeout_s:.0f}s")
+                f"frontier(readout) clusters={clusters} cells={cells} | "
+                f"known={known_cells} | no-growth {stalled_for:.0f}/{self.stall_timeout_s:.0f}s")
 
         if not self.auto_stop or self._stopped:
             return
         running_for = (now - self._t_start).nanoseconds * 1e-9
-        if self._explorer_active and running_for >= self.startup_grace_s:
-            if no_frontier_for >= self.no_frontier_timeout_s:
-                self._declare_converged(clusters, cells, known_cells, no_frontier_for,
-                                        reason="no frontiers left")
-            elif stalled_for >= self.stall_timeout_s:
-                self._declare_converged(clusters, cells, known_cells, stalled_for,
-                                        reason="known map stalled")
+        if (self._explorer_active and running_for >= self.startup_grace_s
+                and stalled_for >= self.stall_timeout_s):
+            self._declare_converged(clusters, cells, known_cells, stalled_for,
+                                    reason="known map stalled")
 
     def _frontier_stats(self, free, unknown):
         """Return (cluster_count, frontier_cell_count). A frontier cell is a free
