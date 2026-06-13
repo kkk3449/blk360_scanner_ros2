@@ -40,12 +40,12 @@
       <static>true</static>
       <link name="partition_walls">
         <collision name="c_part1">
-          <pose>-1.170 1.630 1.000 0 0 0</pose>
-          <geometry><box><size>0.150 5.500 2.000</size></box></geometry>
+          <pose>-1.170 2.005 1.000 0 0 0</pose>
+          <geometry><box><size>0.150 4.750 2.000</size></box></geometry>
         </collision>
         <visual name="v_part1">
-          <pose>-1.170 1.630 1.000 0 0 0</pose>
-          <geometry><box><size>0.150 5.500 2.000</size></box></geometry>
+          <pose>-1.170 2.005 1.000 0 0 0</pose>
+          <geometry><box><size>0.150 4.750 2.000</size></box></geometry>
           <material><ambient>0.45 0.35 0.3 1</ambient><diffuse>0.55 0.45 0.4 1</diffuse></material>
         </visual>
         <collision name="c_part2">
