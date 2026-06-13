@@ -1,0 +1,3 @@
+# generated figures (reproduce with scripts/render_journal_figs.py); track only docs
+*.png
+_contact_sheet.png
