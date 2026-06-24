@@ -24,7 +24,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, Polygon as MplPoly
+from matplotlib.patches import Circle, Patch, Polygon as MplPoly
 import colorsys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..",
@@ -359,38 +359,50 @@ def fig6_completion():
 
 # --------------------------------------------------------------------- fig 7
 def fig7_summary():
-    # (label, scans_mean, scans_sd, los_mean, los_sd)
+    # (rule, env, scans_mean, scans_sd, los_mean, los_sd) -- 3-way ablation.
+    # Uniform = no-skip upper reference; disk = baseline; visibility = ours.
     groups = [
+        ("Uniform\n(single-room)", 28.0, 13.0, 91.9, 7.0),
         ("Disk\n(single-room)", 2.0, 0.0, 77.0, 4.9),
         ("Visibility\n(single-room)", 3.6, 0.9, 85.4, 6.2),
+        ("Uniform\n(multi-room)", 40.8, 11.8, 86.6, 9.9),
         ("Disk\n(multi-room)", 2.3, 0.5, 77.0, 6.4),
         ("Visibility\n(multi-room)", 3.6, 0.7, 84.0, 9.2),
     ]
     labels = [g[0] for g in groups]
     x = np.arange(len(groups))
-    colors = ["#bbbbbb", "#2c7fb8", "#bbbbbb", "#2c7fb8"]
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13, 4.8))
+    # uniform=amber (reference), disk=gray (baseline), visibility=blue (ours)
+    cu, cd, cv = "#fdae6b", "#bbbbbb", "#2c7fb8"
+    colors = [cu, cd, cv, cu, cd, cv]
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(14, 4.8))
     a1.bar(x, [g[3] for g in groups], yerr=[g[4] for g in groups],
            color=colors, capsize=5, edgecolor="k", lw=0.6)
     a1.set_xticks(x)
-    a1.set_xticklabels(labels, fontsize=9)
+    a1.set_xticklabels(labels, fontsize=8.5)
     a1.set_ylabel("LOS coverage [%]")
     a1.set_title("(a) Line-of-sight coverage (controlled paired ablation)")
-    a1.set_ylim(0, 100)
+    a1.set_ylim(0, 105)
     a1.grid(True, axis="y", alpha=0.3)
     for xi, g in zip(x, groups):
-        a1.text(xi, g[3] + g[4] + 1.5, f"{g[3]:.0f}", ha="center", fontsize=9)
+        a1.text(xi, g[3] + g[4] + 1.5, f"{g[3]:.1f}", ha="center", fontsize=8.5)
+    # scan count: log scale so 2-3.6 and 28-41 are both legible
     a2.bar(x, [g[1] for g in groups], yerr=[g[2] for g in groups],
            color=colors, capsize=5, edgecolor="k", lw=0.6)
     a2.set_xticks(x)
-    a2.set_xticklabels(labels, fontsize=9)
-    a2.set_ylabel("BLK360 scans")
+    a2.set_xticklabels(labels, fontsize=8.5)
+    a2.set_ylabel("BLK360 scans (log scale)")
     a2.set_title("(b) Number of stationary scans")
-    a2.grid(True, axis="y", alpha=0.3)
+    a2.set_yscale("log")
+    a2.set_ylim(1, 80)
+    a2.grid(True, axis="y", which="both", alpha=0.3)
     for xi, g in zip(x, groups):
-        a2.text(xi, g[1] + g[2] + 0.06, f"{g[1]:.1f}", ha="center", fontsize=9)
-    fig.suptitle("Disk vs visibility skip rule on identical paths "
-                 "(N = 5 trajectories each)", y=1.02)
+        a2.text(xi, (g[1] + g[2]) * 1.08, f"{g[1]:.1f}", ha="center", fontsize=8.5)
+    handles = [Patch(facecolor=cu, edgecolor="k", label="Uniform, no skip (reference)"),
+               Patch(facecolor=cd, edgecolor="k", label="Isotropic disk (baseline)"),
+               Patch(facecolor=cv, edgecolor="k", label="Ray-cast visibility (ours)")]
+    a1.legend(handles=handles, fontsize=8, loc="lower right", framealpha=0.9)
+    fig.suptitle("Three-way skip-rule ablation on identical paths "
+                 "(N = 5 single-room, N = 10 multi-room trajectories)", y=1.02)
     fig.tight_layout()
     p = f"{OUT}/fig7_summary.png"
     fig.savefig(p, bbox_inches="tight")
