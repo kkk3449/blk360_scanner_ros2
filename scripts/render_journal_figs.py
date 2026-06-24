@@ -472,7 +472,8 @@ def fig8_param_sweep():
     ax2.grid(alpha=0.3)
     ax2.legend(fontsize=9, loc="lower left")
 
-    fig.suptitle("Parameter sweep (deterministic replay, N=5 paths/env): "
+    fig.suptitle("Parameter sweep (deterministic replay, N=5 single-room / "
+                 "N=10 multi-room paths): "
                  "A_min sets the coverage–scans trade-off, τ is robust",
                  y=1.03, fontsize=12)
     fig.tight_layout()
