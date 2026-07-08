@@ -1,3 +1,5 @@
 # generated figures (reproduce with scripts/render_journal_figs.py); track only docs
 *.png
 _contact_sheet.png
+# real field-evidence screenshots (not regenerable)
+!실증/*.png
