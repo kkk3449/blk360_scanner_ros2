@@ -75,6 +75,9 @@ def main():
     ap.add_argument("--wall-height", type=float, default=2.5)
     ap.add_argument("--occupied-below", type=int, default=100,
                     help="PGM value below which a cell is a wall (0=black)")
+    ap.add_argument("--visible-walls", action="store_true",
+                    help="render the collision boxes (default: invisible — "
+                         "they still collide; the colored point cloud shows)")
     args = ap.parse_args()
 
     grid = read_pgm(args.pgm)
@@ -84,10 +87,11 @@ def main():
     hz = args.wall_height
     out = args.out or args.pgm.replace(".pgm", "_world.usda")
 
+    # NOTE: no PhysicsScene here — Isaac's World() provides one; two scenes
+    # cause "Physics scenes stepping is not the same" and unstepped bodies.
     L = ['#usda 1.0', '(', '    defaultPrim = "World"',
          '    metersPerUnit = 1', '    upAxis = "Z"', ')', '',
-         'def Xform "World"', '{',
-         '    def PhysicsScene "physicsScene" {}', '',
+         'def Xform "World"', '{', '',
          '    def Xform "GroundPlane"',
          '    {',
          '        def Mesh "ground" (prepend apiSchemas = ["PhysicsCollisionAPI"])',
@@ -104,6 +108,9 @@ def main():
     L.append('')
     L.append('    def Xform "Walls"')
     L.append('    {')
+    if not args.visible_walls:
+        # imaging only — PhysX collision ignores visibility
+        L.append('        token visibility = "invisible"')
     for k, (i0, i1, j0, j1) in enumerate(rects):
         sx = (i1 - i0 + 1) * res
         sy = (j1 - j0 + 1) * res
