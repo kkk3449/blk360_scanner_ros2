@@ -1,0 +1,435 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Multi-View VLM Verification for Semantic Object Extraction from a
+Terrestrial Laser Scan Toward TOSM-Based Robot Environment Models}
+
+% TODO: 실제 저자 정보로 교체
+\author{\IEEEauthorblockN{Given Name Surname}
+\IEEEauthorblockA{\textit{Dept.\ of Electrical and Computer Engineering} \\
+\textit{Sungkyunkwan University}\\
+Suwon, South Korea \\
+email@skku.edu}
+\and
+\IEEEauthorblockN{Given Name Surname}
+\IEEEauthorblockA{\textit{Dept.\ of Electrical and Computer Engineering} \\
+\textit{Sungkyunkwan University}\\
+Suwon, South Korea \\
+email@skku.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+Semantic environment models such as the Triplet Ontological Semantic Model
+(TOSM) give indoor mobile robots the symbolic, explicit, and implicit
+knowledge needed for task-level autonomy, but populating them for an
+existing facility is still manual work. This paper presents an automated
+pipeline that extracts TOSM semantic objects from a single terrestrial
+laser scan and emits them as a VDA~5050-style JSON message. A deterministic
+stage segments the colored point cloud and fills the explicit model (pose,
+dimensions, color) with a provisional class from an open-vocabulary 3D
+classifier; a vision--language model (VLM) stage then verifies each class
+from multi-view object renders under forced tool-use and infers the
+implicit affordance model. We show that the obvious multi-view strategy ---
+feeding all views into one prompt (early fusion) --- \emph{degrades}
+accuracy on sparse point renders, and propose per-view classification with
+confidence-weighted voting (late fusion) instead. On a 68.5M-point scan of
+a robot showroom (57 objects), late fusion cuts confidently-wrong labels
+from 24 (classifier-only) to 10, achieves the best lenient type accuracy
+(82\%) among all evaluated configurations, recovers fine-grained classes
+such as keyboards, and provides a free reliability signal: unanimous votes
+across views are 94\% correct. Full-scene verification costs
+\$2.6.
+\end{abstract}
+
+\begin{IEEEkeywords}
+multi-view object recognition, vision--language model, semantic mapping,
+terrestrial laser scanning, TOSM, VDA 5050
+\end{IEEEkeywords}
+
+\section{Introduction}
+Task-level autonomy for indoor mobile robots requires more than an
+occupancy grid: the robot must know \emph{what} objects occupy the space,
+\emph{where} they are, and \emph{how} they can be interacted with. The
+Triplet Ontological Semantic Model (TOSM)~\cite{joo2020tosm} organizes this
+knowledge into a \emph{symbolic} model (class, name, identity), an
+\emph{explicit} model (pose, size, color), and an \emph{implicit} model
+(affordances such as whether an object is a reliable landmark or can be
+displaced). TOSM-style databases drive navigation frameworks and multi-robot
+fleets, and their content maps naturally onto the JSON message conventions
+of VDA~5050~\cite{vda5050}, the emerging interface standard between AGV
+fleets and master control systems.
+
+In practice, the semantic-object database for a new facility is authored by
+hand. Terrestrial laser scanners (TLS) such as the Leica BLK360 capture a
+dense, colored as-built model in minutes, and scan-to-BIM
+research~\cite{patraucean2015} recovers structural geometry automatically,
+but object-level semantics remain the gap: open-vocabulary 3D classifiers
+such as Uni3D~\cite{zhou2024uni3d} are biased toward industrial structural
+classes --- in our experiments office chairs were labeled \emph{stair} or
+\emph{machine} and keyboards \emph{ladder} --- and no point-cloud classifier
+produces the affordance-level knowledge TOSM needs.
+
+Vision--language models (VLMs) offer a complementary signal: rendered views
+of a segmented object carry texture and context that a point-cloud embedding
+discards. Since multi-view recognition classically outperforms single-view,
+we render each object from four azimuths and study how a VLM should consume
+them. The naive strategy --- all views in one prompt (\emph{early fusion})
+--- turns out to \emph{hurt}: sparse oblique point renders invite
+over-confident misreadings that contaminate the joint judgment. Classifying
+each view independently and aggregating by confidence-weighted vote
+(\emph{late fusion}), the multi-view analogue of MVCNN-style
+aggregation~\cite{su2015mvcnn}, restores and surpasses single-view
+reliability while exposing disagreement between views as an explicit
+uncertainty signal. The contributions are:
+
+\begin{itemize}
+\item an automated TLS-to-TOSM pipeline whose output is a VDA~5050-style
+      \texttt{semanticObjects} message consumable by a fleet environment
+      model;
+\item a schema-forced VLM verification protocol with per-view late fusion,
+      plus prompt guardrails (size sanity, sparse-render caution, panel
+      disambiguation) for point-render inputs;
+\item a six-configuration study on a real 68.5M-point BLK360 scan (57
+      objects) with a consistent manual audit, showing early fusion degrades
+      accuracy while late fusion minimizes wrong labels (24$\rightarrow$10)
+      and yields 94\%-precise unanimity gating.
+\end{itemize}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_pipeline.png}
+\caption{Scan-to-semantics pipeline. Stage A is deterministic and fills the
+explicit TOSM model plus a provisional class; Stage B verifies the symbolic
+model per rendered view with confidence-weighted late fusion and infers the
+implicit model, all under forced tool-use.}
+\label{fig:pipeline}
+\end{figure}
+
+\section{Related Work}
+\textbf{Semantic environment models.} TOSM~\cite{joo2020tosm} extends
+ontology-based robot knowledge bases~\cite{tenorth2013} with the
+symbolic/explicit/implicit triplet; its records subsume the object fields of
+VDA~5050~\cite{vda5050} messages, which we adopt as the output container.
+\textbf{Scan-to-model.} As-built modeling from TLS has focused on
+structural elements~\cite{patraucean2015}; object semantics are left to
+learned 3D segmentation~\cite{qi2017} or open-vocabulary encoders such as
+Uni3D~\cite{zhou2024uni3d}, which inherit training-corpus biases.
+\textbf{Multi-view recognition.} Aggregating rendered views is a classic
+route to 3D shape recognition (MVCNN~\cite{su2015mvcnn}); we revisit the
+early-vs-late fusion question for VLM prompts over \emph{sparse point}
+renders rather than mesh renders. \textbf{VLMs in robotics.} Recent systems
+use VLMs for open-set scene graphs~\cite{gu2024conceptgraphs} and
+language-driven maps~\cite{huang2023vlmaps}. We use a VLM in a narrower,
+auditable role --- verifying one object at a time against measured geometry
+--- keeping the deterministic stage authoritative for everything a VLM
+should not touch.
+
+\section{Pipeline}
+
+\subsection{Stage A: Deterministic Explicit Model}
+The input is a single registered BLK360 scan (E57, colored). After floor
+detection by RANSAC and wall removal, objects are segmented by DBSCAN with a
+conservative re-clustering pass that splits clusters whose footprint exceeds
+2.5\,m (30$\rightarrow$57 objects on our scene). For each object Stage~A
+computes the explicit TOSM model directly from the points: bounding-box
+center (\texttt{poseX/Y}, \texttt{properties.poseZ}), PCA-based yaw
+(\texttt{poseTheta}), yaw-aligned extents (\texttt{dimensions}), and a mean
+RGB color name. Uni3D provides a \emph{provisional} symbolic class, and four
+azimuth renders (0/90/180/270$^{\circ}$, 512$\times$512, point size~8, red
+3D bounding box) are exported. Render density matters: with the default
+small point size the same objects produced speckle-like views that misled
+both the VLM and the human auditors (Sec.~\ref{sec:study}). All Stage-A
+fields are measured, not generated; Stage~B is never allowed to modify
+them.
+
+\subsection{Stage B: VLM Verification with Late Fusion}
+\label{sec:stageb}
+Stage B calls a commercial VLM (Claude Sonnet 4.6) with \emph{forced
+tool-use}: the model must answer by calling a declared JSON tool, so every
+response is schema-valid by construction. Fig.~\ref{fig:prompt} condenses
+the prompt design.
+
+\emph{Prompt 1 (symbolic), once per view.} The VLM sees ONE render, the
+measured dimensions, the provisional class, and an optional candidate
+vocabulary (\emph{chair, TV, monitor, Mobile Robot, desk}). The decision
+rule is three-way: keep a correct label; if wrong, prefer a fitting
+candidate; else emit an open-vocabulary label. Guardrails address
+point-render failure modes: the measured dimensions are a hard constraint
+(a 1.6\,m box is never a \emph{chair}); clusters larger than any
+single-instance envelope are treated as merged objects; thin flat objects
+are disambiguated among keyboard / display / shelf by their face pattern;
+sparse-render caution forbids claiming parts that are not clearly outlined
+by points; and when no label is clearly supported, the rule prefers keeping
+a size-compatible provisional label or falling back to \emph{clutter}.
+
+\emph{Late fusion.} The four per-view reports are aggregated by
+confidence-weighted voting: each vote adds its confidence to its label's
+score, the top-scoring label wins, and the final confidence is the winner's
+share of the total. The per-view votes are stored in the record
+(\texttt{properties.viewVotes}), so a downstream consumer can distinguish a
+4/4 unanimous label from a 2/4 split --- an uncertainty signal that costs
+nothing extra. Fig.~\ref{fig:votes} shows the mechanism on a real object:
+the face-on views identify a keyboard with high confidence, the edge-on
+views misread the thin silhouette as \emph{ladder}, and the weighted vote
+resolves the split correctly --- the same views that, concatenated into one
+early-fusion prompt, drag the joint judgment toward the wrong label.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.94\columnwidth]{fig_votes.png}
+\caption{Late fusion on one object (\texttt{keyboard\_018}, provisional
+label \emph{ladder}). Each of the four azimuth renders is classified
+independently; edge-on views vote for the wrong thin-strip class with low
+confidence and are outvoted by the high-confidence face-on views.}
+\label{fig:votes}
+\end{figure}
+
+\emph{Prompt 2 (implicit), once per object.} Given the fused type and all
+views, the VLM reports the TOSM implicit model: \texttt{isKeyObject},
+\texttt{isMovable}, and (doors only) \texttt{isOpen}/\texttt{canBeOpen}.
+
+\begin{figure}[t]
+\centering
+\fbox{\begin{minipage}{0.94\columnwidth}\footnotesize
+\textbf{P1 system (condensed).} You are a semantic-mapping verifier for an
+indoor mobile robot. You see a render of ONE segmented 3D object (sparse
+laser points, red 3D box), its classifier label \texttt{uni3d\_type}, and
+optional candidates. \emph{Decision rule:} (1)~if \texttt{uni3d\_type} is
+correct, KEEP; (2)~if wrong, replace --- (a)~prefer a fitting candidate,
+(b)~else the most accurate common-noun label. Never `unknown'.
+\emph{Size sanity:} measured dimensions are a HARD constraint; a cluster
+exceeding a class's envelope is merged objects --- label the dominant
+structure or `clutter'. \emph{Sparse-render caution:} never claim parts not
+clearly outlined by points. \emph{Panel rule:} thin flat objects are
+keyboard (key grid) / display (uniform dark face) / shelf --- never ladder.
+\emph{Chair gate:} requires visible seat pan 0.3--0.6\,m high plus
+backrest. If uncertain, keep a size-compatible label. Respond ONLY via the
+\texttt{report\_symbolic} tool.\\[2pt]
+\textbf{P2 system (condensed).} Infer implicit properties of ONE object
+from its views and confirmed type: \texttt{isKeyObject} (fixed, distinctive
+landmark), \texttt{isMovable}, \texttt{isOpen}/\texttt{canBeOpen} (doors
+only, else null). Respond ONLY via the \texttt{report\_implicit} tool.
+\end{minipage}}
+\caption{Condensed Stage-B prompt design. Forced tool-use makes every
+response schema-valid JSON; measured geometry is read-only context.}
+\label{fig:prompt}
+\end{figure}
+
+\subsection{TOSM to VDA 5050-Style Message}
+The completed records are serialized as one \texttt{semanticObjects} JSON
+message with a VDA~5050-style header. Table~\ref{tab:mapping} shows the
+field mapping; TOSM fields with no standard slot travel in the extensible
+\texttt{properties} map, so the message remains readable by consumers that
+only know the base schema.
+
+\begin{table}[t]
+\caption{TOSM $\rightarrow$ VDA 5050-style JSON field mapping}
+\label{tab:mapping}
+\centering
+\footnotesize
+\begin{tabular}{@{}lll@{}}
+\toprule
+TOSM model & element & JSON field \\
+\midrule
+symbolic & class & \texttt{type} \\
+         & name / identity & \texttt{name}, \texttt{id} \\
+explicit & position $(x,y)$ & \texttt{poseX}, \texttt{poseY} \\
+         & height $z$ & \texttt{properties.poseZ} \\
+         & orientation & \texttt{poseTheta} \\
+         & size & \texttt{dimensions\{l,w,h\}} \\
+         & color & \texttt{color} \\
+implicit & landmark / movability & \texttt{properties.isKeyObject,} \\
+         & door state & \texttt{isMovable, isOpen, canBeOpen} \\
+--       & VLM audit trail & \texttt{properties.viewVotes,} \\
+         &                 & \texttt{symbolicReason, confidence} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Experiments}
+
+\subsection{Setup and Audit Protocol}
+We evaluate on a single BLK360 scan of an indoor robot showroom (68.5M
+colored points, 57 segmented objects) with Claude Sonnet 4.6. Six
+configurations are compared (Table~\ref{tab:configs}): the classifier
+alone; single-view and four-view early-fusion prompts, each with the
+initial sparse renders/base prompt and with dense renders/guardrail prompt;
+and four-view late fusion. To grade them consistently, two of the authors
+audited all 57 objects against the \emph{dense} four-view renders and the
+measured dimensions, rating every configuration's final label
+\emph{correct}, \emph{plausible} (consistent with the views but not
+verifiable from renders alone), or \emph{wrong}. Metered cost: late fusion
+\$2.63 per scene (285 calls, \$0.046/object); early fusion \$1.27; single
+view \$0.87.
+
+\subsection{Multi-View Study}
+\label{sec:study}
+Table~\ref{tab:configs} and Fig.~\ref{fig:accuracy}(b) summarize the
+audit. Three findings stand out.
+
+\emph{(1) Early fusion hurts.} Feeding four sparse views into one prompt
+dropped strict accuracy from 60\% (single view) to 49\%: extra oblique
+speckle views encouraged over-committed readings, e.g.\ two electrical
+cabinets confidently relabeled \emph{chair}. Denser renders and the prompt
+guardrails shrank but did not close the gap (53\% vs.\ 58\%).
+
+\emph{(2) Late fusion makes multi-view the most reliable configuration.}
+Judging each view independently and voting yields the fewest
+confidently-wrong labels of all configurations (10 of 57, vs.\ 11--19 for
+the VLM alternatives and 24 for the classifier alone) and the highest
+lenient accuracy (82\%). A contaminated view can no longer dominate: it is
+outvoted. The cost is a larger \emph{plausible} bucket --- split votes
+often land on the generic \emph{clutter} --- which trades decisiveness for
+safety, the right trade for an autonomously written robot database.
+
+\emph{(3) Vote unanimity is a free precision signal.} 17 of 57 objects
+received identical labels from all four views; 16 of those (94\%) were
+audited correct, versus 40\% among split-vote objects. Gating on the stored
+\texttt{viewVotes} thus gives a downstream consumer a calibrated
+route-to-human-review policy that per-call confidence alone did not
+provide.
+
+Render density mattered twice over: dense renders let the VLM recover four
+keyboards that sparse renders had disguised as \emph{monitor} or
+\emph{ladder} strips (Fig.~\ref{fig:votes}), and they corrected the human
+audit itself --- labels initially graded correct from sparse renders turned
+out wrong once the key grids became visible. Run-to-run sampling variance
+($\pm$2--3 objects) bounds how finely the configurations can be ranked.
+
+\begin{table}[t]
+\caption{Manual audit of final type labels (57 objects). C/P/W = correct /
+plausible / wrong; strict = C, lenient = C+P.}
+\label{tab:configs}
+\centering
+\footnotesize
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Configuration & C & P & W & strict & lenient \\
+\midrule
+Uni3D only (no VLM)            & 28 & 5  & 24 & 49\% & 58\% \\
+1 view, base prompt, sparse    & 34 & 12 & 11 & 60\% & 81\% \\
+4 views early fus., sparse     & 28 & 10 & 19 & 49\% & 67\% \\
+1 view, guardrails, dense      & 33 & 13 & 11 & 58\% & 81\% \\
+4 views early fus., dense      & 30 & 13 & 14 & 53\% & 75\% \\
+\textbf{4 views late fus., dense} & \textbf{32} & \textbf{15} & \textbf{10}
+  & \textbf{56\%} & \textbf{82\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.72\columnwidth]{fig_examples.png}
+\caption{Representative late-fusion corrections (one of four dense views;
+provisional label $\rightarrow$ fused label, vote-share confidence). The 3D
+classifier's industrial bias (\emph{stair}, \emph{ladder}) is corrected to
+furniture and displays; the keyboard recovery is detailed in
+Fig.~\ref{fig:votes}.}
+\label{fig:examples}
+\end{figure}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{fig_accuracy.png}
+\caption{Effect of VLM verification on the 57-object scene. (a)~Class
+distribution, classifier-only vs.\ after late fusion: implausible
+\emph{ladder}/\emph{stair} populations are redistributed to displays,
+chairs, and keyboards. (b)~Manual audit: early fusion degrades single-view
+accuracy, while late fusion yields the fewest wrong labels (10) and the
+best lenient accuracy (82\%).}
+\label{fig:accuracy}
+\end{figure*}
+
+\subsection{Implicit Model and Completed Records}
+On the late-fusion output, Prompt 2 marked 6 of 57 objects as key objects
+(control panels, a large machine, mobile robots, a wall display) and 50 as
+movable. Fig.~\ref{fig:cards} shows two completed TOSM records as stored in
+the output message, including the audit trail (per-view votes, fused
+confidence, one-sentence reason). Mean fused confidence was 0.71, and the
+17 unanimous objects carry confidence 1.0 by construction, aligning the
+stored confidence with the observed 94\% unanimity precision.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.78\textwidth]{fig_cards.png}
+\caption{Completed TOSM semantic-object records (dense render + symbolic /
+explicit / implicit fields) as serialized into the VDA 5050-style message.
+(a)~A wall display corrected from \emph{ladder}. (b)~A keyboard recovered
+from \emph{ladder}, an open-vocabulary class outside the candidate list.}
+\label{fig:cards}
+\end{figure*}
+
+\subsection{Discussion and Limitations}
+The division of labor is the main design point: everything measurable stays
+deterministic and VLM-immutable, so hallucination can corrupt neither poses
+nor dimensions, and the VLM contributes exactly the judgments geometry
+cannot make --- naming and affordances --- in a form (per-view votes,
+forced-tool JSON, stored reasons) that is auditable after the fact. All
+741 tool calls across the five VLM configurations returned schema-valid
+JSON. Remaining
+errors concentrate where the render itself is ambiguous: texture-poor
+slabs, a merged chair-plus-robot cluster from DBSCAN, and sparse strips.
+These point to upstream fixes --- finer segmentation, mesh renders --- not
+to the fusion protocol. The audit was performed by the authors from the
+same dense renders the VLM saw; an on-site inventory would tighten the
+numbers. Absolute strict accuracy ($\sim$56--60\%) reflects a deliberately
+hard test bed: a cluttered showroom scanned once, without manual cleanup.
+
+\section{Conclusion}
+We presented an automated pipeline that turns a single terrestrial laser
+scan into TOSM semantic-object records delivered as a VDA 5050-style JSON
+message, using a VLM in a tightly scoped, schema-forced role. A
+six-configuration study showed that the intuitive multi-view prompt ---
+all views at once --- degrades verification on sparse point renders,
+whereas per-view classification with confidence-weighted late fusion makes
+multi-view the most reliable configuration: wrong labels drop from 24
+(classifier-only) to 10, lenient accuracy reaches 82\%, and vote unanimity
+provides a 94\%-precise gating signal at \$2.6 per scene. Future work
+includes mesh-based renders, finer instance segmentation, and coupling the
+records to place modeling and a live digital twin of the same facility.
+
+\begin{thebibliography}{00}
+\bibitem{joo2020tosm} S.-H. Joo \emph{et al.}, ``Autonomous navigation
+framework for intelligent robots based on a semantic environment modeling,''
+\emph{Applied Sciences}, vol.~10, no.~9, p.~3219, 2020.
+\bibitem{vda5050} VDA and VDMA, ``VDA 5050: Interface for the communication
+between automated guided vehicles (AGV) and a master control,'' ver.~2.0,
+2022.
+\bibitem{patraucean2015} V. P\u{a}tr\u{a}ucean, I. Armeni, M. Nahangi,
+J. Yeung, I. Brilakis, and C. Haas, ``State of research in automatic
+as-built modelling,'' \emph{Adv. Eng. Informat.}, vol.~29, no.~2,
+pp.~162--171, 2015.
+\bibitem{zhou2024uni3d} J. Zhou, J. Wang, B. Ma, Y.-S. Liu, T. Huang, and
+X. Wang, ``Uni3D: Exploring unified 3D representation at scale,'' in
+\emph{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2024.
+\bibitem{su2015mvcnn} H. Su, S. Maji, E. Kalogerakis, and E.
+Learned-Miller, ``Multi-view convolutional neural networks for 3D shape
+recognition,'' in \emph{Proc. IEEE Int. Conf. Comput. Vis. (ICCV)}, 2015,
+pp.~945--953.
+\bibitem{tenorth2013} M. Tenorth and M. Beetz, ``KnowRob: A knowledge
+processing infrastructure for cognition-enabled robots,'' \emph{Int. J.
+Robot. Res.}, vol.~32, no.~5, pp.~566--590, 2013.
+\bibitem{qi2017} C. R. Qi, H. Su, K. Mo, and L. J. Guibas, ``PointNet: Deep
+learning on point sets for 3D classification and segmentation,'' in
+\emph{Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 2017,
+pp.~652--660.
+\bibitem{gu2024conceptgraphs} Q. Gu \emph{et al.}, ``ConceptGraphs:
+Open-vocabulary 3D scene graphs for perception and planning,'' in
+\emph{Proc. IEEE Int. Conf. Robot. Autom. (ICRA)}, 2024, pp.~5021--5028.
+\bibitem{huang2023vlmaps} C. Huang, O. Mees, A. Zeng, and W. Burgard,
+``Visual language maps for robot navigation,'' in \emph{Proc. IEEE Int.
+Conf. Robot. Autom. (ICRA)}, 2023, pp.~10608--10615.
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,58 @@
+id,uni3d,s1,s4,h1,h4,lf,gt_s1,gt_s4,gt_h1,gt_h4,gt_lf
+0,junction box,junction box,chair,chair,chair,chair,C,W,W,W,W
+1,clutter,clutter,Mobile Robot,clutter,clutter,clutter,C,P,C,C,C
+2,stair,Mobile Robot,chair,clutter,Mobile Robot,clutter,C,W,P,C,P
+3,ladder,Mobile Robot,Mobile Robot,ladder,Mobile Robot,clutter,P,P,W,P,P
+4,machine,machine,machine,machine,machine,machine,C,C,C,C,C
+5,stair,chair,chair,chair,chair,chair,C,C,C,C,C
+6,clutter,clutter,clutter,clutter,chair,clutter,C,C,C,W,C
+7,control panel,control panel,control panel,control panel,Mobile Robot,control panel,C,C,C,W,C
+8,clutter,clutter,monitor,clutter,clutter,clutter,C,W,C,C,C
+9,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+10,cable tray,cable tray,cable tray,cable tray,cable tray,cable tray,C,C,C,C,C
+11,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+12,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+13,clutter,monitor,chair,clutter,clutter,clutter,W,W,C,C,C
+14,ladder,monitor,monitor,Mobile Robot,chair,desk,W,W,W,W,P
+15,clutter,clutter,chair,chair,chair,chair,C,P,P,P,P
+16,control panel,control panel,control panel,control panel,control panel,control panel,C,C,C,C,C
+17,stair,chair,chair,Mobile Robot,chair,chair,C,C,W,C,C
+18,ladder,monitor,ladder,keyboard,keyboard,keyboard,W,W,W,W,W
+19,ladder,ladder,ladder,keyboard,keyboard,keyboard,W,W,W,W,W
+20,ladder,monitor,ladder,keyboard,keyboard,keyboard,W,W,W,W,W
+21,shelf,shelf,TV,keyboard,keyboard,keyboard,W,W,W,W,W
+22,ladder,handrail,handrail,ladder,handrail,ladder,C,C,W,C,W
+23,ladder,monitor,ladder,monitor,monitor,monitor,P,W,P,P,P
+24,handrail,handrail,handrail,Mobile Robot,Mobile Robot,clutter,P,P,W,W,P
+25,cable tray,cabinet,cable tray,cable tray,cabinet,cable tray,C,W,W,C,W
+26,ladder,trash can,trash can,monitor,ladder,monitor,P,P,P,W,P
+27,stair,monitor,monitor,monitor,monitor,monitor,W,W,W,W,W
+28,clutter,clutter,clutter,clutter,Mobile Robot,clutter,C,C,C,W,C
+29,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+30,handrail,handrail,door,handrail,refrigerator,handrail,P,P,P,W,P
+31,clutter,monitor,clutter,monitor,monitor,clutter,P,C,P,P,C
+32,ladder,ladder,Mobile Robot,Mobile Robot,Mobile Robot,desk,P,P,P,P,P
+33,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+34,ladder,monitor,monitor,monitor,monitor,monitor,C,C,C,C,C
+35,ladder,TV,chair,robot arm,Mobile Robot,Mobile Robot,W,W,C,P,P
+36,chair,Mobile Robot,Mobile Robot,clutter,clutter,clutter,P,P,P,P,P
+37,clutter,clutter,clutter,clutter,chair,clutter,C,C,C,W,C
+38,ladder,chair,chair,Mobile Robot,chair,chair,P,P,P,P,P
+39,ladder,TV,TV,TV,ladder,TV,C,C,C,W,C
+40,clutter,chair,chair,chair,chair,clutter,C,C,C,C,W
+41,stair,chair,chair,clutter,chair,chair,P,P,P,P,P
+42,junction box,junction box,chair,junction box,Mobile Robot,Mobile Robot,C,W,C,W,W
+43,clutter,clutter,clutter,clutter,chair,clutter,C,C,C,P,C
+44,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+45,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+46,ladder,monitor,ladder,keyboard,monitor,monitor,P,W,W,P,P
+47,clutter,clutter,clutter,clutter,keyboard,clutter,C,C,C,W,C
+48,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+49,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+50,ladder,monitor,ladder,keyboard,ladder,keyboard,W,W,W,W,W
+51,ladder,monitor,ladder,monitor,monitor,ladder,P,W,P,P,W
+52,ladder,ladder,ladder,ladder,handrail,ladder,W,W,W,C,W
+53,ladder,ladder,ladder,clutter,handrail,desk,W,W,W,C,W
+54,clutter,clutter,clutter,Mobile Robot,Mobile Robot,Mobile Robot,C,C,W,W,W
+55,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
+57,clutter,clutter,clutter,clutter,clutter,clutter,C,C,C,C,C
