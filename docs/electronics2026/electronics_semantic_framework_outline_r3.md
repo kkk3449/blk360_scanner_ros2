@@ -44,7 +44,7 @@
 - Validation: labeling/verification, gated querying(4조건), incremental update(시나리오 A–D) 벤치마크.
 
 ## 2. Related Work
-- 2.1 3D semantic mapping & scene graphs (3DSG, Open3DSG, MoMa-LLM; TOSM lineage: SMF → DK-SEMF).
+- 2.1 3D semantic mapping & scene graphs (3DSG, Open3DSG, MoMa-LLM; TOSM lineage: SMF → **DK-SMF** (Joo et al., Electronics 2025) — RGB-D 탐색 기반 object/place 자동 모델링; 본 논문은 TLS 백본+검증 게이팅+증분 갱신으로 확장, 차별점 표로 명시).
 - 2.2 Open-vocabulary 3D recognition and limits (Uni3D, PointCLIP V2; 자체 domain-gap/vocabulary 증거).
 - 2.3 Instance segmentation: learned (SPFormer, PTv3, Point-SAM) vs. geometric — 포지셔닝: **novel algorithm이 아니라 reproducible decomposition** (평가서 §7.4 표현 채택).
 - 2.4 Multi-view VLM verification (ICTC 2026 확장 지점 명시).
@@ -125,6 +125,15 @@ unchanged/updated/moved/inserted/absent 분류; per-node history/provenance; 상
 - **Pose-context(설치높이) ablation** ✅: 천장 객체 표적 방어로는 결정적(phantom keyboard 3개 제거), 전면 적용은 무익(런투런 분산 수준) — targeted defense로 서술
 - Uni3D vocabulary ablation ✅ (generic 30 66.7 % > curated 20 48.7 % > owner 18 33.3 %; run-to-run 분산 5 %p)
 - Segmentation parameter sensitivity □예정 (5.2와 공유)
+
+### 4.8 Object-Grounded Place Layer (보조 절, DK-SMF 계보)
+DK-SMF place 스키마(boundary polygon/isInsideOf) 승계: 수동 섹션 폴리곤
+(TIPS 2025) 정합 import + point-in-polygon isInsideOf 자동 산출 +
+**ring code**(구역 중점 방위각 순 verified 객체) → LLM place 명명 —
+"place 시맨틱은 검증 통과 객체에서만 유도"(게이트 전파). 2-시점 명명 진화
+실측: T1 control_panel_station/machine_workspace → T2 storage/seating
+(전시→테스트베드 개편 반영). SLIC 자동 room segmentation은 DK-SMF 인용,
+robot 층은 future work.
 
 ## 6. Application Demonstrations (contribution 아님)
 - 6.1 Knowledge-grounded 대화 예시 (confidence 노출 응답).
