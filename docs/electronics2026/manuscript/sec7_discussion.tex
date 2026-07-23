@@ -1,0 +1,53 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Cost and latency.}
+VLM verification is the only paid stage. Escalation is bounded by its
+trigger rate (52--58\% of objects), and per-call cost is $\sim$\$0.009; a
+40--80 object scene verifies for \$3.5--5. The incremental design changes
+the cost model qualitatively: a repeat scan costs \$0 (hash carry-over) and
+a changed scene costs in proportion to its change (2.7\% of rebuild in our
+measurement). Verification is offline; no VLM call sits on a robot's control
+path.
+
+\paragraph{Residual unverified content.}
+On exploration-quality scans, 24\% of objects remain unverified (47\% on the
+manual scan; 43\% on the 1/6-coverage ablation)---scan quality is the
+dominant driver of verification yield. The framework's position is to expose
+this residue, not shrink it cosmetically: unverified nodes stay queryable
+with demoted types, and the gate is only as good as the verifier
+(Sec.~5.3's unanimous-but-wrong cases; the escalated keyboard trap that
+survives gating in both scenes). Verifier-bounded gating is a property users
+must design around, and we report it as such.
+
+\paragraph{Small low-reflectance objects.}
+The clutter-absorption error class---disassembled robot, poster stand, and
+the controlled-change floor circulator all verified as
+\texttt{clutter}---shows a systematic blind spot: geometrically detected,
+semantically flattened. Change detection still works (the circulator was
+correctly inserted), but type-level recall for small dark appliances needs
+either close-range imagery or targeted re-rendering.
+
+\paragraph{Structure remnants.}
+The soffit filter removes vertical transition bands, but horizontal and
+sloped ceiling patches and content seen through openings survive structure
+removal (six residual cases in the robot hall). These are bounded,
+enumerable artifacts; extending the filter to non-vertical remnants is
+mechanical future work.
+
+\paragraph{The coverage paradox.}
+Better scans can make density-based decomposition worse: at 99.6\% coverage,
+gaps between adjacent objects close and DBSCAN chains 41\% of the scene into
+one mega-cluster. Our measurements show this artifact accounts for only
+$\sim$12\% of the epoch's absent nodes (5/43 recoverable by tighter
+re-splitting; 4/43 by Point-SAM refinement)---the rest is genuine change---but
+the effect argues for coverage-adaptive clustering or learned instance
+priors as the backbone's next iteration, applied under the same
+flagged-candidate discipline as our Point-SAM rule.
+
+\paragraph{Scope.}
+Results come from one scanner, one building, and object-level change;
+structural change (walls, large fixtures) and cross-site generalization are
+untested. The three-epoch study mitigates but does not remove the two-scene
+limitation. The place layer depends on manually authored polygons from a
+prior deployment; automatic room segmentation is deliberately out of scope.

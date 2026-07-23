@@ -1,0 +1,29 @@
+\section{Application Demonstrations}
+\label{sec:applications}
+
+The demonstrations in this section illustrate integration surfaces; they are
+not claimed as contributions.
+
+\subsection{Knowledge-Grounded Dialogue}
+The gated query interface supports task-language interaction in which
+confidence is part of the answer, not metadata. Asked ``is there a keyboard
+in the room?'', the system answers from the gated view: a verified keyboard
+is asserted with its location; an unverified one yields ``an object at
+(x,\,y) was proposed as a keyboard by the classifier but did not pass
+verification''---an answer a robot can act on conservatively (route a person,
+lower approach speed) instead of a confident guess.
+
+\subsection{Simulation Twin Injection}
+Because every node carries an explicit model in the scan frame, the graph
+injects directly into a physics simulation. We reuse the digital-twin
+construction of our prior work~\cite{raaicon2026} and add the semantic layer:
+each verified object spawns a labeled proxy (extent box or segmented cloud)
+in NVIDIA Isaac Sim, with verification status and provenance exposed in the
+scene inspector. Unverified objects spawn as neutral gray placeholders---the
+gate is visible in the twin.
+
+\subsection{Manipulation Readiness}
+The implicit layer (movability, openability, key-object status) plus
+verified pose and extents provide the minimum contract a manipulation planner
+needs for coarse feasibility screening. We state this as an interface
+property; manipulation experiments are out of scope.

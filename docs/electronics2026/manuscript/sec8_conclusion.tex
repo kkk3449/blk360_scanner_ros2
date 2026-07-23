@@ -1,0 +1,25 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented a framework that turns registered terrestrial laser scans into
+a queryable, confidence-aware, and maintainable semantic knowledge graph for
+indoor robots. A deterministic geometric backbone makes decomposition
+reproducible and diffs meaningful; multi-view VLM verification with automatic
+escalation attaches calibrated trust to every label while retaining what it
+cannot resolve as explicitly unverified; and mint-once identities with
+two-pass matching turn re-scans into node-level upserts whose cost scales
+with actual change. Across two industrial scenes and a real three-epoch
+study of one room, the framework improved verification accuracy by up to 11
+points through escalation, blocked hallucination traps by gating the data
+rather than instructing the model, preserved object identity across three
+scan epochs including a controlled physical change, and re-verified repeat
+scans at zero marginal VLM cost.
+
+Future work follows the limitations surfaced by our own evaluation:
+extending the remnant filter to non-vertical structure artifacts,
+coverage-adaptive decomposition to resolve the mega-cluster paradox,
+close-range or re-rendered imagery for small low-reflectance objects,
+structural-change updating beyond the object level, automatic place
+segmentation to close the loop with the DK-SMF lineage, and embodied
+validation in which a robot plans against the graph---including its
+unverified residue---in the loop.

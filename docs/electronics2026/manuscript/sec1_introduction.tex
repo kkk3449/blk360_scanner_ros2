@@ -1,0 +1,82 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Mobile robots deployed in industrial interiors increasingly need more than a
+map: they need environment \emph{knowledge}---which objects exist, where they
+are, what they afford---that can be queried in task language, trusted enough
+to act on, and kept current as the site changes. Terrestrial laser scanning
+(TLS) is an attractive source for such knowledge: survey-grade scanners
+deliver millimeter-accurate, globally registered geometry of an entire site
+in minutes, and are already routine in construction and facility management.
+Yet the path from a raw scan to knowledge a robot can safely use is broken in
+three places.
+
+First, \emph{semantic labels do not survive contact with industrial scenes}.
+Open-vocabulary 3D classifiers trained on web-scale or indoor-furniture
+distributions degrade sharply on industrial content: in our experiments a
+state-of-the-art point--text embedding model misclassifies most equipment,
+and---counterintuitively---restricting its vocabulary to the classes actually
+present makes accuracy \emph{worse} (66.7\% $\rightarrow$ 33.3\%,
+Sec.~5.6), indicating an embedding-level domain gap rather than a class-list
+problem. Pipelines that propagate such labels downstream hand the robot
+confident fictions.
+
+Second, \emph{ungrounded language interfaces hallucinate}. Letting an LLM
+answer questions about a scene from its own priors, or from an unvalidated
+label dump, produces fluent but unsupported claims---20.8\% of atomic factual
+claims in our LLM-only benchmark condition (Sec.~5.4). For a robot, a
+hallucinated fire extinguisher is not a harmless chat artifact.
+
+Third, \emph{scene models are built once and abandoned}. Most semantic
+mapping pipelines produce a single-epoch artifact with no principled update
+path: a re-scan either rebuilds everything---losing object identities that
+downstream planners and logs refer to---or is not integrated at all. Real
+sites drift continuously; in our own test room, roughly one third of object
+geometry changed within two weeks (Sec.~5.5).
+
+This paper presents a framework that addresses all three failures with one
+design principle: \emph{separate what can be made deterministic from what
+must remain probabilistic, and control the probabilistic part with explicit
+confidence machinery}. Concretely, we contribute:
+
+\begin{enumerate}
+\item \textbf{A deterministic geometric and explicit-modeling backbone.}
+From registered TLS input, seeded-RANSAC structure removal, fixed-parameter
+clustering with a conservative giant-split and a structure-remnant filter,
+and PCA-based explicit modeling run fully automatically; same-host re-runs
+are byte-identical. Determinism is not an implementation nicety: it is what
+makes verification results carryable, diffs meaningful, and update costs
+proportional to actual change.
+\item \textbf{Confidence-aware multi-view VLM verification with automatic
+escalation.} Each object is classified per-view under a forced answer
+schema; votes are fused confidence-weighted; split votes escalate
+automatically to a wider view set; and objects that still fail to converge
+are retained as explicitly \texttt{unverified}---never silently dropped and
+never resolved by a human in the loop.
+\item \textbf{Identity-preserving incremental knowledge-graph update.}
+Node IDs are minted once and carried by two-pass matching (spatial, then
+type-constrained move detection); re-scans apply node-level
+\texttt{unchanged/updated/moved/inserted/absent} upserts with per-revision
+history, and unchanged objects re-verify for free by content-hash carry-over.
+\end{enumerate}
+
+We validate the framework on two industrial indoor scenes with
+owner-confirmed ground truth, through five benchmark familes: segmentation
+repeatability and sensitivity, verification accuracy and escalation cost, a
+four-condition knowledge-grounded query benchmark with hallucination traps,
+synthetic update scenarios, and a real three-epoch study of one room spanning
+a manual scan, an autonomous exploration scan, and a controlled-change
+re-scan at 99.6\% coverage. Beyond the headline gains---escalation
++11.1/+6.3 points, gated querying +31 points over LLM-only with traps
+blocked, re-verification at 2.7\% of rebuild cost---the study surfaces
+failure modes we believe are as valuable as the successes: phantom objects
+from ceiling soffits, unanimous-but-wrong verifications, clutter absorption
+of small low-reflectance objects, and a coverage paradox in which a
+\emph{better} scan over-merges density-based clustering. Each is analyzed
+and either fixed by a method component or reported as a bounded limitation.
+
+The framework extends our ICTC 2026 multi-view VLM classification study with
+escalation, structural gating, identity matching, incremental update, and
+the multi-epoch evaluation; the knowledge-graph lineage follows our ISIS 2025
+work. Both are cited and the deltas are stated explicitly in
+Sec.~\ref{sec:related}.

@@ -1,0 +1,64 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{3D Semantic Mapping and Scene Graphs}
+% seeds: 3DSG, Open3DSG, MoMa-LLM; TOSM lineage SMF -> DK-SMF
+3D scene graphs organize metric maps into object-level nodes with semantic
+and relational structure~\cite{armeni20193dsg,koch2024open3dsg,
+honerkamp2024momallm}. Within the TOSM (triplet ontological semantic model)
+lineage, the semantic modeling framework (SMF) and its successor
+DK-SMF~\cite{joo2025dksmf} automate object \emph{and place} modeling from
+RGB-D exploration, combining zero-shot detection and VQA with
+domain-knowledge filtering and LLM-derived place semantics. Our framework
+adopts the same target representation (TOSM object/place layers, VDA5050-style
+export) but differs on four axes, summarized in
+Table~\ref{tab:dksmf}: a survey-grade TLS backbone instead of RGB-D streams;
+multi-view VLM \emph{verification with escalation} instead of
+domain-knowledge hallucination suppression; identity-preserving
+\emph{incremental} upserts instead of build-once modeling; and a place layer
+derived from \emph{verified objects only}, so the confidence gate propagates
+across layers.
+
+\begin{table}[t]
+\centering
+\caption{Positioning against DK-SMF~\cite{joo2025dksmf}.}
+\label{tab:dksmf}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Axis & DK-SMF & This work \\
+\midrule
+Sensing & RGB-D exploration & registered TLS (BLK360) \\
+Label trust & domain-knowledge filtering & multi-view verification + escalation \\
+Lifecycle & build-once & mint-once IDs, incremental upsert \\
+Place semantics & SLIC + LLM over detections & ring codes over verified objects \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Open-Vocabulary 3D Recognition and Its Limits}
+% seeds: Uni3D, PointCLIP V2; our domain-gap + vocabulary ablation evidence
+% TODO(prose): 2-3 paragraphs; cite Uni3D, PointCLIP v2; summarize collapse
+% on industrial content and the vocabulary ablation (66.7 -> 33.3).
+
+\subsection{Instance Segmentation: Learned versus Geometric}
+% seeds: SPFormer, PTv3, Point-SAM vs DBSCAN-family; positioning =
+% "reproducible decomposition", not novel segmentation. Point-SAM appears
+% as conditional refinement only (5.2).
+
+\subsection{Multi-View VLM Verification}
+% seeds: ICTC 2026 (ours) = 4-view forced-schema classification; delta here =
+% escalation, unverified retention, gating integration.
+
+\subsection{Knowledge-Grounded Querying and Hallucination Mitigation}
+% seeds: RAG-style grounding, structured-output constraints; our structural
+% gating as schema-level mitigation; ISIS 2025 lineage.
+
+\subsection{Incremental Semantic-Map Maintenance}
+% seeds: change detection in point clouds, lifelong mapping, object
+% permanence; gap: identity-preserving node-level upsert with verified
+% semantics is rare; scan-once-build-once contrast.
+
+\subsection{Map Representations for Robot Tasking}
+% seeds: capability matrix 2D map / 3D map / 3D semantic KG -> Table 1
+% (queryability, verification, update, place semantics, planner interface).

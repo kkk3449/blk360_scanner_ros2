@@ -1,0 +1,49 @@
+\section{System Overview}
+\label{sec:overview}
+
+Figure~\ref{fig:architecture} shows the framework as five stages with two
+feedback loops. A registered TLS scan enters the \emph{deterministic
+geometric backbone} (green in the figure): preprocessing and structure
+removal, object decomposition with remnant filtering, and explicit modeling.
+Its output---a set of clusters with explicit geometric attributes and
+provisional labels---feeds the \emph{probabilistic semantic stages} (orange):
+multi-view VLM verification with an internal escalation loop, and
+confidence-gated integration into the knowledge graph. The second loop is
+the \emph{update loop}: a later scan of the same site re-enters the backbone,
+is matched against existing node identities, and applies a node-level upsert
+rather than a rebuild.
+
+The color separation in the architecture is a claim boundary, not a drawing
+convention. Everything in the backbone is seeded and parameter-fixed;
+re-running it on the same host reproduces every retained cluster
+byte-identically (measured in Sec.~5.2; across hosts we define reproducibility
+numerically, within floating-point tolerance). Everything downstream of the
+first VLM call is stochastic; there we claim \emph{control}---schema-forced
+outputs, multi-view voting, automatic escalation, and confidence
+gating---rather than reproducibility.
+
+Each object node carries the three TOSM description layers: a
+\emph{symbolic} model (type, name, status), an \emph{explicit} model
+(pose, extents, yaw, color), and an \emph{implicit} model (movability,
+openability, key-object status). Verified and unverified content flow through
+the same graph but are separated at every interface: verification status is
+part of the node schema, gating is applied structurally at query time
+(Sec.~\ref{sec:query}), and the place layer is derived from verified objects
+only (Sec.~\ref{sec:place}).
+
+The framework is fully automated \emph{after registered TLS input}: scanner
+operation and vendor multi-setup registration are manual; everything from E57
+to queryable graph---including escalation decisions and update
+classification---runs without human intervention, and objects the verifier
+cannot resolve remain explicitly \texttt{unverified} rather than being
+resolved by hand.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig1_architecture.png}
+\caption{Framework architecture. Green stages form the deterministic
+geometric backbone; orange stages are probabilistic semantic inference under
+voting, escalation, and gating control. Two loops: automatic escalation
+(within verification) and incremental update (across scans).}
+\label{fig:architecture}
+\end{figure}

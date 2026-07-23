@@ -1,0 +1,231 @@
+\section{Methodology}
+\label{sec:methodology}
+
+This section describes the five processing stages of the framework in the
+order data flows through them: TLS preprocessing (\ref{sec:preprocess}),
+geometric object decomposition with structure-remnant filtering
+(\ref{sec:decomposition}), explicit modeling and provisional classification
+(\ref{sec:explicit}), multi-view VLM verification with automatic escalation
+(\ref{sec:verification}), object identity matching (\ref{sec:matching}), and
+confidence-gated graph upsert (\ref{sec:upsert}), followed by the structurally
+gated query interface (\ref{sec:query}) and the object-grounded place layer
+(\ref{sec:place}). Stages \ref{sec:preprocess}--\ref{sec:explicit} form the
+\emph{deterministic geometric backbone}: every random draw is seeded, so a
+re-run on the same host reproduces every retained cluster byte-identically
+(Sec.~5.2). Stages \ref{sec:verification} onward are \emph{probabilistic
+semantic inference}, controlled by voting, escalation, and confidence gating
+rather than by determinism claims. The pipeline is fully automated
+\emph{after registered TLS input}: the only manual steps are operating the
+scanner and the vendor registration of multi-setup scans.
+
+\subsection{TLS Preprocessing}
+\label{sec:preprocess}
+
+The input is a registered E57 point cloud from a survey-grade terrestrial
+scanner (Leica BLK360). When the export contains multiple setups, the loader
+applies each setup's registered pose and merges them into a single cloud; a
+70M-point six-setup scan and a pre-merged single-scan export are treated
+identically. The cloud is voxel-downsampled at 3\,cm---dense enough to retain
+object detail while bounding the cost of all later stages---and normalized so
+that the floor lies near $z=0$.
+
+Structural surfaces are then removed by iterative RANSAC plane extraction:
+the largest plane is estimated, its inliers (4\,cm threshold) are removed, and
+the process repeats until no plane exceeds a minimum support. Floors, walls,
+and ceilings---including split ceiling levels---are removed in practice within
+ten iterations on our scenes. RANSAC is seeded, making the extraction
+deterministic; the pre-removal cloud is retained as a \emph{ceiling reference}
+for the remnant filter of Sec.~\ref{sec:decomposition} and for incremental
+re-runs.
+
+\subsection{Geometric Object Decomposition and Structure-Remnant Filtering}
+\label{sec:decomposition}
+
+The structure-free cloud is partitioned into object candidates by
+fixed-parameter DBSCAN (\mbox{$\varepsilon=0.30$\,m}, 100-point minimum),
+followed by a \emph{conservative giant-split}: any cluster whose horizontal
+footprint exceeds 2.5\,m is re-clustered at a tighter
+\mbox{$\varepsilon=0.20$\,m}, and the split is accepted only if it yields at
+least two sub-clusters of 100+ points---separating merged neighbors without
+shattering genuinely large equipment. We position this stage deliberately:
+it is not a novel segmentation algorithm but a \emph{reproducible
+decomposition designed for verification and incremental diffing}. Its value
+is that identical inputs yield identical clusters with stable ordering, which
+later stages exploit for result carry-over and change detection
+(Sec.~\ref{sec:matching}). The parameter sensitivity of this choice is
+quantified in Sec.~5.2.
+
+\paragraph{Structure-remnant filter.}
+Real buildings violate the implicit assumption that structure is planar and
+objects are not. Our showroom scene has a three-level ceiling
+($z=2.48/2.18/1.95$\,m): RANSAC removes each horizontal ceiling plane, but the
+\emph{vertical soffit bands} at the level transitions survive removal and
+surface as phantom objects---thin, wall-colored slabs that a downstream
+verifier confidently misreads (e.g., as wall-mounted keyboards or handrails,
+Sec.~5.3). We therefore filter any cluster that is (i) a thin vertical planar
+band whose (ii) upward neighborhood in the \emph{pre-removal} cloud terminates
+in a dense horizontal layer---i.e., the band hangs from a real ceiling. The
+topmost-layer condition prevents false positives on window sills and wall
+remnants, which do not have a ceiling directly above. The filter reduced the
+showroom scene from 45 to 38 clusters and the robot hall from 88 to 81 while
+leaving every retained cluster byte-identical, so previously computed
+verification results remain valid. Horizontal and sloped ceiling patches are
+out of the filter's scope and are discussed as a residual limitation in
+Sec.~7.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig2_pipeline.png}
+\caption{Geometric backbone: preprocessing, plane removal, decomposition, and
+the structure-remnant filter (inset: ceiling-soffit phantom before/after).}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Explicit Modeling and Provisional Classification}
+\label{sec:explicit}
+
+Each cluster is summarized by an explicit model: axis extents and centroid,
+yaw from the principal component of the horizontal point distribution,
+dominant color, and point count. These attributes are deterministic functions
+of the cluster. A provisional semantic label is then attached by Uni3D
+open-vocabulary classification over a 30-class industrial vocabulary. The
+provisional label is explicitly \emph{not trusted}: our own vocabulary
+ablation (Sec.~5.6) shows that narrowing the vocabulary to the deployment
+domain \emph{reduces} accuracy (66.7\% $\rightarrow$ 33.3\%), indicating an
+embedding-level domain gap that cannot be fixed by class-list curation. The
+provisional label serves only as VLM context and as a fallback name; every
+label a robot may act on must pass the verification stage below.
+
+\subsection{Multi-View VLM Verification with Automatic Escalation}
+\label{sec:verification}
+
+Verification renders each object from four azimuths ($0^{\circ}$,
+$90^{\circ}$, $180^{\circ}$, $270^{\circ}$) and submits each view
+independently to a VLM (\texttt{claude-sonnet-4-6}) under a forced tool-use
+schema: the model must return a type, a confidence, and a stated reason, with
+the object's measured dimensions and provisional label provided as context.
+Free-text answers are impossible by construction, and prompts, decoding
+parameters, and model version are recorded with every result.
+
+Per-view votes are combined by confidence-weighted late fusion into a fused
+type and a \emph{vote share}. Three outcomes follow. If the votes are
+unanimous, the object is \texttt{verified}; unanimity is empirically a strong
+signal (100\% precision on both scenes' confirmed ground truth, Sec.~5.3),
+although Sec.~5.3 also documents its failure modes. If the vote splits, the
+object \emph{escalates automatically}: eight additional images---four diagonal
+azimuths and four zoomed close-ups---are classified, and the fusion is
+recomputed over all twelve votes. If the post-escalation share reaches 0.6
+the object becomes \texttt{verified\_escalated}; otherwise it remains
+\texttt{unverified}. Crucially, unresolved objects are not hidden, discarded,
+or resolved by a human: they stay in the graph with their failed candidate
+label attached, and the query interface (Sec.~\ref{sec:query}) is responsible
+for making their status impossible to ignore. Implicit robot-facing
+attributes (movability, openability, key-object status) are inferred once at
+fusion time from the winning view set.
+
+Escalation bounds cost: only split votes pay for the wider view set
+(trigger rates 52--58\%, Sec.~5.3), and per-call cost is $\sim$\$0.009, so a
+scene verifies for a few dollars (Sec.~7).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig3_multiview_escalation.png}
+\caption{Multi-view verification and automatic escalation, with per-view
+votes, fused share, and the three terminal statuses.}
+\label{fig:escalation}
+\end{figure}
+
+\subsection{Object Identity Matching}
+\label{sec:matching}
+
+The update problem is an \emph{identity} problem before it is a geometry
+problem: a robot that plans against node IDs needs yesterday's chair to be
+today's chair. Our policy is \textbf{mint-once}: a node ID is minted when an
+object first enters the graph---derived from a fingerprint of its birth-time
+anchor (map, position, extent)---and never changes afterwards. The
+fingerprint is a candidate-retrieval key, not the identity itself; after
+minting, matching alone carries identity forward.
+
+Matching between a new scan's records and existing nodes runs in two passes:
+
+\begin{enumerate}
+\item \textbf{Spatial pass.} A record matches a node if centroids agree
+within 0.5\,m and each extent agrees within 30\% (or 0.15\,m for small
+objects). Matches update pose and extents in place (\texttt{unchanged} /
+\texttt{updated}).
+\item \textbf{Move pass.} Remaining records match remaining nodes of the
+\emph{same type} with consistent dimensions within a 6\,m search radius,
+producing \texttt{moved} nodes with preserved IDs. Generic types
+(\texttt{clutter}, \texttt{unknown}) are excluded from this pass: a generic
+label carries too little identity for displacement claims, and our real
+two-epoch data showed that admitting them fabricates 2--5\,m
+``moves'' between unrelated piles (Sec.~5.5).
+\end{enumerate}
+
+Records that match nothing are minted as new nodes (\texttt{inserted});
+nodes that no record claims are marked \texttt{absent} but retained with
+their full history, so an object that returns later resumes its original
+identity. Sec.~5.5 evaluates matching accuracy, identity-switch rate, and
+false-new/false-absent rates, including the occlusion level at which
+matching breaks (40\% crop).
+
+\subsection{Confidence-Gated Graph Upsert}
+\label{sec:upsert}
+
+Each scan epoch applies its matched record set to the knowledge graph as a
+node-level upsert---no rebuild. Every node carries its verification status,
+provenance (per-view votes, fused share, escalation flag, model version), a
+per-revision history of every change, and \texttt{firstSeen}/\texttt{lastSeen}
+timestamps. Edges (spatial relations recomputed from explicit models) are
+scoped to the map and revision. The result is exported both as a canonical
+JSON graph and as mapId-scoped Neo4j Cypher, so multiple sites and epochs
+coexist in one database. Because unchanged objects reproduce byte-identical
+clusters (Sec.~\ref{sec:decomposition}), their verification results are
+carried over by content hash and a repeat scan costs \emph{zero} VLM calls;
+across-epoch scans pay only for changed clusters (2.7\% of full cost in our
+measurement, Sec.~5.5).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig5_identity_upsert.png}
+\caption{Identity matching and confidence-gated upsert: mint-once IDs,
+two-pass matching, and the five node outcomes across a re-scan.}
+\label{fig:upsert}
+\end{figure}
+
+\subsection{Query Interface with Structural Gating}
+\label{sec:query}
+
+The graph is queried through an LLM that receives a serialized view of the
+relevant nodes. The naive design---instructing the model not to assert
+unverified labels---fails in practice: in our benchmark the instructed model
+still asserted trap labels in 3 of 4 cases (Sec.~5.6). We therefore
+\emph{gate by construction, not exhortation}: in the query-time view, every
+unverified node's type is demoted to \texttt{unknown}, and the failed
+candidate label is moved to a separate \texttt{failedCandidateType} field
+whose semantics (``a classifier guess that did not survive verification'') are
+stated in the schema, not in behavioral instructions. With the gate in the
+data rather than the prompt, the model cannot assert an unverified label
+without visibly contradicting its input; all four traps are blocked and
+hallucination drops accordingly (Sec.~5.4).
+
+\subsection{Object-Grounded Place Layer}
+\label{sec:place}
+
+Robot tasking refers to places (``the docking area'') as often as to objects.
+Following the TOSM place schema of DK-SMF~\cite{joo2025dksmf}---boundary
+polygon, containment, and purpose---we add a place layer grounded in the
+verified object layer. Manually authored section polygons (from our 2025
+deployment of the same room) are registered into the scan frame by 2D
+occupancy-map alignment; each object's \texttt{isInsideOf} is computed by
+point-in-polygon on its anchor. Each place is then summarized by its
+\emph{ring code}: the sequence of member objects sorted by bearing around the
+place centroid---restricted to verified-tier objects, so the confidence gate
+propagates into place semantics---and a single LLM call names the place from
+its ring code. Across our three scan epochs the same polygons re-derive
+names that track the room's actual use (exhibition-era
+\texttt{control\_panel\_station} $\rightarrow$ storage-era
+\texttt{storage\_area} $\rightarrow$ test-era \texttt{operator\_workstation};
+Sec.~5.5), demonstrating that place semantics stay current without manual
+re-annotation. Automatic room segmentation (as in DK-SMF's SLIC approach) and
+the robot layer of TOSM are out of scope here.

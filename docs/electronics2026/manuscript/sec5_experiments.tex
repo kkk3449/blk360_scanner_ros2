@@ -1,0 +1,132 @@
+\section{Experiments}
+\label{sec:experiments}
+
+% ==================================================================
+% DRAFT SKELETON — all numbers below are final measured values from the
+% campaign (outputs/ artifacts referenced per subsection); prose to be
+% completed. Keep numbers as-is unless re-measured.
+% ==================================================================
+
+\subsection{Setup}
+\label{sec:setup}
+% Scenes: showroom (industrial showroom; det set 38 objects after remnant
+%   filter; the ICTC 57-set is an archived ad-hoc artifact used only for the
+%   5.3 comparison) and vis_n2 robot hall (det set 81 -> room-scoped 55).
+%   NEW: the two scenes are the SAME room at different epochs (framing:
+%   one environment x three epochs + natural/controlled change) + the
+%   showroom-era exhibition layout differs materially from the robot-hall
+%   layout -> both per-epoch (scene-like) evaluation and cross-epoch
+%   (update) evaluation are possible. Table 2: scene stats.
+% GT: render audit + owner confirmation 2-pass.
+%   showroom: confirmed 36 / plausible 12 / artifact 7 (excluded).
+%   vis_n2 (room scope, owner-corrected): confirmed 32 / lenient n=42.
+% Metrics: top-1 vs GT with synonym-tolerant matching (documented list);
+%   unanimity/escalation precision; hallucination = unsupported atomic
+%   claims / all factual atomic claims; update metrics per Sec 4.5.
+% Controls (all query conditions): same LLM (claude-sonnet-4-6), same
+%   system prompt, query set, decoding, retry policy, forced answer schema;
+%   LLM-only condition receives the same scene's Stage-A object dump.
+
+\subsection{Segmentation: Repeatability, Filtering, and Sensitivity}
+\label{sec:exp-seg}
+% - Repeatability: full E57->objects re-run byte-identical on both scenes
+%   (including 10-plane removal).
+% - Remnant filter: 7/7 phantoms removed (owner-confirmed), retained
+%   clusters unchanged (hash-verified).
+% - Sensitivity sweep (36 combos x 2 scenes): footprint 2.0-2.5 stable;
+%   3.0 begins merging (recall 0.929); 1.5 over-splits; eps/min_points
+%   extremes collapse recall to 0.21. Caveat: reference instances are the
+%   audited operating point (circularity note).
+% - Point-SAM conditional refinement (pre-registered rule): separation
+%   3/6 = 50%; sub-label accuracy 9/11 vs parent 5/11 = +36.4pp ->
+%   adopted ONLY as optional refinement of flagged merged candidates;
+%   auto-candidate false positives 2/6.
+% - NEW mega-cluster case (T3, coverage 99.6%): machine_012 120K pts
+%   (41% of clean cloud), 10.4x9.6 m; survives split at eps 0.20;
+%   eps 0.12 yields 36 subs. Refinement recovery vs 43 absent nodes:
+%   Point-SAM(K=7) 4/43, eps-0.12 re-split 5/43 => ~88% of absents are
+%   genuine change, not segmentation artifact (m012_refinement_recovery.json).
+
+\subsection{Verification: Fusion and Escalation}
+\label{sec:exp-verify}
+% Headline (confirmed-GT accuracy):
+%   showroom: base 75.0 -> esc 86.1% (n=36; recovered 5 / regressed 1;
+%     trigger 58%).
+%   vis_n2 (room scope, owner-corrected): base 78.1 -> esc 84.4% (n=32);
+%     lenient 76.2 -> 83.3% (n=42); recovered 3 / regressed 0.
+%   T1 manual-scan epoch (bidirectional-overlap GT transfer, n=8 small):
+%     verified-tier precision 100%, unanimity 7/7.
+% Tier precision: verified(unanimous) 100%/94.4%; escalated 100%/88.9%;
+%   unverified 50%/40% -> gating rationale.
+% Scan quality <-> pass rate: manual scan 47% unverified vs exploration
+%   24%; 1/6-coverage processing 56.6% verified-tier vs merged 75.6%.
+% Cost: calls 232/312 per scene, ~$0.009/call; curve = fig6.
+% Error taxonomy (fig10): (a) soffit phantoms (fixed by filter);
+%   (b) unanimous-but-wrong: hanging chain -> door_handle unanimous;
+%       escalated keyboard refuted by owner; partition fragments -> chair;
+%   (c) clutter absorption: disassembled robot, poster stand, and the
+%       T3 floor circulator (674 pts, low reflectance) -> unanimous clutter;
+%   (d) render-ambiguity -> unverified (by design).
+% ICTC 4-view comparison (extension evidence).
+
+\subsection{Knowledge-Grounded Query Evaluation (Four Conditions)}
+\label{sec:exp-query}
+% Conditions: (1) LLM-only (2) ungated KG (3) verified-only KG (4) gated KG.
+% showroom (v5, T1 graph, leak-fixed): llm 52.1 / ungated 81.2 /
+%   verified-only 58.3 (halluc 16.7, traps 4/4, 12 abstentions = recall
+%   cost) / gated 83.3 (halluc 16.7, traps 3/4) = best balance.
+% vis_n2: 50.0 / 56.2 / 46.9 / 59.4; fridge-trap gated OK; the
+%   escalated-verified keyboard trap fails in BOTH KG conditions =>
+%   verifier-bounded gating, reproduced across scenes. vis_n2 lower overall
+%   because end-to-end label errors (banner->fridge, robot->clutter)
+%   propagate -- honest reporting.
+% Note-only vs structural gating ablation lives in 5.6 but is foreshadowed
+%   here (traps 1/4 -> 4/4).
+% Fig 7 = 4-condition bars + trap panel; Table 5 = main numbers.
+
+\subsection{Incremental Update Evaluation}
+\label{sec:exp-update}
+% --- Synthetic scenarios (single-epoch edits of vis_n2 room scope):
+%   A unchanged repeat: 55/55 carried, 0 VLM calls, 0 switches.
+%   B move: 1/1 moved, ID preserved (+1 neighbor updated).
+%   C remove+insert: absent 1 + insert 1 exact; re-verified insert = $0.23.
+%   D occlusion 20%: 2/2 matched as updated, labels kept (+1 side switch);
+%   D occlusion 40%: matching fails -> 2 false-absent + 2 false-new =
+%   matching boundary quantified.
+% Selective re-verification cost: 2.7% of full rebuild; 0% on repeat.
+% --- Real three-epoch study (same room):
+%   T1 2026-06-01 manual scan (door open; semantic target = wall-removed
+%     export), T2 2026-07-07 visibility exploration scan, T3 2026-07-23
+%     visibility-SOTA exploration (6 setups, coverage 99.6%).
+%   Cross-epoch registration: FPFH+RANSAC -> ICP, RMSE 5.1 cm (T1->T2) /
+%     4.2 cm (T3->T2); fully automatic.
+%   rev2 diff (T1->T2): updated 4 / moved 3 / inserted 48 / absent 31
+%     (exhibition -> robot-hall reorganization; moved incl. fire
+%     extinguisher 3.0 m). Generic-type exclusion rule derived here
+%     (fake clutter<->clutter moves 9 -> 3).
+%   rev3 diff (T2->T3): matched 9 / moved 1 / inserted 31 / absent 45 on
+%     top of measured ~1/3 geometry change in 2 weeks (10 cm mutual
+%     support 65%).
+%   Controlled changes: 2/2 detected at geometry level (chair 0.64 m moved
+%     with ID preserved -- a node continuously matched since T1; floor
+%     circulator inserted but typed clutter = clutter-absorption case);
+%     1/2 correctly typed. t3_controlled_changes.json.
+%   Identity persistence: fire extinguisher / pump / industrial robot /
+%     chairs survive all three epochs under mint-once IDs.
+%   Place-layer evolution (ring-code naming per epoch): exhibition-era
+%     control_panel_station / machine_workspace -> storage_area-dominated ->
+%     operator_workstation / cluttered_seating_area; $0.02-0.03 per epoch.
+% Fig 8 = scenario diff renders; Fig 9 = real rev2->rev3 transition map;
+% Table 6 = scenario A-D + three-epoch metrics.
+
+\subsection{Ablation and Sensitivity}
+\label{sec:exp-ablation}
+% - Escalation on/off: base-4 counterfactual (5.3 numbers).
+% - Gating ablation: note-only (traps 1/4) vs structural (4/4) --
+%   "gate by construction".
+% - Pose-context ablation: targeted ceiling defense decisive (3 phantom
+%   keyboards removed) but full application harmful (esc 86.1 -> 72.2,
+%   escalated precision 100 -> 72.7) => targeted-only.
+% - Uni3D vocabulary: generic-30 66.7% > curated-20 48.7% > owner-18 33.3%
+%   (run-to-run variance ~5pp).
+% - Segmentation sensitivity: shared with 5.2.

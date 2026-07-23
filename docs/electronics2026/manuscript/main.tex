@@ -1,0 +1,78 @@
+% Electronics 2026 — manuscript draft (portable article layout).
+% Port to the MDPI class (mdpi.cls, "electronics" journal option) at submission:
+% section files are class-agnostic; only this preamble changes.
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\graphicspath{{../figs/}}
+
+\title{From Terrestrial Laser Scans to Queryable Robot Knowledge:\\
+A VLM-Verified Framework for Incremental 3D Semantic Modeling}
+
+\author{Sangmin Kim$^{1,2}$ \and Haryeong Kim$^{1,2}$\thanks{Authorship pending
+final contribution split (Sec.~5.2 refinement study).} \and
+Tae-Yong Kuc$^{1,2,*}$\\[2pt]
+\small $^1$Department of Electrical and Computer Engineering, Sungkyunkwan University\\
+\small $^2$CASELAB Co., Ltd. \quad $^*$Corresponding author}
+\date{Draft \today\ --- not for distribution}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Indoor service and inspection robots need environment knowledge that is not
+only semantically rich but also \emph{queryable}, \emph{reliable}, and
+\emph{maintainable} as the environment changes. Existing open-vocabulary 3D
+pipelines propagate unverified labels into downstream representations, and
+build-once scene models offer no principled path for keeping the model
+consistent with a changing site. We present a framework that converts
+registered terrestrial laser scans (TLS) into a confidence-aware semantic
+knowledge graph and keeps it current across repeated scans. The framework
+combines (i) a deterministic geometric backbone---seeded-RANSAC structure
+removal, fixed-parameter clustering with a structure-remnant filter, and
+explicit PCA-based object modeling---whose re-runs are byte-identical on the
+same host; (ii) multi-view vision--language-model (VLM) verification with
+automatic escalation, which fuses per-view forced-schema classifications and
+escalates split votes to a wider view set, retaining unresolved objects as
+explicitly \emph{unverified}; and (iii) an identity-preserving incremental
+update that matches re-scanned objects to mint-once node identities and
+applies confidence-gated node-level upserts without rebuilding the graph.
+On two industrial indoor scenes, escalation lifts verification accuracy from
+75.0\% to 86.1\% (showroom) and 78.1\% to 84.4\% (robot hall), with 100\%
+precision for unanimous votes; structurally gated querying answers 83.3\% of
+benchmark questions versus 52.1\% for an ungrounded LLM while blocking 3 of 4
+hallucination traps; and selective re-verification prices a repeat scan at
+2.7\% of a full rebuild (0\% when unchanged). A real three-epoch study of the
+same room---including a controlled-change re-scan---detects 2/2 physical
+changes at geometry level while preserving object identity across all three
+epochs. These results indicate that confidence-aware verification combined
+with incremental maintenance makes TLS-derived semantic knowledge practical
+for robot deployments.
+\end{abstract}
+
+\textbf{Keywords:} terrestrial laser scanning; semantic mapping; knowledge
+graph; vision--language models; incremental update; mobile robots
+
+\input{sec1_introduction}
+\input{sec2_related}
+\input{sec3_overview}
+\input{sec4_methodology}
+\input{sec5_experiments}
+\input{sec6_applications}
+\input{sec7_discussion}
+\input{sec8_conclusion}
+
+\bibliographystyle{unsrt}
+% \bibliography{refs}   % refs.bib to be assembled at porting time
+
+\end{document}
