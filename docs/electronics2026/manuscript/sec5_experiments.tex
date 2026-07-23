@@ -1,132 +1,317 @@
 \section{Experiments}
 \label{sec:experiments}
 
-% ==================================================================
-% DRAFT SKELETON — all numbers below are final measured values from the
-% campaign (outputs/ artifacts referenced per subsection); prose to be
-% completed. Keep numbers as-is unless re-measured.
-% ==================================================================
-
 \subsection{Setup}
 \label{sec:setup}
-% Scenes: showroom (industrial showroom; det set 38 objects after remnant
-%   filter; the ICTC 57-set is an archived ad-hoc artifact used only for the
-%   5.3 comparison) and vis_n2 robot hall (det set 81 -> room-scoped 55).
-%   NEW: the two scenes are the SAME room at different epochs (framing:
-%   one environment x three epochs + natural/controlled change) + the
-%   showroom-era exhibition layout differs materially from the robot-hall
-%   layout -> both per-epoch (scene-like) evaluation and cross-epoch
-%   (update) evaluation are possible. Table 2: scene stats.
-% GT: render audit + owner confirmation 2-pass.
-%   showroom: confirmed 36 / plausible 12 / artifact 7 (excluded).
-%   vis_n2 (room scope, owner-corrected): confirmed 32 / lenient n=42.
-% Metrics: top-1 vs GT with synonym-tolerant matching (documented list);
-%   unanimity/escalation precision; hallucination = unsupported atomic
-%   claims / all factual atomic claims; update metrics per Sec 4.5.
-% Controls (all query conditions): same LLM (claude-sonnet-4-6), same
-%   system prompt, query set, decoding, retry policy, forced answer schema;
-%   LLM-only condition receives the same scene's Stage-A object dump.
+
+\paragraph{Scenes and epochs.}
+All data comes from BLK360 scans of two industrial indoor environments that
+are, in fact, one room observed across its working life---a property we
+exploit deliberately. The \emph{showroom} epoch (June 2026) captures the room
+in an exhibition configuration, scanned manually with the door open; its
+semantic target is the wall-removed export (38 objects after remnant
+filtering). The \emph{robot hall} epoch (July 2026) captures the same room
+reorganized as a robot test hall, scanned by autonomous visibility-driven
+exploration (81 objects, room-scoped to 55). A third epoch (late July 2026)
+adds a controlled-change re-scan at 99.6\% coverage (Sec.~\ref{sec:exp-update}).
+Because the two primary epochs differ in layout, furnishing, and scan
+modality, they function as independent scenes for per-epoch evaluation
+(Secs.~\ref{sec:exp-seg}--\ref{sec:exp-query}) while enabling a real
+multi-epoch update study (Sec.~\ref{sec:exp-update}). Scene statistics are
+given in Table~\ref{tab:scenes}.
+
+\begin{table}[t]
+\centering
+\caption{Scene statistics (det sets, after structure-remnant filtering).}
+\label{tab:scenes}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & Showroom (T1) & Robot hall (T2) & Re-scan (T3) \\
+\midrule
+Scan mode & manual, 1 setup & exploration & exploration (SOTA), 6 setups \\
+Raw points & 68.6M & 68.6M & 70.2M \\
+Clean cloud (post-removal) & --- & 267K & 294K \\
+Objects (filtered) & 38 & 81 & 79 \\
+Room-scoped & 38 & 55 & 41 \\
+Removed planes & 10 & 10 & 10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Ground truth.}
+Ground truth was established in two passes: a render-based audit of every
+cluster, followed by confirmation from the room's owner. Labels are graded
+\emph{confirmed} (owner-verified), \emph{plausible}, or \emph{unknown};
+accuracy is reported against confirmed GT (with lenient variants including
+plausible where stated), unknown objects are excluded, and structure
+artifacts are tracked separately. For the showroom this yields confirmed
+36 / plausible 12; for the room-scoped robot hall, confirmed 32 (lenient
+$n{=}42$) after owner corrections.
+
+\paragraph{Metrics.}
+Classification accuracy is top-1 against GT under a documented
+synonym-tolerant matching (e.g., \emph{mobile manipulator} $\approx$
+\emph{robotic arm}). Verification quality is reported as per-tier precision
+(unanimous, escalated, unverified). For query evaluation, a
+\emph{hallucination} is an unsupported atomic factual claim, and the rate is
+unsupported claims over all factual claims in the answer set. Update quality
+uses the metrics of Sec.~\ref{sec:matching}: matching accuracy,
+identity-switch rate, false-new, false-absent, and unchanged stability.
+
+\paragraph{Controls.}
+All query conditions share the same LLM (\texttt{claude-sonnet-4-6}), system
+prompt, query set, decoding parameters, retry policy, and forced answer
+schema; conditions differ \emph{only} in the knowledge view they receive.
+The LLM-only condition receives the same scene's Stage-A object dump, so it
+is not information-starved---it is verification-starved.
 
 \subsection{Segmentation: Repeatability, Filtering, and Sensitivity}
 \label{sec:exp-seg}
-% - Repeatability: full E57->objects re-run byte-identical on both scenes
-%   (including 10-plane removal).
-% - Remnant filter: 7/7 phantoms removed (owner-confirmed), retained
-%   clusters unchanged (hash-verified).
-% - Sensitivity sweep (36 combos x 2 scenes): footprint 2.0-2.5 stable;
-%   3.0 begins merging (recall 0.929); 1.5 over-splits; eps/min_points
-%   extremes collapse recall to 0.21. Caveat: reference instances are the
-%   audited operating point (circularity note).
-% - Point-SAM conditional refinement (pre-registered rule): separation
-%   3/6 = 50%; sub-label accuracy 9/11 vs parent 5/11 = +36.4pp ->
-%   adopted ONLY as optional refinement of flagged merged candidates;
-%   auto-candidate false positives 2/6.
-% - NEW mega-cluster case (T3, coverage 99.6%): machine_012 120K pts
-%   (41% of clean cloud), 10.4x9.6 m; survives split at eps 0.20;
-%   eps 0.12 yields 36 subs. Refinement recovery vs 43 absent nodes:
-%   Point-SAM(K=7) 4/43, eps-0.12 re-split 5/43 => ~88% of absents are
-%   genuine change, not segmentation artifact (m012_refinement_recovery.json).
+
+\paragraph{Repeatability.}
+Running the full pipeline twice from the same E57---including ten-plane
+structure removal---reproduces every cluster byte-identically on both
+scenes (hash-verified). This is the property the incremental machinery
+builds on: identical clusters mean carryable verification results and
+attributable diffs.
+
+\paragraph{Remnant filter.}
+The structure-remnant filter of Sec.~\ref{sec:decomposition} removed all
+seven owner-confirmed ceiling-soffit phantoms (showroom 45$\rightarrow$38,
+robot hall 88$\rightarrow$81) while leaving every retained cluster
+unchanged. Before the filter, these phantoms did not merely inflate the
+object count: they produced confidently verified fictions (keyboard panels,
+handrails) that survived multi-view voting, since every view showed the same
+wall-colored slab. Detecting structure remnants \emph{geometrically},
+upstream of semantics, proved more reliable than asking the verifier to
+doubt itself (cf. the pose-context ablation, Sec.~\ref{sec:exp-ablation}).
+
+\paragraph{Parameter sensitivity.}
+A 36-combination sweep (giant-split footprint $\times$ DBSCAN
+$\varepsilon$ $\times$ minimum points) on both scenes shows a stable plateau
+at footprint 2.0--2.5\,m: instance recall degrades at 3.0\,m as neighbors
+merge (recall 0.929) and at 1.5\,m as equipment shatters, while
+$\varepsilon$/min-point extremes collapse recall to 0.21. The operating
+point (2.5\,m / 0.30 / 100) sits inside the plateau rather than on a peak.
+One caveat is circularity: the sweep's reference instances are the audited
+operating-point decomposition, so the sweep measures stability around the
+operating point, not global optimality.
+
+\paragraph{Conditional Point-SAM refinement.}
+Under a pre-registered rule (adopt iff $\geq$50\% of merged-cluster failures
+separate correctly \emph{and} label accuracy improves $\geq$5 points),
+Point-SAM separated 3/6 flagged merged clusters and sub-cluster labels
+reached 9/11 versus 5/11 for their parents (+36.4 points), so refinement is
+adopted---but only for \emph{flagged merged candidates}, since automatic
+candidate selection also produced 2/6 false positives that fragment single
+objects. The T3 epoch supplied a stress case: at 99.6\% coverage, inter-object
+gaps close and DBSCAN chains 120K points (41\% of the clean cloud) into one
+$10.4\times9.6$\,m mega-cluster that survives the giant-split. Refinement
+recovers little of the resulting diff inflation---Point-SAM ($K{=}7$
+prompts) re-associates 4 of 43 absent nodes, tighter re-splitting
+($\varepsilon{=}0.12$) 5 of 43---which is itself informative: $\sim$88\% of
+that epoch's absences reflect genuine scene change, not segmentation
+artifacts (Sec.~\ref{sec:exp-update}).
 
 \subsection{Verification: Fusion and Escalation}
 \label{sec:exp-verify}
-% Headline (confirmed-GT accuracy):
-%   showroom: base 75.0 -> esc 86.1% (n=36; recovered 5 / regressed 1;
-%     trigger 58%).
-%   vis_n2 (room scope, owner-corrected): base 78.1 -> esc 84.4% (n=32);
-%     lenient 76.2 -> 83.3% (n=42); recovered 3 / regressed 0.
-%   T1 manual-scan epoch (bidirectional-overlap GT transfer, n=8 small):
-%     verified-tier precision 100%, unanimity 7/7.
-% Tier precision: verified(unanimous) 100%/94.4%; escalated 100%/88.9%;
-%   unverified 50%/40% -> gating rationale.
-% Scan quality <-> pass rate: manual scan 47% unverified vs exploration
-%   24%; 1/6-coverage processing 56.6% verified-tier vs merged 75.6%.
-% Cost: calls 232/312 per scene, ~$0.009/call; curve = fig6.
-% Error taxonomy (fig10): (a) soffit phantoms (fixed by filter);
-%   (b) unanimous-but-wrong: hanging chain -> door_handle unanimous;
-%       escalated keyboard refuted by owner; partition fragments -> chair;
-%   (c) clutter absorption: disassembled robot, poster stand, and the
-%       T3 floor circulator (674 pts, low reflectance) -> unanimous clutter;
-%   (d) render-ambiguity -> unverified (by design).
-% ICTC 4-view comparison (extension evidence).
 
-\subsection{Knowledge-Grounded Query Evaluation (Four Conditions)}
+\begin{table}[t]
+\centering
+\caption{Verification accuracy against confirmed GT, and per-tier precision.}
+\label{tab:verification}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Showroom ($n{=}36$)} & \multicolumn{2}{c}{Robot hall ($n{=}32$)} \\
+ & base-4 & escalated & base-4 & escalated \\
+\midrule
+Accuracy & 75.0\% & \textbf{86.1\%} & 78.1\% & \textbf{84.4\%} \\
+Recovered / regressed & \multicolumn{2}{c}{5 / 1} & \multicolumn{2}{c}{3 / 0} \\
+Escalation trigger & \multicolumn{2}{c}{58\%} & \multicolumn{2}{c}{52\%} \\
+\midrule
+Unanimous precision & \multicolumn{2}{c}{100\% (21/21)} & \multicolumn{2}{c}{94.4\%} \\
+Escalated precision & \multicolumn{2}{c}{100\%} & \multicolumn{2}{c}{88.9\%} \\
+Unverified precision & \multicolumn{2}{c}{50\%} & \multicolumn{2}{c}{40\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Escalation lifts confirmed-GT accuracy from 75.0\% to 86.1\% on the showroom
+and from 78.1\% to 84.4\% on the robot hall (lenient: 76.2\%
+$\rightarrow$ 83.3\%, $n{=}42$), recovering 5 and 3 split-vote objects while
+regressing 1 and 0 (Table~\ref{tab:verification};
+Fig.~\ref{fig:esccost} shows the accuracy--cost trade-off at
+$\sim$\$0.009/call, 232 and 312 calls per scene). The tier structure
+justifies gating: unanimous and escalated tiers reach 88.9--100\% precision,
+while the unverified residue is 40--50\%---exactly the content the query
+interface must demote. On the manual-scan epoch (T1), with GT transferred by
+bidirectional point overlap ($n{=}8$, small), verified-tier precision is
+100\% with 7/7 unanimity.
+
+Verification yield tracks scan quality: the manual scan leaves 47\% of
+objects unverified versus 24\% for exploration scans, and re-processing the
+T3 scan from a single setup (1/6 coverage) drops the verified tier from
+75.6\% to 56.6\% on identical geometry. Coverage buys verifiability.
+
+\paragraph{Error taxonomy.}
+Four recurring error classes emerged (Fig.~\ref{fig:taxonomy}):
+(a) \emph{structure-remnant phantoms}---soffit bands verified as keyboards;
+eliminated upstream by the remnant filter;
+(b) \emph{unanimous-but-wrong}---a hanging chain unanimously verified as a
+door handle; an escalated keyboard the owner refuted; partition fragments as
+chairs. Unanimity is strong evidence, not proof, and the gate inherits the
+verifier's blind spots;
+(c) \emph{clutter absorption}---a disassembled robot, a poster stand, and a
+low-reflectance floor fan (674 points) each unanimously verified as
+\texttt{clutter}: geometrically detected, semantically flattened;
+(d) \emph{render ambiguity} $\rightarrow$ \texttt{unverified}, the intended
+failure mode.
+Classes (b) and (c) motivate reporting verification as \emph{tiered
+evidence} rather than truth, and drive the structural gating design.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{fig6_escalation_cost.png}
+\caption{Escalation accuracy--cost curves for both scenes.}
+\label{fig:esccost}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig10_error_taxonomy.png}
+\caption{Verification error taxonomy: remnant phantom, unanimous-but-wrong,
+clutter absorption, render ambiguity.}
+\label{fig:taxonomy}
+\end{figure}
+
+\subsection{Knowledge-Grounded Query Evaluation}
 \label{sec:exp-query}
-% Conditions: (1) LLM-only (2) ungated KG (3) verified-only KG (4) gated KG.
-% showroom (v5, T1 graph, leak-fixed): llm 52.1 / ungated 81.2 /
-%   verified-only 58.3 (halluc 16.7, traps 4/4, 12 abstentions = recall
-%   cost) / gated 83.3 (halluc 16.7, traps 3/4) = best balance.
-% vis_n2: 50.0 / 56.2 / 46.9 / 59.4; fridge-trap gated OK; the
-%   escalated-verified keyboard trap fails in BOTH KG conditions =>
-%   verifier-bounded gating, reproduced across scenes. vis_n2 lower overall
-%   because end-to-end label errors (banner->fridge, robot->clutter)
-%   propagate -- honest reporting.
-% Note-only vs structural gating ablation lives in 5.6 but is foreshadowed
-%   here (traps 1/4 -> 4/4).
-% Fig 7 = 4-condition bars + trap panel; Table 5 = main numbers.
+
+We evaluate four conditions over the same 48-item query set (symbolic,
+explicit, implicit, scene-level, and trap questions): (1) \emph{LLM-only}
+(Stage-A dump, no verification), (2) \emph{ungated KG}, (3)
+\emph{verified-only KG} (unverified nodes removed), and (4) \emph{gated KG}
+(unverified retained but structurally demoted,
+Sec.~\ref{sec:query}). Traps ask about objects whose only label is
+unverified---a correct system must decline to assert them.
+
+\begin{table}[t]
+\centering
+\caption{Query benchmark, four conditions (accuracy / hallucination rate /
+traps blocked).}
+\label{tab:query}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & LLM-only & Ungated & Verified-only & Gated \\
+\midrule
+Showroom & 52.1\% / 20.8\% / -- & 81.2\% / 18.8\% / 0/4 &
+58.3\% / 16.7\% / 4/4 & \textbf{83.3\% / 16.7\% / 3/4} \\
+Robot hall & 50.0\% & 56.2\% & 46.9\% & \textbf{59.4\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On the showroom (Table~\ref{tab:query}), grounding alone (ungated) lifts
+accuracy from 52.1\% to 81.2\% but blocks no traps; removing unverified
+content (verified-only) blocks all four traps at a steep recall price (12
+abstentions, 58.3\%); the gated condition is the balance point---83.3\% with
+3/4 traps blocked. The unblocked trap is instructive: an
+\emph{escalated-verified} keyboard misclassification passes any
+status-based gate in both scenes, because gating is bounded by verifier
+quality; we report this as a property, not an anomaly. The robot hall
+reproduces the ordering at lower absolute levels because its end-to-end
+label errors (banner$\rightarrow$refrigerator, robot$\rightarrow$clutter)
+propagate into every grounded condition---an honest end-to-end number rather
+than a curated one.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig7_query_benchmark.png}
+\caption{Four-condition query benchmark with trap-question panel.}
+\label{fig:query}
+\end{figure}
 
 \subsection{Incremental Update Evaluation}
 \label{sec:exp-update}
-% --- Synthetic scenarios (single-epoch edits of vis_n2 room scope):
-%   A unchanged repeat: 55/55 carried, 0 VLM calls, 0 switches.
-%   B move: 1/1 moved, ID preserved (+1 neighbor updated).
-%   C remove+insert: absent 1 + insert 1 exact; re-verified insert = $0.23.
-%   D occlusion 20%: 2/2 matched as updated, labels kept (+1 side switch);
-%   D occlusion 40%: matching fails -> 2 false-absent + 2 false-new =
-%   matching boundary quantified.
-% Selective re-verification cost: 2.7% of full rebuild; 0% on repeat.
-% --- Real three-epoch study (same room):
-%   T1 2026-06-01 manual scan (door open; semantic target = wall-removed
-%     export), T2 2026-07-07 visibility exploration scan, T3 2026-07-23
-%     visibility-SOTA exploration (6 setups, coverage 99.6%).
-%   Cross-epoch registration: FPFH+RANSAC -> ICP, RMSE 5.1 cm (T1->T2) /
-%     4.2 cm (T3->T2); fully automatic.
-%   rev2 diff (T1->T2): updated 4 / moved 3 / inserted 48 / absent 31
-%     (exhibition -> robot-hall reorganization; moved incl. fire
-%     extinguisher 3.0 m). Generic-type exclusion rule derived here
-%     (fake clutter<->clutter moves 9 -> 3).
-%   rev3 diff (T2->T3): matched 9 / moved 1 / inserted 31 / absent 45 on
-%     top of measured ~1/3 geometry change in 2 weeks (10 cm mutual
-%     support 65%).
-%   Controlled changes: 2/2 detected at geometry level (chair 0.64 m moved
-%     with ID preserved -- a node continuously matched since T1; floor
-%     circulator inserted but typed clutter = clutter-absorption case);
-%     1/2 correctly typed. t3_controlled_changes.json.
-%   Identity persistence: fire extinguisher / pump / industrial robot /
-%     chairs survive all three epochs under mint-once IDs.
-%   Place-layer evolution (ring-code naming per epoch): exhibition-era
-%     control_panel_station / machine_workspace -> storage_area-dominated ->
-%     operator_workstation / cluttered_seating_area; $0.02-0.03 per epoch.
-% Fig 8 = scenario diff renders; Fig 9 = real rev2->rev3 transition map;
-% Table 6 = scenario A-D + three-epoch metrics.
+
+\paragraph{Synthetic scenarios.}
+Controlled edits of the room-scoped robot hall isolate matcher behavior
+(Fig.~\ref{fig:update}): \emph{(A) unchanged repeat}: 55/55 nodes carried,
+zero VLM calls, zero identity switches; \emph{(B) move}: 1/1 moved with ID
+preserved; \emph{(C) remove+insert}: exact absent/insert classification, and
+re-verifying the insertion cost \$0.23 versus a full-scene rebuild;
+\emph{(D) occlusion}: at 20\% crop both affected objects still match (as
+updated, labels kept), at 40\% matching fails into 2 false-absents + 2
+false-news---the matcher's quantified breaking point, and the motivation for
+overlap-based matching features in future work. Selective re-verification
+prices an epoch at 2.7\% of full rebuild cost (0\% for scenario A).
+
+\paragraph{Real three-epoch study.}
+The three epochs of Table~\ref{tab:scenes} form a real update sequence:
+T1 (manual, June) $\rightarrow$ T2 (exploration, early July) $\rightarrow$
+T3 (99.6\%-coverage exploration with a controlled-change protocol, late
+July). Cross-epoch registration is fully automatic (FPFH+RANSAC then ICP;
+5.1\,cm RMSE for T1$\rightarrow$T2, 4.2\,cm for T3$\rightarrow$T2). The
+T1$\rightarrow$T2 diff records the room's exhibition-to-test-hall
+reorganization (updated 4 / moved 3 / inserted 48 / absent 31; among the
+moves, a fire extinguisher displaced 3.0\,m). This epoch also motivated the
+generic-type exclusion in the move pass: without it, clutter piles matched
+across 2--5\,m as fictitious ``moves'' (9 candidates, 3 credible).
+The T2$\rightarrow$T3 diff (matched 9 / moved 1 / inserted 31 / absent 45,
+Fig.~\ref{fig:epochs}) sits on top of measured natural drift: only 65\% of
+in-room object geometry is mutually supported at 10\,cm between the two
+scans two weeks apart---roughly a third of the room changed before any
+protocol was applied.
+
+Against the controlled-change protocol, the system detected \textbf{2/2
+physical changes at geometry level}: the moved chair is the epoch's
+\emph{only} \texttt{moved} node (0.64\,m, ID preserved---a node matched
+continuously since T1), and the introduced floor fan was correctly
+\texttt{inserted} but typed \texttt{clutter} (error class (c) above), giving
+1/2 at type level. Identity persistence is demonstrated across all three
+epochs: the fire extinguisher, pump, industrial robot, and several chairs
+retain their minted IDs through both reorganizations. The place layer
+re-derives per-epoch names from the same polygons
+(Sec.~\ref{sec:place}): exhibition-era \texttt{control\_panel\_station} and
+\texttt{machine\_workspace} become storage-dominated at T2 and
+\texttt{operator\_workstation}/\texttt{cluttered\_seating\_area} at T3, at
+\$0.02--0.03 per epoch.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig8_incremental_update.png}
+\caption{Synthetic update scenarios A--D: diff classifications and identity
+outcomes.}
+\label{fig:update}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig9_two_epoch_update.png}
+\caption{Real multi-epoch update, latest transition (T2$\rightarrow$T3):
+matched, moved (ID preserved), inserted, and absent nodes over the room
+mask.}
+\label{fig:epochs}
+\end{figure}
 
 \subsection{Ablation and Sensitivity}
 \label{sec:exp-ablation}
-% - Escalation on/off: base-4 counterfactual (5.3 numbers).
-% - Gating ablation: note-only (traps 1/4) vs structural (4/4) --
-%   "gate by construction".
-% - Pose-context ablation: targeted ceiling defense decisive (3 phantom
-%   keyboards removed) but full application harmful (esc 86.1 -> 72.2,
-%   escalated precision 100 -> 72.7) => targeted-only.
-% - Uni3D vocabulary: generic-30 66.7% > curated-20 48.7% > owner-18 33.3%
-%   (run-to-run variance ~5pp).
-% - Segmentation sensitivity: shared with 5.2.
+
+\emph{Escalation on/off} is the base-4 column of
+Table~\ref{tab:verification}: +11.1/+6.3 points. \emph{Gating style}:
+instructing the model to respect verification status blocks 1/4 traps;
+structural demotion blocks 4/4 under identical prompts---the single
+strongest argument that reliability must live in the data contract, not in
+instructions. \emph{Pose context}: injecting mounting-height context as a
+targeted defense removed all three phantom ceiling keyboards in its pilot,
+but applying it to every object \emph{reduced} escalated accuracy
+(86.1\%$\rightarrow$72.2\%) and escalated precision
+(100\%$\rightarrow$72.7\%)---a desk-height prior that helps ceilings hurts
+everything else, so it ships as a targeted defense only. \emph{Uni3D
+vocabulary}: generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
+(run-to-run variance $\sim$5 points), confirming the embedding-level domain
+gap that motivates verification. \emph{Segmentation parameters}: see
+Sec.~\ref{sec:exp-seg}.

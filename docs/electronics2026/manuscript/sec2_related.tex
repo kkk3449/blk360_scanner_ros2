@@ -2,22 +2,25 @@
 \label{sec:related}
 
 \subsection{3D Semantic Mapping and Scene Graphs}
-% seeds: 3DSG, Open3DSG, MoMa-LLM; TOSM lineage SMF -> DK-SMF
-3D scene graphs organize metric maps into object-level nodes with semantic
-and relational structure~\cite{armeni20193dsg,koch2024open3dsg,
-honerkamp2024momallm}. Within the TOSM (triplet ontological semantic model)
-lineage, the semantic modeling framework (SMF) and its successor
-DK-SMF~\cite{joo2025dksmf} automate object \emph{and place} modeling from
-RGB-D exploration, combining zero-shot detection and VQA with
-domain-knowledge filtering and LLM-derived place semantics. Our framework
-adopts the same target representation (TOSM object/place layers, VDA5050-style
-export) but differs on four axes, summarized in
-Table~\ref{tab:dksmf}: a survey-grade TLS backbone instead of RGB-D streams;
-multi-view VLM \emph{verification with escalation} instead of
-domain-knowledge hallucination suppression; identity-preserving
-\emph{incremental} upserts instead of build-once modeling; and a place layer
-derived from \emph{verified objects only}, so the confidence gate propagates
-across layers.
+3D scene graphs organize metric reconstructions into object-level nodes with
+semantic attributes and inter-object relations~\cite{armeni20193dsg}, and
+recent open-vocabulary variants attach language-queryable features to nodes
+and edges~\cite{koch2024open3dsg,gu2024conceptgraphs}, enabling LLM-driven
+mobile manipulation over the graph~\cite{honerkamp2024momallm}. These systems
+target flexible \emph{construction}; verification of what enters the graph
+and maintenance after construction receive less attention. Within the TOSM
+(triplet ontological semantic model) lineage that this work extends, the
+semantic modeling framework and its successor DK-SMF~\cite{joo2025dksmf}
+automate object \emph{and place} modeling from RGB-D exploration, combining
+zero-shot detection and VQA with domain-knowledge filtering and LLM-derived
+place semantics over SLIC-segmented regions. Our framework adopts the same
+target representation (TOSM object/place layers, VDA5050-style export) but
+differs on four axes, summarized in Table~\ref{tab:dksmf}: a survey-grade
+TLS backbone instead of RGB-D streams; multi-view VLM \emph{verification
+with escalation} instead of domain-knowledge hallucination suppression;
+identity-preserving \emph{incremental} upserts instead of build-once
+modeling; and a place layer derived from \emph{verified objects only}, so
+the confidence gate propagates across layers.
 
 \begin{table}[t]
 \centering
@@ -37,28 +40,91 @@ Place semantics & SLIC + LLM over detections & ring codes over verified objects 
 \end{table}
 
 \subsection{Open-Vocabulary 3D Recognition and Its Limits}
-% seeds: Uni3D, PointCLIP V2; our domain-gap + vocabulary ablation evidence
-% TODO(prose): 2-3 paragraphs; cite Uni3D, PointCLIP v2; summarize collapse
-% on industrial content and the vocabulary ablation (66.7 -> 33.3).
+Point--text embedding models such as Uni3D~\cite{zhou2024uni3d} and
+PointCLIP~V2~\cite{zhu2023pointclipv2} transfer web-scale vision--language
+supervision to point clouds and perform well on curated indoor benchmarks.
+On industrial TLS content, however, we observe the transfer breaking down:
+PointCLIP~V2 collapses to near-chance on our equipment classes, and Uni3D's
+accuracy \emph{drops} as the vocabulary is narrowed toward the true class
+list (66.7\% $\rightarrow$ 33.3\%, Sec.~\ref{sec:exp-ablation})---the
+embedding cannot separate the domain's classes regardless of prompt
+curation. We therefore treat open-vocabulary output as a provisional prior
+to be verified, not a label source.
 
 \subsection{Instance Segmentation: Learned versus Geometric}
-% seeds: SPFormer, PTv3, Point-SAM vs DBSCAN-family; positioning =
-% "reproducible decomposition", not novel segmentation. Point-SAM appears
-% as conditional refinement only (5.2).
+Learned 3D instance segmentation (SPFormer~\cite{sun2023spformer},
+PointTransformer~V3~\cite{wu2024ptv3}) and promptable point
+segmentation (Point-SAM~\cite{zhou2024pointsam}) dominate benchmark suites
+but inherit their training distributions; our transfer attempts to
+industrial TLS content failed without target-domain fine-tuning, for which
+no labels exist in our setting. We instead use a deliberately simple
+geometric decomposition---seeded plane removal plus fixed-parameter
+density clustering---and position it not as a novel algorithm but as a
+\emph{reproducible decomposition} whose determinism underwrites
+verification carry-over and incremental diffing
+(Sec.~\ref{sec:decomposition}). Point-SAM appears in our pipeline only as a
+conditionally adopted refinement of flagged merged clusters, under a
+pre-registered adoption rule (Sec.~\ref{sec:exp-seg}).
 
 \subsection{Multi-View VLM Verification}
-% seeds: ICTC 2026 (ours) = 4-view forced-schema classification; delta here =
-% escalation, unverified retention, gating integration.
+Using VLMs to label rendered 3D content is increasingly common; our prior
+work~\cite{kim2026ictc} established multi-view forced-schema VLM
+classification of TLS object clusters with confidence-weighted late fusion.
+This paper extends that mechanism into a verification system: automatic
+escalation of split votes to a wider view set, explicit retention of
+unresolved objects as \texttt{unverified}, tier-precision analysis
+(including unanimous-but-wrong failure cases), and integration of the
+resulting status into gating, update, and place layers. The comparison in
+Sec.~\ref{sec:exp-verify} quantifies the delta over the 4-view baseline.
 
 \subsection{Knowledge-Grounded Querying and Hallucination Mitigation}
-% seeds: RAG-style grounding, structured-output constraints; our structural
-% gating as schema-level mitigation; ISIS 2025 lineage.
+Grounding LLM answers in retrieved structure reduces but does not eliminate
+unsupported claims~\cite{lewis2020rag}, and instruction-based guardrails are
+known to be brittle. Our knowledge-graph lineage~\cite{kim2025isis} observed
+hallucinated environment facts when querying ungrounded LLMs about mapped
+spaces. We contribute a structural mitigation: rather than instructing the
+model to respect verification status, the query-time view demotes unverified
+types to \texttt{unknown} and quarantines the failed label in a
+schema-documented field---an intervention in the data contract whose effect
+we isolate in an ablation (traps 1/4 $\rightarrow$ 4/4,
+Sec.~\ref{sec:exp-ablation}).
 
 \subsection{Incremental Semantic-Map Maintenance}
-% seeds: change detection in point clouds, lifelong mapping, object
-% permanence; gap: identity-preserving node-level upsert with verified
-% semantics is rare; scan-once-build-once contrast.
+Change detection in point clouds and lifelong mapping address geometric
+currency~\cite{fehr2017tsdf}, and object-permanence reasoning tracks
+instances through rearrangement in embodied settings~\cite{wald2019rescan}.
+What is rare is maintenance of a \emph{semantic knowledge graph} whose nodes
+carry verified labels and stable identities across scan epochs:
+scan-once-build-once remains the default in TLS-derived modeling. Our
+mint-once identity policy with two-pass matching and confidence-gated
+node-level upserts (Secs.~\ref{sec:matching}--\ref{sec:upsert}) targets this
+gap, and Sec.~\ref{sec:exp-update} evaluates it on synthetic scenarios and a
+real three-epoch sequence with a controlled-change protocol.
 
 \subsection{Map Representations for Robot Tasking}
-% seeds: capability matrix 2D map / 3D map / 3D semantic KG -> Table 1
-% (queryability, verification, update, place semantics, planner interface).
+Table~\ref{tab:capability} contrasts the representations a deployment can
+choose from. A 2D occupancy map supports navigation but neither queryability
+nor semantics; a raw 3D scan adds geometry but no task language; a verified
+semantic knowledge graph adds queryability, per-fact confidence, and---with
+this work---a maintenance path. The table is analytical; its query and
+update columns are substantiated by Secs.~\ref{sec:exp-query}
+and~\ref{sec:exp-update}.
+
+\begin{table}[t]
+\centering
+\caption{Capability comparison of environment representations.}
+\label{tab:capability}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & 2D map & 3D scan & 3D semantic KG (this work) \\
+\midrule
+Metric navigation & \checkmark & \checkmark & \checkmark (derived) \\
+Object geometry & -- & \checkmark & \checkmark (explicit models) \\
+Task-language query & -- & -- & \checkmark (gated) \\
+Per-fact confidence & -- & -- & \checkmark (verification tiers) \\
+Change maintenance & re-map & re-scan & node-level upsert \\
+Place semantics & -- & -- & \checkmark (verified ring codes) \\
+\bottomrule
+\end{tabular}
+\end{table}

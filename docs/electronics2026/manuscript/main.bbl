@@ -1,0 +1,111 @@
+\begin{thebibliography}{10}
+
+\bibitem{armeni20193dsg}
+Iro Armeni, Zhi-Yang He, JunYoung Gwak, Amir~R. Zamir, Martin Fischer, Jitendra
+  Malik, and Silvio Savarese.
+\newblock 3{D} scene graph: A structure for unified semantics, 3{D} space, and
+  camera.
+\newblock In {\em Proc. IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, 2019.
+
+\bibitem{koch2024open3dsg}
+Sebastian Koch, Narunas Vaskevicius, Mirco Colosi, Pedro Hermosilla, and Timo
+  Ropinski.
+\newblock Open3{DSG}: Open-vocabulary 3{D} scene graphs from point clouds with
+  queryable objects and open-set relationships.
+\newblock In {\em Proc. IEEE/CVF Conf. on Computer Vision and Pattern
+  Recognition (CVPR)}, 2024.
+
+\bibitem{gu2024conceptgraphs}
+Qiao Gu, Alihusein Kuwajerwala, Sacha Morin, Krishna~Murthy Jatavallabhula,
+  et~al.
+\newblock Concept{G}raphs: Open-vocabulary 3{D} scene graphs for perception and
+  planning.
+\newblock In {\em Proc. IEEE Int. Conf. on Robotics and Automation (ICRA)},
+  2024.
+
+\bibitem{honerkamp2024momallm}
+Daniel Honerkamp, Martin Buechner, Fabien Despinoy, Tim Welschehold, and
+  Abhinav Valada.
+\newblock Language-grounded dynamic scene graphs for interactive object search
+  with mobile manipulation.
+\newblock {\em IEEE Robotics and Automation Letters}, 2024.
+
+\bibitem{joo2025dksmf}
+Kyung-Jin Joo et~al.
+\newblock {DK-SMF}: Domain knowledge-driven semantic modeling framework for
+  service robots.
+\newblock {\em Electronics}, 14(16):3197, 2025.
+
+\bibitem{zhou2024uni3d}
+Junsheng Zhou, Jinsheng Wang, Baorui Ma, Yu-Shen Liu, Tiejun Huang, and Xinlong
+  Wang.
+\newblock Uni3{D}: Exploring unified 3{D} representation at scale.
+\newblock In {\em Proc. Int. Conf. on Learning Representations (ICLR)}, 2024.
+
+\bibitem{zhu2023pointclipv2}
+Xiangyang Zhu, Renrui Zhang, Bowei He, Ziyu Guo, Ziyao Zeng, Zipeng Qin,
+  Shanghang Zhang, and Peng Gao.
+\newblock Point{CLIP} {V}2: Prompting {CLIP} and {GPT} for powerful 3{D}
+  open-world learning.
+\newblock In {\em Proc. IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, 2023.
+
+\bibitem{sun2023spformer}
+Jiahao Sun, Chunmei Qing, Junpeng Tan, and Xiangmin Xu.
+\newblock Superpoint transformer for 3{D} scene instance segmentation.
+\newblock In {\em Proc. AAAI Conf. on Artificial Intelligence}, 2023.
+
+\bibitem{wu2024ptv3}
+Xiaoyang Wu, Li~Jiang, Peng-Shuai Wang, Zhijian Liu, Xihui Liu, Yu~Qiao, Wanli
+  Ouyang, Tong He, and Hengshuang Zhao.
+\newblock Point transformer {V}3: Simpler, faster, stronger.
+\newblock In {\em Proc. IEEE/CVF Conf. on Computer Vision and Pattern
+  Recognition (CVPR)}, 2024.
+
+\bibitem{zhou2024pointsam}
+Yuchen Zhou, Jiayuan Gu, Tung~Yen Chen, et~al.
+\newblock Point-{SAM}: Promptable 3{D} segmentation model for point clouds.
+\newblock {\em arXiv preprint arXiv:2406.17741}, 2024.
+
+\bibitem{kim2026ictc}
+Sangmin Kim and Tae-Yong Kuc.
+\newblock Multi-view vision--language semantic extraction from terrestrial
+  laser scans.
+\newblock In {\em Proc. Int. Conf. on Information and Communication Technology
+  Convergence (ICTC)}, 2026.
+\newblock submitted.
+
+\bibitem{lewis2020rag}
+Patrick Lewis, Ethan Perez, Aleksandra Piktus, et~al.
+\newblock Retrieval-augmented generation for knowledge-intensive {NLP} tasks.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
+  2020.
+
+\bibitem{kim2025isis}
+Sangmin Kim and Tae-Yong Kuc.
+\newblock Knowledge-graph-based environment representation for mobile robots.
+\newblock In {\em Proc. Int. Symp. on Advanced Intelligent Systems (ISIS)},
+  2025.
+
+\bibitem{fehr2017tsdf}
+Marius Fehr, Fadri Furrer, Ivan Dryanovski, J{\"u}rgen Sturm, Igor
+  Gilitschenski, Roland Siegwart, and Cesar Cadena.
+\newblock {TSDF}-based change detection for consistent long-term dense
+  reconstruction and dynamic object discovery.
+\newblock In {\em Proc. IEEE Int. Conf. on Robotics and Automation (ICRA)},
+  2017.
+
+\bibitem{wald2019rescan}
+Johanna Wald, Armen Avetisyan, Nassir Navab, Federico Tombari, and Matthias
+  Nie{\ss}ner.
+\newblock {RIO}: 3{D} object instance re-localization in changing indoor
+  environments.
+\newblock In {\em Proc. IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, 2019.
+
+\bibitem{raaicon2026}
+Sangmin Kim and Tae-Yong Kuc.
+\newblock Scan-to-sim digital twin construction for autonomous mobile
+  manipulator robots.
+\newblock In {\em Proc. RAAICON}, 2026.
+\newblock submitted.
+
+\end{thebibliography}

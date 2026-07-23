@@ -1,0 +1,141 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\citation{armeni20193dsg}
+\citation{koch2024open3dsg}
+\citation{gu2024conceptgraphs}
+\citation{honerkamp2024momallm}
+\citation{joo2025dksmf}
+\citation{joo2025dksmf}
+\citation{zhou2024uni3d}
+\citation{zhu2023pointclipv2}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}3D Semantic Mapping and Scene Graphs}{2}{subsection.2.1}\protected@file@percent }
+\citation{sun2023spformer}
+\citation{wu2024ptv3}
+\citation{zhou2024pointsam}
+\citation{kim2026ictc}
+\citation{lewis2020rag}
+\citation{kim2025isis}
+\citation{fehr2017tsdf}
+\citation{wald2019rescan}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Positioning against DK-SMF~\cite  {joo2025dksmf}.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:dksmf}{{1}{3}{Positioning against DK-SMF~\cite {joo2025dksmf}}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Open-Vocabulary 3D Recognition and Its Limits}{3}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Instance Segmentation: Learned versus Geometric}{3}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Multi-View VLM Verification}{3}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Knowledge-Grounded Querying and Hallucination Mitigation}{3}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Incremental Semantic-Map Maintenance}{3}{subsection.2.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Capability comparison of environment representations.}}{4}{table.2}\protected@file@percent }
+\newlabel{tab:capability}{{2}{4}{Capability comparison of environment representations}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Map Representations for Robot Tasking}{4}{subsection.2.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}System Overview}{4}{section.3}\protected@file@percent }
+\newlabel{sec:overview}{{3}{4}{System Overview}{section.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Methodology}{4}{section.4}\protected@file@percent }
+\newlabel{sec:methodology}{{4}{4}{Methodology}{section.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Framework architecture. Green stages form the deterministic geometric backbone; orange stages are probabilistic semantic inference under voting, escalation, and gating control. Two loops: automatic escalation (within verification) and incremental update (across scans).}}{5}{figure.1}\protected@file@percent }
+\newlabel{fig:architecture}{{1}{5}{Framework architecture. Green stages form the deterministic geometric backbone; orange stages are probabilistic semantic inference under voting, escalation, and gating control. Two loops: automatic escalation (within verification) and incremental update (across scans)}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}TLS Preprocessing}{5}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:preprocess}{{4.1}{5}{TLS Preprocessing}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Geometric Object Decomposition and Structure-Remnant Filtering}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:decomposition}{{4.2}{5}{Geometric Object Decomposition and Structure-Remnant Filtering}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Structure-remnant filter.}{5}{section*.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Geometric backbone: preprocessing, plane removal, decomposition, and the structure-remnant filter (inset: ceiling-soffit phantom before/after).}}{6}{figure.2}\protected@file@percent }
+\newlabel{fig:pipeline}{{2}{6}{Geometric backbone: preprocessing, plane removal, decomposition, and the structure-remnant filter (inset: ceiling-soffit phantom before/after)}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Explicit Modeling and Provisional Classification}{6}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:explicit}{{4.3}{6}{Explicit Modeling and Provisional Classification}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Multi-View VLM Verification with Automatic Escalation}{6}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:verification}{{4.4}{6}{Multi-View VLM Verification with Automatic Escalation}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Object Identity Matching}{6}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:matching}{{4.5}{6}{Object Identity Matching}{subsection.4.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Multi-view verification and automatic escalation, with per-view votes, fused share, and the three terminal statuses.}}{7}{figure.3}\protected@file@percent }
+\newlabel{fig:escalation}{{3}{7}{Multi-view verification and automatic escalation, with per-view votes, fused share, and the three terminal statuses}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Confidence-Gated Graph Upsert}{7}{subsection.4.6}\protected@file@percent }
+\newlabel{sec:upsert}{{4.6}{7}{Confidence-Gated Graph Upsert}{subsection.4.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Query Interface with Structural Gating}{7}{subsection.4.7}\protected@file@percent }
+\newlabel{sec:query}{{4.7}{7}{Query Interface with Structural Gating}{subsection.4.7}{}}
+\citation{joo2025dksmf}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan.}}{8}{figure.4}\protected@file@percent }
+\newlabel{fig:upsert}{{4}{8}{Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Object-Grounded Place Layer}{8}{subsection.4.8}\protected@file@percent }
+\newlabel{sec:place}{{4.8}{8}{Object-Grounded Place Layer}{subsection.4.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{8}{section.5}\protected@file@percent }
+\newlabel{sec:experiments}{{5}{8}{Experiments}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Setup}{8}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:setup}{{5.1}{8}{Setup}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Scenes and epochs.}{8}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Ground truth.}{8}{section*.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Scene statistics (det sets, after structure-remnant filtering).}}{9}{table.3}\protected@file@percent }
+\newlabel{tab:scenes}{{3}{9}{Scene statistics (det sets, after structure-remnant filtering)}{table.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Metrics.}{9}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Controls.}{9}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Segmentation: Repeatability, Filtering, and Sensitivity}{9}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:exp-seg}{{5.2}{9}{Segmentation: Repeatability, Filtering, and Sensitivity}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Repeatability.}{9}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Remnant filter.}{9}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Parameter sensitivity.}{9}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Conditional Point-SAM refinement.}{9}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Verification: Fusion and Escalation}{9}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:exp-verify}{{5.3}{9}{Verification: Fusion and Escalation}{subsection.5.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Verification accuracy against confirmed GT, and per-tier precision.}}{10}{table.4}\protected@file@percent }
+\newlabel{tab:verification}{{4}{10}{Verification accuracy against confirmed GT, and per-tier precision}{table.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Escalation accuracy--cost curves for both scenes.}}{10}{figure.5}\protected@file@percent }
+\newlabel{fig:esccost}{{5}{10}{Escalation accuracy--cost curves for both scenes}{figure.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Error taxonomy.}{10}{section*.10}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity.}}{11}{figure.6}\protected@file@percent }
+\newlabel{fig:taxonomy}{{6}{11}{Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity}{figure.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Query benchmark, four conditions (accuracy / hallucination rate / traps blocked).}}{11}{table.5}\protected@file@percent }
+\newlabel{tab:query}{{5}{11}{Query benchmark, four conditions (accuracy / hallucination rate / traps blocked)}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Knowledge-Grounded Query Evaluation}{11}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:exp-query}{{5.4}{11}{Knowledge-Grounded Query Evaluation}{subsection.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Incremental Update Evaluation}{11}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:exp-update}{{5.5}{11}{Incremental Update Evaluation}{subsection.5.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Synthetic scenarios.}{11}{section*.11}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Four-condition query benchmark with trap-question panel.}}{12}{figure.7}\protected@file@percent }
+\newlabel{fig:query}{{7}{12}{Four-condition query benchmark with trap-question panel}{figure.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Real three-epoch study.}{12}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Ablation and Sensitivity}{12}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:exp-ablation}{{5.6}{12}{Ablation and Sensitivity}{subsection.5.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Application Demonstrations}{12}{section.6}\protected@file@percent }
+\newlabel{sec:applications}{{6}{12}{Application Demonstrations}{section.6}{}}
+\citation{raaicon2026}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Synthetic update scenarios A--D: diff classifications and identity outcomes.}}{13}{figure.8}\protected@file@percent }
+\newlabel{fig:update}{{8}{13}{Synthetic update scenarios A--D: diff classifications and identity outcomes}{figure.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Knowledge-Grounded Dialogue}{13}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Simulation Twin Injection}{13}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Manipulation Readiness}{13}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{13}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{13}{Discussion}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cost and latency.}{13}{section*.13}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Real multi-epoch update, latest transition (T2$\rightarrow $T3): matched, moved (ID preserved), inserted, and absent nodes over the room mask.}}{14}{figure.9}\protected@file@percent }
+\newlabel{fig:epochs}{{9}{14}{Real multi-epoch update, latest transition (T2$\rightarrow $T3): matched, moved (ID preserved), inserted, and absent nodes over the room mask}{figure.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{Residual unverified content.}{14}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Small low-reflectance objects.}{14}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Structure remnants.}{14}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The coverage paradox.}{14}{section*.17}\protected@file@percent }
+\bibstyle{unsrt}
+\bibdata{refs}
+\bibcite{armeni20193dsg}{1}
+\bibcite{koch2024open3dsg}{2}
+\bibcite{gu2024conceptgraphs}{3}
+\bibcite{honerkamp2024momallm}{4}
+\bibcite{joo2025dksmf}{5}
+\bibcite{zhou2024uni3d}{6}
+\bibcite{zhu2023pointclipv2}{7}
+\bibcite{sun2023spformer}{8}
+\bibcite{wu2024ptv3}{9}
+\@writefile{toc}{\contentsline {paragraph}{Scope.}{15}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{15}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{15}{Conclusion}{section.8}{}}
+\bibcite{zhou2024pointsam}{10}
+\bibcite{kim2026ictc}{11}
+\bibcite{lewis2020rag}{12}
+\bibcite{kim2025isis}{13}
+\bibcite{fehr2017tsdf}{14}
+\bibcite{wald2019rescan}{15}
+\bibcite{raaicon2026}{16}
+\gdef \@abspage@last{16}
