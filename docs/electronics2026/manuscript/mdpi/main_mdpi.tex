@@ -1,0 +1,112 @@
+% MDPI Electronics port — shares section files with ../main.tex (draft build).
+% Compile from this directory: pdflatex main_mdpi; bibtex main_mdpi; pdflatex x2.
+\documentclass[electronics,article,submit,pdftex,moreauthors]{Definitions/mdpi}
+
+\firstpage{1}
+\makeatletter
+\setcounter{page}{\@firstpage}
+\makeatother
+\pubvolume{1}
+\issuenum{1}
+\articlenumber{0}
+\pubyear{2026}
+\copyrightyear{2026}
+%\externaleditor{Academic Editor: Firstname Lastname}
+\datereceived{ }
+\daterevised{ }
+\dateaccepted{ }
+\datepublished{ }
+\hreflink{https://doi.org/}
+
+\graphicspath{{../../figs/}}
+
+\Title{From Terrestrial Laser Scans to Queryable Robot Knowledge: A
+VLM-Verified Framework for Incremental 3D Semantic Modeling}
+
+\TitleCitation{From Terrestrial Laser Scans to Queryable Robot Knowledge}
+
+\Author{Sangmin Kim $^{1,2}$, Haryeong Kim $^{1,2}$ and Tae-Yong Kuc $^{1,2,}$*}
+
+\AuthorNames{Sangmin Kim, Haryeong Kim and Tae-Yong Kuc}
+
+\AuthorCitation{Kim, S.; Kim, H.; Kuc, T.-Y.}
+
+\address{%
+$^{1}$ \quad Department of Electrical and Computer Engineering, Sungkyunkwan
+University, Suwon, Republic of Korea; kimsang.m@g.skku.edu\\
+$^{2}$ \quad CASELAB Co., Ltd., Suwon, Republic of Korea}
+
+\corres{Correspondence: tykuc@skku.edu} % TODO: confirm corresponding email
+
+% \conference{This article is an extended version of our paper published in
+% Proc. ICTC 2026.} % TODO: enable with final ICTC citation
+
+\abstract{Indoor service and inspection robots need environment knowledge
+that is not only semantically rich but also queryable, reliable, and
+maintainable as the environment changes. Existing open-vocabulary 3D
+pipelines propagate unverified labels into downstream representations, and
+build-once scene models offer no principled path for keeping the model
+consistent with a changing site. We present a framework that converts
+registered terrestrial laser scans (TLS) into a confidence-aware semantic
+knowledge graph and keeps it current across repeated scans. The framework
+combines (i) a deterministic geometric backbone---seeded-RANSAC structure
+removal, fixed-parameter clustering with a structure-remnant filter, and
+explicit PCA-based object modeling---whose re-runs are byte-identical on the
+same host; (ii) multi-view vision--language-model (VLM) verification with
+automatic escalation, which fuses per-view forced-schema classifications and
+escalates split votes to a wider view set, retaining unresolved objects as
+explicitly unverified; and (iii) an identity-preserving incremental update
+that matches re-scanned objects to mint-once node identities and applies
+confidence-gated node-level upserts without rebuilding the graph. On two
+industrial indoor scenes, escalation lifts verification accuracy from 75.0\%
+to 86.1\% and 78.1\% to 84.4\%, with 100\% precision for unanimous votes;
+structurally gated querying answers 83.3\% of benchmark questions versus
+52.1\% for an ungrounded LLM while blocking 3 of 4 hallucination traps; and
+selective re-verification prices a repeat scan at 2.7\% of a full rebuild
+(0\% when unchanged). A real three-epoch study of the same room---including
+a controlled-change re-scan---detects 2/2 physical changes at geometry level
+while preserving object identity across all three epochs.}
+
+\keyword{terrestrial laser scanning; semantic mapping; knowledge graph;
+vision--language models; incremental update; mobile robots}
+
+\begin{document}
+
+\input{../sec1_introduction}
+\input{../sec2_related}
+\input{../sec3_overview}
+\input{../sec4_methodology}
+\input{../sec5_experiments}
+\input{../sec6_applications}
+\input{../sec7_discussion}
+\input{../sec8_conclusion}
+
+\vspace{6pt}
+
+\authorcontributions{Conceptualization, S.K. and T.-Y.K.; methodology, S.K.;
+software, S.K.; validation, S.K. and H.K.; formal analysis, S.K.;
+investigation, S.K.; data curation, S.K.; writing---original draft
+preparation, S.K.; writing---review and editing, S.K., H.K. and T.-Y.K.;
+visualization, S.K.; supervision, T.-Y.K.; project administration, T.-Y.K.
+All authors have read and agreed to the published version of the
+manuscript.} % TODO: confirm split with Haryeong Kim's final role
+
+\funding{This research received no external funding.} % TODO: confirm (TIPS?)
+
+\dataavailability{The processed semantic-object records, knowledge-graph
+snapshots, and benchmark query sets are available from the corresponding
+author on reasonable request. Raw scan data is subject to facility-owner
+restrictions.} % TODO: confirm policy / repository link
+
+\acknowledgments{The authors thank the facility owner for scan access and
+ground-truth confirmation.}
+
+\conflictsofinterest{The authors declare no conflicts of interest.}
+% TODO: review CASELAB affiliation / TIPS project statement
+
+\begin{adjustwidth}{-\extralength}{0cm}
+\reftitle{References}
+\bibliography{../refs}
+\end{adjustwidth}
+
+\end{document}
