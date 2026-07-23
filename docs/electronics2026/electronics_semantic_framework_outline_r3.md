@@ -118,6 +118,11 @@ unchanged/updated/moved/inserted/absent 분류; per-node history/provenance; 상
 - **D: Partial visibility (occlusion)** — false-absent 방지 평가 □신규 예정 (클러스터 부분 크롭 합성)
 - 지표: matching accuracy, new/absent accuracy, **identity-switch rate, false-new, false-absent**, unchanged stability, pose/extent update error, **selective re-verification cost (실측 2.7 % of full; repeat 0 %)**, runtime vs full rebuild, post-update query 일관성.
 - kg_upsert에 지표 자동 산출 추가 □예정 (소규모 코드).
+- **실측 3-시점 (T1 6/1 수동 → T2 7/7 visibility → T3 7/23 visibility-SOTA 99.6% 커버리지, 통제 변화 프로토콜)** ✅:
+  - rev3 diff: matched 9 / moved 1 / inserted 31 / absent 45 — 장면 수준 실측 기하 ~1/3 변화(2주 자연 변동, 10 cm 상호 지지 65 %) 위에 통제 변화.
+  - **통제 변화 2/2 기하 검출, 1/2 타입 정답** (t3_controlled_changes.json): 의자 0.64 m moved·ID 유지(T1부터 3-시점 생존 노드), 바닥 서큘레이터 inserted 검출·단 만장일치 'clutter'(저반사 소형 가전 = clutter-absorption 3번째 사례).
+  - 스캔 품질↔검증 통과율 2번째 근거: 동일 스캔 1/6 커버리지 처리 시 verified급 56.6 % vs 완전 병합 75.6 %(=T2 76 %와 일치).
+  - **커버리지 역설**: 99.6 % 커버리지가 객체 간 틈을 메워 DBSCAN 메가클러스터(120 K pts, 10.4×9.6 m) 발생 — flagged-merged-candidate refinement(Point-SAM 룰)의 실전 사례, 한계 절 서술.
 
 ### 5.6 Ablation and Sensitivity (신설)
 - Escalation on/off (=base-4 counterfactual) ✅
