@@ -25,7 +25,7 @@ VLM-Verified Framework for Incremental 3D Semantic Modeling}
 
 \TitleCitation{From Terrestrial Laser Scans to Queryable Robot Knowledge}
 
-\Author{Sangmin Kim $^{1,2}$, Haryeong Kim $^{1,2}$ and Tae-Yong Kuc $^{1,2,}$*}
+\Author{Sangmin Kim $^{1,2}$, Haryeong Kim $^{1}$ and Tae-Yong Kuc $^{1,2,}$*}
 
 \AuthorNames{Sangmin Kim, Haryeong Kim and Tae-Yong Kuc}
 
@@ -34,12 +34,18 @@ VLM-Verified Framework for Incremental 3D Semantic Modeling}
 \address{%
 $^{1}$ \quad Department of Electrical and Computer Engineering, Sungkyunkwan
 University, Suwon, Republic of Korea; kimsang.m@g.skku.edu\\
-$^{2}$ \quad CASELAB Co., Ltd., Suwon, Republic of Korea}
+$^{2}$ \quad CASELAB Co., Ltd., Anyang, Republic of Korea}
 
 \corres{Correspondence: tykuc@skku.edu} % TODO: confirm corresponding email
 
-% \conference{This article is an extended version of our paper published in
-% Proc. ICTC 2026.} % TODO: enable with final ICTC citation
+% NOTE: activate ONLY after ICTC 2026 acceptance is confirmed, and update
+% \bibitem{ictc2026} status from "submitted" to the final citation at the
+% same time.
+% \conference{This article is an extended version of our paper entitled
+% ``Multi-View Vision--Language Semantic Extraction from Terrestrial Laser
+% Scans'', which was presented at the International Conference on Information
+% and Communication Technology Convergence (ICTC), Jeju, Republic of Korea,
+% 2026.}
 
 \abstract{Indoor service and inspection robots need environment knowledge
 that is not only semantically rich but also queryable, reliable, and
@@ -85,24 +91,36 @@ vision--language models; incremental update; mobile robots}
 
 \authorcontributions{Conceptualization, S.K. and T.-Y.K.; methodology, S.K.;
 software, S.K.; validation, S.K. and H.K.; formal analysis, S.K.;
-investigation, S.K.; data curation, S.K.; writing---original draft
-preparation, S.K.; writing---review and editing, S.K., H.K. and T.-Y.K.;
-visualization, S.K.; supervision, T.-Y.K.; project administration, T.-Y.K.
-All authors have read and agreed to the published version of the
-manuscript.} % TODO: confirm split with Haryeong Kim's final role
+investigation, S.K. and H.K.; data curation, S.K. and H.K.;
+writing---original draft preparation, S.K.; writing---review and editing,
+S.K., H.K. and T.-Y.K.; visualization, S.K.; supervision, T.-Y.K.; project
+administration, T.-Y.K. All authors have read and agreed to the published
+version of the manuscript.}
+% H.K. roles: validation (ground-truth audit assistance), investigation
+% (KG-lineage experiments), data curation (query benchmark set). Confirm
+% with Haryeong Kim before submission.
 
-\funding{This research received no external funding.} % TODO: confirm (TIPS?)
+\funding{This research received no external funding.}
+% Decision (2026-07): TIPS grant is NOT acknowledged here per author
+% decision (research not directly tied to the funded project deliverables).
+% If this changes, mirror the funding text used in sensors-4464625 for
+% consistency across the group's concurrent submissions.
 
 \dataavailability{The processed semantic-object records, knowledge-graph
 snapshots, and benchmark query sets are available from the corresponding
 author on reasonable request. Raw scan data is subject to facility-owner
 restrictions.} % TODO: confirm policy / repository link
 
-\acknowledgments{The authors thank the facility owner for scan access and
-ground-truth confirmation.}
+\acknowledgments{The authors thank CASELAB Co., Ltd. for access to the
+scanned facility and for ground-truth confirmation of object labels.}
 
-\conflictsofinterest{The authors declare no conflicts of interest.}
-% TODO: review CASELAB affiliation / TIPS project statement
+\conflictsofinterest{Authors Sangmin Kim and Tae-Yong Kuc are employed by
+CASELAB Co., Ltd. The company provided access to the indoor facility in
+which the terrestrial laser scans were collected and, as the facility owner,
+confirmed the ground-truth object labels. The company had no role in the
+design of the study; in the collection, analyses, or interpretation of data;
+in the writing of the manuscript; or in the decision to publish the results.
+The remaining author declares no conflicts of interest.}
 
 \begin{adjustwidth}{-\extralength}{0cm}
 \reftitle{References}
