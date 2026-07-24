@@ -5,7 +5,8 @@ Iro Armeni, Zhi-Yang He, JunYoung Gwak, Amir~R. Zamir, Martin Fischer, Jitendra
   Malik, and Silvio Savarese.
 \newblock 3{D} scene graph: A structure for unified semantics, 3{D} space, and
   camera.
-\newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, 2019.
+\newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, pages
+  5663--5672, 2019.
 
 \bibitem{koch2024open3dsg}
 Sebastian Koch, Narunas Vaskevicius, Mirco Colosi, Pedro Hermosilla, and Timo
@@ -13,24 +14,28 @@ Sebastian Koch, Narunas Vaskevicius, Mirco Colosi, Pedro Hermosilla, and Timo
 \newblock Open3{DSG}: Open-vocabulary 3{D} scene graphs from point clouds with
   queryable objects and open-set relationships.
 \newblock In {\em IEEE/CVF Conf. on Computer Vision and Pattern Recognition
-  (CVPR)}, 2024.
+  (CVPR)}, pages 14183--14193, 2024.
 
 \bibitem{gu2024conceptgraphs}
 Qiao Gu, Alihusein Kuwajerwala, Sacha Morin, Krishna~Murthy Jatavallabhula,
-  et~al.
+  Bipasha Sen, Aditya Agarwal, Corban Rivera, William Paul, Kirsty Ellis, Rama
+  Chellappa, Chuang Gan, Celso~Miguel de~Melo, Joshua~B. Tenenbaum, Antonio
+  Torralba, Florian Shkurti, and Liam Paull.
 \newblock Concept{G}raphs: Open-vocabulary 3{D} scene graphs for perception and
   planning.
-\newblock In {\em IEEE Int. Conf. on Robotics and Automation (ICRA)}, 2024.
+\newblock In {\em IEEE Int. Conf. on Robotics and Automation (ICRA)}, pages
+  5021--5028, 2024.
 
 \bibitem{honerkamp2024momallm}
-Daniel Honerkamp, Martin Buechner, Fabien Despinoy, Tim Welschehold, and
+Daniel Honerkamp, Martin B{\"u}chner, Fabien Despinoy, Tim Welschehold, and
   Abhinav Valada.
 \newblock Language-grounded dynamic scene graphs for interactive object search
   with mobile manipulation.
-\newblock {\em IEEE Robotics and Automation Letters}, 2024.
+\newblock {\em IEEE Robotics and Automation Letters}, 9(10):8298--8305, 2024.
 
 \bibitem{joo2025dksmf}
-Kyung-Jin Joo et~al.
+Kyeongjin Joo, Yeseul Jeong, Seungwon Kwon, Minyoung Jeong, Haryeong Kim, and
+  Taeyong Kuc.
 \newblock {DK-SMF}: Domain knowledge-driven semantic modeling framework for
   service robots.
 \newblock {\em Electronics}, 14(16):3197, 2025.
@@ -46,24 +51,26 @@ Xiangyang Zhu, Renrui Zhang, Bowei He, Ziyu Guo, Ziyao Zeng, Zipeng Qin,
   Shanghang Zhang, and Peng Gao.
 \newblock Point{CLIP} {V}2: Prompting {CLIP} and {GPT} for powerful 3{D}
   open-world learning.
-\newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, 2023.
+\newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, pages
+  2639--2650, 2023.
 
 \bibitem{sun2023spformer}
 Jiahao Sun, Chunmei Qing, Junpeng Tan, and Xiangmin Xu.
 \newblock Superpoint transformer for 3{D} scene instance segmentation.
-\newblock In {\em AAAI Conf. on Artificial Intelligence}, 2023.
+\newblock In {\em AAAI Conf. on Artificial Intelligence}, pages 2393--2401,
+  2023.
 
 \bibitem{wu2024ptv3}
 Xiaoyang Wu, Li~Jiang, Peng-Shuai Wang, Zhijian Liu, Xihui Liu, Yu~Qiao, Wanli
   Ouyang, Tong He, and Hengshuang Zhao.
 \newblock Point transformer {V}3: Simpler, faster, stronger.
 \newblock In {\em IEEE/CVF Conf. on Computer Vision and Pattern Recognition
-  (CVPR)}, 2024.
+  (CVPR)}, pages 4840--4851, 2024.
 
 \bibitem{zhou2024pointsam}
-Yuchen Zhou, Jiayuan Gu, Tung~Yen Chen, et~al.
+Yuchen Zhou, Jiayuan Gu, Tung~Yen Chiang, Fanbo Xiang, and Hao Su.
 \newblock Point-{SAM}: Promptable 3{D} segmentation model for point clouds.
-\newblock {\em arXiv preprint arXiv:2406.17741}, 2024.
+\newblock In {\em Int. Conf. on Learning Representations (ICLR)}, 2025.
 
 \bibitem{kim2026ictc}
 Sangmin Kim and Tae-Yong Kuc.
@@ -74,10 +81,12 @@ Sangmin Kim and Tae-Yong Kuc.
 \newblock submitted.
 
 \bibitem{lewis2020rag}
-Patrick Lewis, Ethan Perez, Aleksandra Piktus, et~al.
+Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir
+  Karpukhin, Naman Goyal, Heinrich K{\"u}ttler, Mike Lewis, Wen-tau Yih, Tim
+  Rockt{\"a}schel, Sebastian Riedel, and Douwe Kiela.
 \newblock Retrieval-augmented generation for knowledge-intensive {NLP} tasks.
 \newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
-  2020.
+  volume~33, pages 9459--9474, 2020.
 
 \bibitem{kim2025isis}
 Sangmin Kim and Tae-Yong Kuc.
@@ -89,14 +98,16 @@ Marius Fehr, Fadri Furrer, Ivan Dryanovski, J{\"u}rgen Sturm, Igor
   Gilitschenski, Roland Siegwart, and Cesar Cadena.
 \newblock {TSDF}-based change detection for consistent long-term dense
   reconstruction and dynamic object discovery.
-\newblock In {\em IEEE Int. Conf. on Robotics and Automation (ICRA)}, 2017.
+\newblock In {\em IEEE Int. Conf. on Robotics and Automation (ICRA)}, pages
+  5237--5244, 2017.
 
 \bibitem{wald2019rescan}
 Johanna Wald, Armen Avetisyan, Nassir Navab, Federico Tombari, and Matthias
   Nie{\ss}ner.
 \newblock {RIO}: 3{D} object instance re-localization in changing indoor
   environments.
-\newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, 2019.
+\newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, pages
+  7657--7666, 2019.
 
 \bibitem{raaicon2026}
 Sangmin Kim and Tae-Yong Kuc.

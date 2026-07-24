@@ -7,7 +7,7 @@ Armeni, I.; He, Z.Y.; Gwak, J.; Zamir, A.R.; Fischer, M.; Malik, J.; Savarese,
 \newblock 3{D} Scene Graph: A Structure for Unified Semantics, 3{D} Space, and
   Camera.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
-  2019.
+  2019, pp. 5663--5672.
 
 \bibitem[Koch et~al.(2024)Koch, Vaskevicius, Colosi, Hermosilla, and
   Ropinski]{koch2024open3dsg}
@@ -15,25 +15,28 @@ Koch, S.; Vaskevicius, N.; Colosi, M.; Hermosilla, P.; Ropinski, T.
 \newblock Open3{DSG}: Open-Vocabulary 3{D} Scene Graphs from Point Clouds with
   Queryable Objects and Open-Set Relationships.
 \newblock In Proceedings of the IEEE/CVF Conf. on Computer Vision and Pattern
-  Recognition (CVPR),  2024.
+  Recognition (CVPR),  2024, pp. 14183--14193.
 
-\bibitem[Gu et~al.(2024)Gu, Kuwajerwala, Morin, Jatavallabhula,
-  et~al.]{gu2024conceptgraphs}
-Gu, Q.; Kuwajerwala, A.; Morin, S.; Jatavallabhula, K.M.;  et~al.
+\bibitem[Gu et~al.(2024)Gu, Kuwajerwala, Morin, Jatavallabhula, Sen, Agarwal,
+  Rivera, Paul, Ellis, Chellappa, Gan, de~Melo, Tenenbaum, Torralba, Shkurti,
+  and Paull]{gu2024conceptgraphs}
+Gu, Q.; Kuwajerwala, A.; Morin, S.; Jatavallabhula, K.M.; Sen, B.; Agarwal, A.;
+  Rivera, C.; Paul, W.; Ellis, K.; Chellappa, R.;  et~al.
 \newblock Concept{G}raphs: Open-Vocabulary 3{D} Scene Graphs for Perception and
   Planning.
 \newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
-  (ICRA),  2024.
+  (ICRA),  2024, pp. 5021--5028.
 
-\bibitem[Honerkamp et~al.(2024)Honerkamp, Buechner, Despinoy, Welschehold, and
-  Valada]{honerkamp2024momallm}
-Honerkamp, D.; Buechner, M.; Despinoy, F.; Welschehold, T.; Valada, A.
+\bibitem[Honerkamp et~al.(2024)Honerkamp, B{\"u}chner, Despinoy, Welschehold,
+  and Valada]{honerkamp2024momallm}
+Honerkamp, D.; B{\"u}chner, M.; Despinoy, F.; Welschehold, T.; Valada, A.
 \newblock Language-Grounded Dynamic Scene Graphs for Interactive Object Search
   with Mobile Manipulation.
-\newblock {\em IEEE Robotics and Automation Letters} {\bf 2024}.
+\newblock {\em IEEE Robotics and Automation Letters} {\bf 2024}, {\em
+  9},~8298--8305.
 
-\bibitem[Joo et~al.(2025)]{joo2025dksmf}
-Joo, K.J.;  et~al.
+\bibitem[Joo et~al.(2025)Joo, Jeong, Kwon, Jeong, Kim, and Kuc]{joo2025dksmf}
+Joo, K.; Jeong, Y.; Kwon, S.; Jeong, M.; Kim, H.; Kuc, T.
 \newblock {DK-SMF}: Domain Knowledge-Driven Semantic Modeling Framework for
   Service Robots.
 \newblock {\em Electronics} {\bf 2025}, {\em 14},~3197.
@@ -50,12 +53,13 @@ Zhu, X.; Zhang, R.; He, B.; Guo, Z.; Zeng, Z.; Qin, Z.; Zhang, S.; Gao, P.
 \newblock Point{CLIP} {V}2: Prompting {CLIP} and {GPT} for Powerful 3{D}
   Open-World Learning.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
-  2023.
+  2023, pp. 2639--2650.
 
 \bibitem[Sun et~al.(2023)Sun, Qing, Tan, and Xu]{sun2023spformer}
 Sun, J.; Qing, C.; Tan, J.; Xu, X.
 \newblock Superpoint Transformer for 3{D} Scene Instance Segmentation.
-\newblock In Proceedings of the AAAI Conf. on Artificial Intelligence,  2023.
+\newblock In Proceedings of the AAAI Conf. on Artificial Intelligence,  2023,
+  pp. 2393--2401.
 
 \bibitem[Wu et~al.(2024)Wu, Jiang, Wang, Liu, Liu, Qiao, Ouyang, He, and
   Zhao]{wu2024ptv3}
@@ -63,12 +67,13 @@ Wu, X.; Jiang, L.; Wang, P.S.; Liu, Z.; Liu, X.; Qiao, Y.; Ouyang, W.; He, T.;
   Zhao, H.
 \newblock Point Transformer {V}3: Simpler, Faster, Stronger.
 \newblock In Proceedings of the IEEE/CVF Conf. on Computer Vision and Pattern
-  Recognition (CVPR),  2024.
+  Recognition (CVPR),  2024, pp. 4840--4851.
 
-\bibitem[Zhou et~al.(2024)Zhou, Gu, Chen, et~al.]{zhou2024pointsam}
-Zhou, Y.; Gu, J.; Chen, T.Y.;  et~al.
+\bibitem[Zhou et~al.(2025)Zhou, Gu, Chiang, Xiang, and Su]{zhou2024pointsam}
+Zhou, Y.; Gu, J.; Chiang, T.Y.; Xiang, F.; Su, H.
 \newblock Point-{SAM}: Promptable 3{D} Segmentation Model for Point Clouds.
-\newblock {\em arXiv preprint arXiv:2406.17741} {\bf 2024}.
+\newblock In Proceedings of the Int. Conf. on Learning Representations (ICLR),
+  2025.
 
 \bibitem[Kim and Kuc(2026)]{kim2026ictc}
 Kim, S.; Kuc, T.Y.
@@ -78,11 +83,13 @@ Kim, S.; Kuc, T.Y.
   Technology Convergence (ICTC),  2026.
 \newblock submitted.
 
-\bibitem[Lewis et~al.(2020)Lewis, Perez, Piktus, et~al.]{lewis2020rag}
-Lewis, P.; Perez, E.; Piktus, A.;  et~al.
+\bibitem[Lewis et~al.(2020)Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal,
+  K{\"u}ttler, Lewis, Yih, Rockt{\"a}schel, Riedel, and Kiela]{lewis2020rag}
+Lewis, P.; Perez, E.; Piktus, A.; Petroni, F.; Karpukhin, V.; Goyal, N.;
+  K{\"u}ttler, H.; Lewis, M.; Yih, W.t.; Rockt{\"a}schel, T.;  et~al.
 \newblock Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks.
 \newblock In Proceedings of the Advances in Neural Information Processing
-  Systems (NeurIPS),  2020.
+  Systems (NeurIPS),  2020, Vol.~33, pp. 9459--9474.
 
 \bibitem[Kim and Kuc(2025)]{kim2025isis}
 Kim, S.; Kuc, T.Y.
@@ -97,7 +104,7 @@ Fehr, M.; Furrer, F.; Dryanovski, I.; Sturm, J.; Gilitschenski, I.; Siegwart,
 \newblock {TSDF}-Based Change Detection for Consistent Long-Term Dense
   Reconstruction and Dynamic Object Discovery.
 \newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
-  (ICRA),  2017.
+  (ICRA),  2017, pp. 5237--5244.
 
 \bibitem[Wald et~al.(2019)Wald, Avetisyan, Navab, Tombari, and
   Nie{\ss}ner]{wald2019rescan}
@@ -105,7 +112,7 @@ Wald, J.; Avetisyan, A.; Navab, N.; Tombari, F.; Nie{\ss}ner, M.
 \newblock {RIO}: 3{D} Object Instance Re-Localization in Changing Indoor
   Environments.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
-  2019.
+  2019, pp. 7657--7666.
 
 \bibitem[Kim and Kuc(2026)]{raaicon2026}
 Kim, S.; Kuc, T.Y.
