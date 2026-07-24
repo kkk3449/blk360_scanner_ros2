@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  24 JUL 2026 08:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  24 JUL 2026 08:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1562,16 +1562,16 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 File: ../../figs/fig6_escalation_cost.png Graphic file (type png)
 <use ../../figs/fig6_escalation_cost.png>
 Package pdftex.def Info: ../../figs/fig6_escalation_cost.png  used on input lin
-e 176.
+e 178.
 (pdftex.def)             Requested size: 335.20435pt x 242.27599pt.
 <../../figs/fig10_error_taxonomy.png, id=312, 602.4909pt x 496.4949pt>
 File: ../../figs/fig10_error_taxonomy.png Graphic file (type png)
 <use ../../figs/fig10_error_taxonomy.png>
 Package pdftex.def Info: ../../figs/fig10_error_taxonomy.png  used on input lin
-e 183.
+e 185.
 (pdftex.def)             Requested size: 354.91728pt x 292.48247pt.
 
-Overfull \hbox (3.68008pt too wide) in paragraph at lines 206--215
+Overfull \hbox (3.68008pt too wide) in paragraph at lines 208--217
  [][] 
  []
 
@@ -1587,7 +1587,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 File: ../../figs/fig7_query_benchmark.png Graphic file (type png)
 <use ../../figs/fig7_query_benchmark.png>
 Package pdftex.def Info: ../../figs/fig7_query_benchmark.png  used on input lin
-e 232.
+e 234.
 (pdftex.def)             Requested size: 354.91728pt x 140.93884pt.
 
 
@@ -1598,7 +1598,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [12 <../../figs/fig10_error_taxonomy.png>]
-Overfull \hbox (102.10698pt too wide) in paragraph at lines 269--282
+Overfull \hbox (102.10698pt too wide) in paragraph at lines 271--284
 \T1/ppl/m/n/10 (-20) and \T1/cmtt/m/n/10 machine_workspace \T1/ppl/m/n/10 (-20)
  be-come storage-dominated at T2 and \T1/cmtt/m/n/10 operator_workstation\T1/pp
 l/m/n/10 (-20) /\T1/cmtt/m/n/10 cluttered_seating_area
@@ -1608,13 +1608,13 @@ l/m/n/10 (-20) /\T1/cmtt/m/n/10 cluttered_seating_area
 File: ../../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../../figs/fig8_incremental_update.png  used on input 
-line 285.
+line 287.
 (pdftex.def)             Requested size: 354.91728pt x 266.52449pt.
 <../../figs/fig9_two_epoch_update.png, id=338, 452.6511pt x 429.5247pt>
 File: ../../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../../figs/fig9_two_epoch_update.png  used on input li
-ne 293.
+ne 295.
 (pdftex.def)             Requested size: 354.91728pt x 336.7975pt.
 ) (../sec6_applications.tex
 
@@ -1676,7 +1676,7 @@ Package rerunfilecheck Info: File `main_mdpi.out' has not changed.
 Here is how much of TeX's memory you used:
  34366 strings out of 467168
  639790 string characters out of 5409468
- 1136422 words of memory out of 5000000
+ 1136423 words of memory out of 5000000
  62423 multiletter control sequences out of 15000+600000
  701425 words of font info for 452 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1691,7 +1691,7 @@ r/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/
 local/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/t
 exlive/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/
 2026/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (17 pages, 3225809 bytes).
+Output written on main_mdpi.pdf (17 pages, 3225913 bytes).
 PDF statistics:
  445 PDF objects out of 1000 (max. 8388607)
  379 compressed objects within 4 object streams

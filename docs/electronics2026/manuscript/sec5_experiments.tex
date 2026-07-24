@@ -22,7 +22,9 @@ given in Table~\ref{tab:scenes}.
 
 \begin{table}[t]
 \centering
-\caption{Scene statistics (det sets, after structure-remnant filtering).}
+\caption{Scene statistics (det sets, after structure-remnant filtering).
+T1 semantic processing starts from a manually wall-removed export (4.9M
+points) of the 46.3M-point raw scan.}
 \label{tab:scenes}
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -30,7 +32,7 @@ given in Table~\ref{tab:scenes}.
  & Showroom (T1) & Robot hall (T2) & Re-scan (T3) \\
 \midrule
 Scan mode & manual, 1 setup & exploration & exploration (SOTA), 6 setups \\
-Raw points & 68.6M & 68.6M & 70.2M \\
+Raw points & 46.3M & 68.6M & 70.2M \\
 Clean cloud (post-removal) & --- & 267K & 294K \\
 Objects (filtered) & 38 & 81 & 79 \\
 Room-scoped & 38 & 55 & 41 \\
