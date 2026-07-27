@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 01:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 02:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -446,11 +446,11 @@ Overfull \hbox (6.34375pt too wide) in paragraph at lines 56--61
  []
 
 ) (./sec2_related.tex [2] [3]) (./sec3_overview.tex
-<../figs/fig1_architecture.png, id=214, 704.6325pt x 270.5307pt>
+<../figs/fig1_architecture.png, id=214, 1163.547pt x 483.12495pt>
 File: ../figs/fig1_architecture.png Graphic file (type png)
 <use ../figs/fig1_architecture.png>
 Package pdftex.def Info: ../figs/fig1_architecture.png  used on input line 43.
-(pdftex.def)             Requested size: 432.48051pt x 166.04308pt.
+(pdftex.def)             Requested size: 432.48051pt x 179.5717pt.
 ) (./sec4_methodology.tex
 [4]
 <../figs/fig2_pipeline.png, id=236, 910.602pt x 152.0079pt>
@@ -466,51 +466,52 @@ Package pdftex.def Info: ../figs/fig3_multiview_escalation.png  used on input l
 ine 132.
 (pdftex.def)             Requested size: 432.48051pt x 368.72713pt.
  [6 <../figs/fig2_pipeline.png>]
-<../figs/fig5_identity_upsert.png, id=257, 696.9237pt x 251.2587pt>
+<../figs/fig5_identity_upsert.png, id=257, 1075.73895pt x 555.39494pt>
 File: ../figs/fig5_identity_upsert.png Graphic file (type png)
 <use ../figs/fig5_identity_upsert.png>
 Package pdftex.def Info: ../figs/fig5_identity_upsert.png  used on input line 1
 90.
-(pdftex.def)             Requested size: 409.71692pt x 147.7161pt.
+(pdftex.def)             Requested size: 409.71692pt x 211.53532pt.
 
 [7 <../figs/fig3_multiview_escalation.png>]) (./sec5_experiments.tex [8 <../fig
 s/fig5_identity_upsert.png>] [9]
-<../figs/fig6_escalation_cost.png, id=297, 406.6392pt x 293.898pt>
+<../figs/fig6_escalation_cost.png, id=297, 613.5723pt x 397.12366pt>
 File: ../figs/fig6_escalation_cost.png Graphic file (type png)
 <use ../figs/fig6_escalation_cost.png>
 Package pdftex.def Info: ../figs/fig6_escalation_cost.png  used on input line 1
 78.
-(pdftex.def)             Requested size: 386.96027pt x 279.68134pt.
+(pdftex.def)             Requested size: 386.96027pt x 250.45584pt.
 <../figs/fig10_error_taxonomy.png, id=298, 602.4909pt x 496.4949pt>
 File: ../figs/fig10_error_taxonomy.png Graphic file (type png)
 <use ../figs/fig10_error_taxonomy.png>
 Package pdftex.def Info: ../figs/fig10_error_taxonomy.png  used on input line 1
 85.
 (pdftex.def)             Requested size: 409.71692pt x 337.64236pt.
-<../figs/fig7_query_benchmark.png, id=301, 698.8509pt x 277.5168pt>
+ [10 <../figs/fig6_escalation_cost.png>]
+<../figs/fig7_query_benchmark.png, id=313, 975.645pt x 397.12366pt>
 File: ../figs/fig7_query_benchmark.png Graphic file (type png)
 <use ../figs/fig7_query_benchmark.png>
 Package pdftex.def Info: ../figs/fig7_query_benchmark.png  used on input line 2
 34.
-(pdftex.def)             Requested size: 409.71692pt x 162.70026pt.
- [10]
-<../figs/fig8_incremental_update.png, id=320, 782.6841pt x 669.2202pt>
+(pdftex.def)             Requested size: 409.71692pt x 166.77261pt.
+
+[11 <../figs/fig10_error_taxonomy.png>]
+<../figs/fig8_incremental_update.png, id=326, 782.6841pt x 669.2202pt>
 File: ../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../figs/fig8_incremental_update.png  used on input lin
 e 288.
 (pdftex.def)             Requested size: 409.71692pt x 350.32472pt.
-<../figs/fig9_two_epoch_update.png, id=321, 432.6564pt x 463.0098pt>
+<../figs/fig9_two_epoch_update.png, id=327, 432.6564pt x 463.0098pt>
 File: ../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../figs/fig9_two_epoch_update.png  used on input line 
 306.
 (pdftex.def)             Requested size: 409.71692pt x 438.48619pt.
-) (./sec6_applications.tex [11 <../figs/fig6_escalation_cost.png>]) (./sec7_dis
-cussion.tex [12 <../figs/fig10_error_taxonomy.png>]) (./sec8_conclusion.tex [13
- <../figs/fig7_query_benchmark.png>])
-[14 <../figs/fig8_incremental_update.png>] (./main.bbl [15]) [16] [17 <../figs/
-fig9_two_epoch_update.png>] (./main.aux)
+) (./sec6_applications.tex [12 <../figs/fig7_query_benchmark.png>]) (./sec7_dis
+cussion.tex [13 <../figs/fig8_incremental_update.png>]) (./sec8_conclusion.tex)
+ [14] (./main.bbl [15]) [16] [17 <../figs/fig9_two_epoch_update.png>] (./main.a
+ux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-06-18>
@@ -525,7 +526,7 @@ Here is how much of TeX's memory you used:
  40674 multiletter control sequences out of 15000+600000
  644226 words of font info for 84 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,9n,79p,971b,562s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,9n,79p,971b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 ></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><
 /usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></u
@@ -549,7 +550,7 @@ dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2026/texmf-di
 st/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texlive/2026/texmf-dist
 /fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2026/texmf-dist/f
 onts/type1/public/cm-super/sftt1000.pfb>
-Output written on main.pdf (17 pages, 4548151 bytes).
+Output written on main.pdf (17 pages, 4506087 bytes).
 PDF statistics:
  494 PDF objects out of 1000 (max. 8388607)
  405 compressed objects within 5 object streams

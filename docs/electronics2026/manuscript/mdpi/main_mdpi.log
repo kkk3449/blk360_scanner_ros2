@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 01:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 02:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1483,12 +1483,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [4]
-<../../figs/fig1_architecture.png, id=229, 704.6325pt x 270.5307pt>
+<../../figs/fig1_architecture.png, id=229, 1163.547pt x 483.12495pt>
 File: ../../figs/fig1_architecture.png Graphic file (type png)
 <use ../../figs/fig1_architecture.png>
 Package pdftex.def Info: ../../figs/fig1_architecture.png  used on input line 4
 3.
-(pdftex.def)             Requested size: 374.63625pt x 143.83466pt.
+(pdftex.def)             Requested size: 374.63625pt x 155.55411pt.
 ) (../sec4_methodology.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1527,12 +1527,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [7 <../../figs/fig3_multiview_escalation.png>]
-<../../figs/fig5_identity_upsert.png, id=271, 696.9237pt x 251.2587pt>
+<../../figs/fig5_identity_upsert.png, id=271, 1075.73895pt x 555.39494pt>
 File: ../../figs/fig5_identity_upsert.png Graphic file (type png)
 <use ../../figs/fig5_identity_upsert.png>
 Package pdftex.def Info: ../../figs/fig5_identity_upsert.png  used on input lin
 e 190.
-(pdftex.def)             Requested size: 354.91728pt x 127.9562pt.
+(pdftex.def)             Requested size: 354.91728pt x 183.23853pt.
 ) (../sec5_experiments.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1558,13 +1558,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [10]
-<../../figs/fig6_escalation_cost.png, id=311, 406.6392pt x 293.898pt>
+<../../figs/fig6_escalation_cost.png, id=310, 613.5723pt x 397.12366pt>
 File: ../../figs/fig6_escalation_cost.png Graphic file (type png)
 <use ../../figs/fig6_escalation_cost.png>
 Package pdftex.def Info: ../../figs/fig6_escalation_cost.png  used on input lin
 e 178.
-(pdftex.def)             Requested size: 335.20435pt x 242.27599pt.
-<../../figs/fig10_error_taxonomy.png, id=312, 602.4909pt x 496.4949pt>
+(pdftex.def)             Requested size: 335.20435pt x 216.95226pt.
+<../../figs/fig10_error_taxonomy.png, id=311, 602.4909pt x 496.4949pt>
 File: ../../figs/fig10_error_taxonomy.png Graphic file (type png)
 <use ../../figs/fig10_error_taxonomy.png>
 Package pdftex.def Info: ../../figs/fig10_error_taxonomy.png  used on input lin
@@ -1583,12 +1583,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [11 <../../figs/fig6_escalation_cost.png>]
-<../../figs/fig7_query_benchmark.png, id=323, 698.8509pt x 277.5168pt>
+<../../figs/fig7_query_benchmark.png, id=323, 975.645pt x 397.12366pt>
 File: ../../figs/fig7_query_benchmark.png Graphic file (type png)
 <use ../../figs/fig7_query_benchmark.png>
 Package pdftex.def Info: ../../figs/fig7_query_benchmark.png  used on input lin
 e 234.
-(pdftex.def)             Requested size: 354.91728pt x 140.93884pt.
+(pdftex.def)             Requested size: 354.91728pt x 144.46112pt.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1684,7 +1684,7 @@ local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/tex
 live/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/20
 26/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (17 pages, 4402478 bytes).
+Output written on main_mdpi.pdf (17 pages, 4360246 bytes).
 PDF statistics:
  454 PDF objects out of 1000 (max. 8388607)
  386 compressed objects within 4 object streams
