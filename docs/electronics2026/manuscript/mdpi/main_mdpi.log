@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 01:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 01:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1598,23 +1598,17 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [12 <../../figs/fig10_error_taxonomy.png>]
-Overfull \hbox (102.10698pt too wide) in paragraph at lines 271--284
-\T1/ppl/m/n/10 (-20) and \T1/cmtt/m/n/10 machine_workspace \T1/ppl/m/n/10 (-20)
- be-come storage-dominated at T2 and \T1/cmtt/m/n/10 operator_workstation\T1/pp
-l/m/n/10 (-20) /\T1/cmtt/m/n/10 cluttered_seating_area
- []
-
-<../../figs/fig8_incremental_update.png, id=336, 527.0892pt x 395.7987pt>
+<../../figs/fig8_incremental_update.png, id=336, 722.7pt x 669.2202pt>
 File: ../../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../../figs/fig8_incremental_update.png  used on input 
-line 287.
-(pdftex.def)             Requested size: 354.91728pt x 266.52449pt.
+line 288.
+(pdftex.def)             Requested size: 354.91728pt x 328.65599pt.
 <../../figs/fig9_two_epoch_update.png, id=337, 452.6511pt x 429.5247pt>
 File: ../../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../../figs/fig9_two_epoch_update.png  used on input li
-ne 295.
+ne 304.
 (pdftex.def)             Requested size: 354.91728pt x 336.7975pt.
 ) (../sec6_applications.tex
 
@@ -1624,8 +1618,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[13 <../../figs/fig7_query_benchmark.png> <../../figs/fig8_incremental_update.p
-ng>]
+[13 <../../figs/fig7_query_benchmark.png>]) (../sec7_discussion.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1633,13 +1626,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[14 <../../figs/fig9_two_epoch_update.png>]) (../sec7_discussion.tex
+[14 <../../figs/fig8_incremental_update.png>]
 Overfull \hbox (3.57976pt too wide) in paragraph at lines 24--30
 []\T1/ppl/m/n/10 (-20) The clutter-absorption er-ror class---disassembled robot
 , poster stand, and the controlled-
  []
 
-) (../sec8_conclusion.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1647,7 +1639,8 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[15]) (./main_mdpi.bbl
+[15 <../../figs/fig9_two_epoch_update.png>]) (../sec8_conclusion.tex)
+(./main_mdpi.bbl
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1674,27 +1667,28 @@ Package rerunfilecheck Info: File `main_mdpi.out' has not changed.
 (rerunfilecheck)             Checksum: D3D9BE6A6B4C69FD599B0EE5A71A8963;6739.
  ) 
 Here is how much of TeX's memory you used:
- 34375 strings out of 467168
- 639880 string characters out of 5409468
+ 34384 strings out of 467168
+ 639971 string characters out of 5409468
  1136454 words of memory out of 5000000
- 62423 multiletter control sequences out of 15000+600000
- 701820 words of font info for 458 fonts, out of 8000000 for 9000
+ 62425 multiletter control sequences out of 15000+600000
+ 702451 words of font info for 463 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 123i,13n,121p,1002b,785s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 123i,13n,121p,1002b,782s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 ></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
 /usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
 usr/local/texlive/2026/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/
 local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></
 usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb></us
-r/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/
-local/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/t
-exlive/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/
-2026/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (17 pages, 3226499 bytes).
+r/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/
+local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/lo
+cal/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/tex
+live/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/20
+26/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on main_mdpi.pdf (17 pages, 3486682 bytes).
 PDF statistics:
- 448 PDF objects out of 1000 (max. 8388607)
- 382 compressed objects within 4 object streams
+ 453 PDF objects out of 1000 (max. 8388607)
+ 385 compressed objects within 4 object streams
  104 named destinations out of 1000 (max. 500000)
- 94023 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 94535 words of extra memory for PDF output out of 106986 (max. 10000000)
 
