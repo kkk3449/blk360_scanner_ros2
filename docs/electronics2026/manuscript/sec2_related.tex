@@ -13,9 +13,11 @@ and maintenance after construction receive less attention. Within the TOSM
 semantic modeling framework and its successor DK-SMF~\cite{joo2025dksmf}
 automate object \emph{and place} modeling from RGB-D exploration, combining
 zero-shot detection and VQA with domain-knowledge filtering and LLM-derived
-place semantics over SLIC-segmented regions. Our framework adopts the same
-target representation (TOSM object/place layers, VDA5050-style export) but
-differs on four axes, summarized in Table~\ref{tab:dksmf}: a survey-grade
+place semantics over SLIC-segmented regions. Our framework---TLS-SMF, named
+within the same lineage's convention of prefixing the differentiating
+axis---adopts the same target representation (TOSM object/place layers,
+VDA5050-style export) but differs on four axes, summarized in
+Table~\ref{tab:dksmf}: a survey-grade
 TLS backbone instead of RGB-D streams; multi-view VLM \emph{verification
 with escalation} instead of domain-knowledge hallucination suppression;
 identity-preserving \emph{incremental} upserts instead of build-once

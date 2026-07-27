@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  24 JUL 2026 08:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 01:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1453,13 +1453,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [2]
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 30.
+(Font)              scaled to size 9.37807pt on input line 32.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 30.
+(Font)              scaled to size 7.29405pt on input line 32.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 30.
+(Font)              scaled to size 9.37807pt on input line 32.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 30.
+(Font)              scaled to size 7.29405pt on input line 32.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1469,7 +1469,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [3]
-Overfull \hbox (2.82768pt too wide) in paragraph at lines 93--103
+Overfull \hbox (2.82768pt too wide) in paragraph at lines 95--105
 []\T1/ppl/m/n/10 (-20) Change de-tec-tion in point clouds and life-long map-pin
 g ad-dress ge-o-met-ric cur-rency [[]],
  []
@@ -1604,13 +1604,13 @@ Overfull \hbox (102.10698pt too wide) in paragraph at lines 271--284
 l/m/n/10 (-20) /\T1/cmtt/m/n/10 cluttered_seating_area
  []
 
-<../../figs/fig8_incremental_update.png, id=337, 527.0892pt x 395.7987pt>
+<../../figs/fig8_incremental_update.png, id=336, 527.0892pt x 395.7987pt>
 File: ../../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../../figs/fig8_incremental_update.png  used on input 
 line 287.
 (pdftex.def)             Requested size: 354.91728pt x 266.52449pt.
-<../../figs/fig9_two_epoch_update.png, id=338, 452.6511pt x 429.5247pt>
+<../../figs/fig9_two_epoch_update.png, id=337, 452.6511pt x 429.5247pt>
 File: ../../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../../figs/fig9_two_epoch_update.png  used on input li
@@ -1674,13 +1674,13 @@ Package rerunfilecheck Info: File `main_mdpi.out' has not changed.
 (rerunfilecheck)             Checksum: D3D9BE6A6B4C69FD599B0EE5A71A8963;6739.
  ) 
 Here is how much of TeX's memory you used:
- 34366 strings out of 467168
- 639790 string characters out of 5409468
- 1136423 words of memory out of 5000000
+ 34375 strings out of 467168
+ 639880 string characters out of 5409468
+ 1136454 words of memory out of 5000000
  62423 multiletter control sequences out of 15000+600000
- 701425 words of font info for 452 fonts, out of 8000000 for 9000
+ 701820 words of font info for 458 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 123i,13n,121p,1002b,793s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 123i,13n,121p,1002b,785s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 ></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
 /usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
@@ -1691,10 +1691,10 @@ r/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/
 local/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/t
 exlive/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/
 2026/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (17 pages, 3225913 bytes).
+Output written on main_mdpi.pdf (17 pages, 3226499 bytes).
 PDF statistics:
- 445 PDF objects out of 1000 (max. 8388607)
- 379 compressed objects within 4 object streams
+ 448 PDF objects out of 1000 (max. 8388607)
+ 382 compressed objects within 4 object streams
  104 named destinations out of 1000 (max. 500000)
  94023 words of extra memory for PDF output out of 106986 (max. 10000000)
 

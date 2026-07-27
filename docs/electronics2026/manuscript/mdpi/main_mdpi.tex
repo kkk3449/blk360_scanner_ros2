@@ -52,10 +52,10 @@ that is not only semantically rich but also queryable, reliable, and
 maintainable as the environment changes. Existing open-vocabulary 3D
 pipelines propagate unverified labels into downstream representations, and
 build-once scene models offer no principled path for keeping the model
-consistent with a changing site. We present a framework that converts
-registered terrestrial laser scans (TLS) into a confidence-aware semantic
-knowledge graph and keeps it current across repeated scans. The framework
-combines (i) a deterministic geometric backbone---seeded-RANSAC structure
+consistent with a changing site. We present TLS-SMF, a TLS-driven semantic
+modeling framework that converts registered terrestrial laser scans into a
+confidence-aware semantic knowledge graph and keeps it current across
+repeated scans. The framework combines (i) a deterministic geometric backbone---seeded-RANSAC structure
 removal, fixed-parameter clustering with a structure-remnant filter, and
 explicit PCA-based object modeling---whose re-runs are byte-identical on the
 same host; (ii) multi-view vision--language-model (VLM) verification with
@@ -106,14 +106,11 @@ version of the manuscript.}
 % If this changes, mirror the funding text used in sensors-4464625 for
 % consistency across the group's concurrent submissions.
 
-\dataavailability{The processed semantic-object records, knowledge-graph
-snapshots, and benchmark query sets are available from the corresponding
-author on reasonable request. Raw scan data is subject to facility-owner
-restrictions.}
-% Decision (2026-07-24): keep "on reasonable request" for submission.
-% Code release is planned after cleanup — swap in the repository link here
-% (and consider "The code is available at <URL>") if it is public by
-% camera-ready.
+\dataavailability{The TLS-SMF implementation is openly available at
+\url{https://github.com/kkk3449/tls-smf}. The processed semantic-object
+records, knowledge-graph snapshots, and benchmark query sets are available
+from the corresponding author on reasonable request. Raw scan data is
+subject to facility-owner restrictions.}
 
 \acknowledgments{The authors thank CASELAB Co., Ltd. for access to the
 scanned facility and for ground-truth confirmation of object labels.}
