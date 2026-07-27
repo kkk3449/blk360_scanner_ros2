@@ -114,8 +114,8 @@ Wald, J.; Avetisyan, A.; Navab, N.; Tombari, F.; Nie{\ss}ner, M.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
   2019, pp. 7657--7666.
 
-\bibitem[Kim and Kuc(2026)]{raaicon2026}
-Kim, S.; Kuc, T.Y.
+\bibitem[Kim et~al.(2026)Kim, Kim, and Kuc]{raaicon2026}
+Kim, S.; Kim, B.; Kuc, T.Y.
 \newblock An Automated Scan-to-Simulation Pipeline for Indoor Digital Twin
   Construction Using {BLK360} and {NVIDIA} {Isaac} {Sim}.
 \newblock In Proceedings of the Robotics, Automation and Artificial

@@ -5,15 +5,15 @@ The style file: Definitions/mdpi.bst
 Database file #1: ../refs.bib
 You've used 16 entries,
             2887 wiz_defined-function locations,
-            638 strings with 7862 characters,
-and the built_in function-call counts, 9419 in all, are:
+            639 strings with 7911 characters,
+and the built_in function-call counts, 9446 in all, are:
 = -- 771
-> -- 729
-< -- 12
-+ -- 313
-- -- 200
-* -- 710
-:= -- 1385
+> -- 736
+< -- 11
++ -- 316
+- -- 202
+* -- 716
+:= -- 1391
 add.period$ -- 50
 call.type$ -- 16
 change.case$ -- 16
@@ -22,17 +22,17 @@ cite$ -- 16
 duplicate$ -- 405
 empty$ -- 692
 format.name$ -- 236
-if$ -- 2087
+if$ -- 2091
 int.to.chr$ -- 1
 int.to.str$ -- 16
 missing$ -- 16
 newline$ -- 85
 num.names$ -- 48
-pop$ -- 231
+pop$ -- 232
 preamble$ -- 0
 purify$ -- 16
 quote$ -- 0
-skip$ -- 379
+skip$ -- 378
 stack$ -- 0
 substring$ -- 443
 swap$ -- 138

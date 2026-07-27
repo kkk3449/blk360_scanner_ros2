@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 06:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 07:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1695,11 +1695,11 @@ Package rerunfilecheck Info: File `main_mdpi.out' has not changed.
 (rerunfilecheck)             Checksum: D3D9BE6A6B4C69FD599B0EE5A71A8963;6739.
  ) 
 Here is how much of TeX's memory you used:
- 34378 strings out of 467168
- 640100 string characters out of 5409468
+ 34375 strings out of 467168
+ 640076 string characters out of 5409468
  1137377 words of memory out of 5000000
  62432 multiletter control sequences out of 15000+600000
- 701758 words of font info for 454 fonts, out of 8000000 for 9000
+ 701599 words of font info for 452 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  123i,13n,121p,1002b,785s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
@@ -1713,7 +1713,7 @@ local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/tex
 live/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/20
 26/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (18 pages, 4409986 bytes).
+Output written on main_mdpi.pdf (18 pages, 4410053 bytes).
 PDF statistics:
  473 PDF objects out of 1000 (max. 8388607)
  401 compressed objects within 5 object streams
