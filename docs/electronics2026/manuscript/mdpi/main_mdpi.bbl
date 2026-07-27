@@ -75,8 +75,8 @@ Zhou, Y.; Gu, J.; Chiang, T.Y.; Xiang, F.; Su, H.
 \newblock In Proceedings of the Int. Conf. on Learning Representations (ICLR),
   2025.
 
-\bibitem[Kim and Kuc(2026)]{kim2026ictc}
-Kim, S.; Kuc, T.Y.
+\bibitem[Kim et~al.(2026)Kim, Kim, Song, and Kuc]{kim2026ictc}
+Kim, S.; Kim, H.; Song, Y.; Kuc, T.Y.
 \newblock Multi-View Vision--Language Semantic Extraction from Terrestrial
   Laser Scans.
 \newblock In Proceedings of the Int. Conf. on Information and Communication
@@ -116,9 +116,10 @@ Wald, J.; Avetisyan, A.; Navab, N.; Tombari, F.; Nie{\ss}ner, M.
 
 \bibitem[Kim and Kuc(2026)]{raaicon2026}
 Kim, S.; Kuc, T.Y.
-\newblock Scan-to-Sim Digital Twin Construction for Autonomous Mobile
-  Manipulator Robots.
-\newblock In Proceedings of the RAAICON,  2026.
+\newblock An Automated Scan-to-Simulation Pipeline for Indoor Digital Twin
+  Construction Using {BLK360} and {NVIDIA} {Isaac} {Sim}.
+\newblock In Proceedings of the Robotics, Automation and Artificial
+  Intelligence Conference (RAAICON),  2026.
 \newblock submitted.
 
 \end{thebibliography}

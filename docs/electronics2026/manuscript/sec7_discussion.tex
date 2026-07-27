@@ -3,10 +3,11 @@
 
 \paragraph{Cost and latency.}
 VLM verification is the only paid stage. Escalation is bounded by its
-trigger rate (52--58\% of objects), and per-call cost is $\sim$\$0.009; a
-40--80 object scene verifies for \$3.5--5. The incremental design changes
+trigger rate (51--58\% of objects), and per-call cost is $\sim$\$0.009;
+full verification averages $\sim$\$0.09 per object (\$3.5--7.4 for our
+38--86-cluster scenes, all calls included). The incremental design changes
 the cost model qualitatively: a repeat scan costs \$0 (hash carry-over) and
-a changed scene costs in proportion to its change (2.7\% of rebuild in our
+a changed scene costs in proportion to its change (3.1\% of rebuild in our
 measurement). Verification is offline; no VLM call sits on a robot's control
 path.
 

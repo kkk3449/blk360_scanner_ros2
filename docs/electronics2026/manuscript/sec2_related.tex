@@ -46,7 +46,8 @@ Point--text embedding models such as Uni3D~\cite{zhou2024uni3d} and
 PointCLIP~V2~\cite{zhu2023pointclipv2} transfer web-scale vision--language
 supervision to point clouds and perform well on curated indoor benchmarks.
 On industrial TLS content, however, we observe the transfer breaking down:
-PointCLIP~V2 collapses to near-chance on our equipment classes, and Uni3D's
+in a 30-cluster pilot, PointCLIP~V2 collapsed to a single class for 23 of 30
+clusters (0\% top-1), and Uni3D's
 accuracy \emph{drops} as the vocabulary is narrowed toward the true class
 list (66.7\% $\rightarrow$ 33.3\%, Sec.~\ref{sec:exp-ablation})---the
 embedding cannot separate the domain's classes regardless of prompt

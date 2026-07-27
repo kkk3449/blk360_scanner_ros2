@@ -47,9 +47,13 @@ cluster, followed by confirmation from the room's owner. Labels are graded
 \emph{confirmed} (owner-verified), \emph{plausible}, or \emph{unknown};
 accuracy is reported against confirmed GT (with lenient variants including
 plausible where stated), unknown objects are excluded, and structure
-artifacts are tracked separately. For the showroom this yields confirmed
-36 / plausible 12; for the room-scoped robot hall, confirmed 32 (lenient
-$n{=}42$) after owner corrections.
+artifacts are tracked separately. Two showroom sets must be distinguished:
+Table~\ref{tab:scenes} counts the 38-object reproducible det set, while the
+verification study (Sec.~\ref{sec:exp-verify}) uses the original 57-cluster
+decomposition of the same scan, of which 50 clusters are GT-scored after
+excluding 7 structure artifacts---yielding confirmed 36 / plausible 12 /
+unknown 2. For the room-scoped robot hall (55 objects), GT covers 51
+clusters: confirmed 32 (lenient $n{=}42$) after owner corrections.
 
 \paragraph{Metrics.}
 Classification accuracy is top-1 against GT under a documented
@@ -80,8 +84,9 @@ attributable diffs.
 
 \paragraph{Remnant filter.}
 The structure-remnant filter of Sec.~\ref{sec:decomposition} removed all
-seven owner-confirmed ceiling-soffit phantoms (showroom 45$\rightarrow$38,
-robot hall 88$\rightarrow$81) while leaving every retained cluster
+fourteen owner-confirmed ceiling-soffit phantoms (seven per scene: showroom
+45$\rightarrow$38, robot hall 88$\rightarrow$81) while leaving every retained
+cluster
 unchanged. Before the filter, these phantoms did not merely inflate the
 object count: they produced confidently verified fictions (keyboard panels,
 handrails) that survived multi-view voting, since every view showed the same
@@ -121,7 +126,10 @@ artifacts (Sec.~\ref{sec:exp-update}).
 
 \begin{table}[t]
 \centering
-\caption{Verification accuracy against confirmed GT, and per-tier precision.}
+\caption{Verification accuracy against confirmed GT, and per-tier precision.
+Accuracy rows are over confirmed GT ($n{=}36$/$32$); trigger rates and tier
+counts are over all GT-scored clusters (50 showroom / 51 robot hall), so,
+e.g., 21 unanimous $+$ 29 split $=$ 50.}
 \label{tab:verification}
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -131,9 +139,9 @@ artifacts (Sec.~\ref{sec:exp-update}).
 \midrule
 Accuracy & 75.0\% & \textbf{86.1\%} & 78.1\% & \textbf{84.4\%} \\
 Recovered / regressed & \multicolumn{2}{c}{5 / 1} & \multicolumn{2}{c}{3 / 0} \\
-Escalation trigger & \multicolumn{2}{c}{58\%} & \multicolumn{2}{c}{52\%} \\
+Escalation trigger & \multicolumn{2}{c}{58\% (29/50)} & \multicolumn{2}{c}{51\% (26/51)} \\
 \midrule
-Unanimous precision & \multicolumn{2}{c}{100\% (21/21)} & \multicolumn{2}{c}{94.4\%} \\
+Unanimous precision & \multicolumn{2}{c}{100\% (21/21)} & \multicolumn{2}{c}{94.4\% (of 25)} \\
 Escalated precision & \multicolumn{2}{c}{100\%} & \multicolumn{2}{c}{88.9\%} \\
 Unverified precision & \multicolumn{2}{c}{50\%} & \multicolumn{2}{c}{40\%} \\
 \bottomrule
@@ -145,11 +153,14 @@ and from 78.1\% to 84.4\% on the robot hall (lenient: 76.2\%
 $\rightarrow$ 83.3\%, $n{=}42$), recovering 5 and 3 split-vote objects while
 regressing 1 and 0 (Table~\ref{tab:verification};
 Fig.~\ref{fig:esccost} shows the accuracy--cost trade-off at
-$\sim$\$0.009/call, 232 and 312 calls per scene). The tier structure
+$\sim$\$0.009/call; escalation adds 232 and 208 calls per scene). The tier
+structure
 justifies gating: unanimous and escalated tiers reach 88.9--100\% precision,
 while the unverified residue is 40--50\%---exactly the content the query
-interface must demote. On the manual-scan epoch (T1), with GT transferred by
-bidirectional point overlap ($n{=}8$, small), verified-tier precision is
+interface must demote. A separate check evaluates the room-scoped T1 objects
+in the update-study frame (Sec.~\ref{sec:exp-update}), where showroom GT is
+transferred to the re-decomposed clusters by bidirectional point overlap;
+on the resulting small confirmed set ($n{=}8$), verified-tier precision is
 100\% with 7/7 unanimity.
 
 Verification yield tracks scan quality: the manual scan leaves 47\% of
@@ -191,13 +202,21 @@ clutter absorption, render ambiguity.}
 \subsection{Knowledge-Grounded Query Evaluation}
 \label{sec:exp-query}
 
-We evaluate four conditions over the same 48-item query set (symbolic,
-explicit, implicit, scene-level, and trap questions): (1) \emph{LLM-only}
-(Stage-A dump, no verification), (2) \emph{ungated KG}, (3)
-\emph{verified-only KG} (unverified nodes removed), and (4) \emph{gated KG}
-(unverified retained but structurally demoted,
-Sec.~\ref{sec:query}). Traps ask about objects whose only label is
-unverified---a correct system must decline to assert them.
+We evaluate four conditions over identically constructed per-scene query
+sets---48 items on the showroom, 32 on the robot hall (symbolic, explicit,
+scene-level, and trap questions): (1) \emph{LLM-only} (Stage-A dump, no
+verification), (2) \emph{ungated KG}, (3) \emph{verified-only KG}
+(unverified nodes removed), and (4) \emph{gated KG} (unverified retained but
+structurally demoted, Sec.~\ref{sec:query}). Each scene carries four trap
+questions about objects that do not exist as labeled. On the showroom all
+four traps target \emph{unverified-label} phantoms (keyboard, ladder); on
+the robot hall two target an unverified-label phantom (refrigerator) and
+two an \emph{escalated-verified} phantom (keyboard)---the latter probing
+the gate's verifier-quality bound. A correct system must decline to assert
+the trap labels. Note that LLM-only can ``block'' traps trivially: with no
+map it tends to deny that specific objects exist at all (4/4 on the robot
+hall, 2/4 on the showroom), so trap blocking is diagnostic only for the
+grounded conditions.
 
 \begin{table}[t]
 \centering
@@ -209,9 +228,10 @@ traps blocked).}
 \toprule
  & LLM-only & Ungated & Verified-only & Gated \\
 \midrule
-Showroom & 52.1\% / 20.8\% / -- & 81.2\% / 18.8\% / 0/4 &
+Showroom & 52.1\% / 20.8\% / 2/4 & 81.2\% / 18.8\% / 0/4 &
 58.3\% / 16.7\% / 4/4 & \textbf{83.3\% / 16.7\% / 3/4} \\
-Robot hall & 50.0\% & 56.2\% & 46.9\% & \textbf{59.4\%} \\
+Robot hall & 50.0\% / 37.5\% / 4/4 & 56.2\% / 43.8\% / 0/4 &
+46.9\% / 40.6\% / 2/4 & \textbf{59.4\% / 40.6\% / 2/4} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -220,14 +240,17 @@ On the showroom (Table~\ref{tab:query}), grounding alone (ungated) lifts
 accuracy from 52.1\% to 81.2\% but blocks no traps; removing unverified
 content (verified-only) blocks all four traps at a steep recall price (12
 abstentions, 58.3\%); the gated condition is the balance point---83.3\% with
-3/4 traps blocked. The unblocked trap is instructive: an
-\emph{escalated-verified} keyboard misclassification passes any
-status-based gate in both scenes, because gating is bounded by verifier
-quality; we report this as a property, not an anomaly. The robot hall
-reproduces the ordering at lower absolute levels because its end-to-end
-label errors (banner$\rightarrow$refrigerator, robot$\rightarrow$clutter)
-propagate into every grounded condition---an honest end-to-end number rather
-than a curated one.
+3/4 traps blocked. The two leaks are instructive and mechanistically
+distinct. On the showroom, one \emph{count}-phrased trap slipped through
+the quarantine itself: the model tallied a demoted node by reading its
+\texttt{failedCandidateType} field, even though it correctly denied the
+same object in yes/no phrasing. On the robot hall, the keyboard phantom is
+\emph{escalated-verified}, so it passes any status-based gate---gating is
+bounded by verifier quality; we report both as properties, not anomalies.
+The robot hall reproduces the ordering at lower absolute levels because its
+end-to-end label errors (banner$\rightarrow$refrigerator,
+robot$\rightarrow$clutter) propagate into every grounded condition---an
+honest end-to-end number rather than a curated one.
 
 \begin{figure}[t]
 \centering
@@ -243,13 +266,15 @@ than a curated one.
 Controlled edits of the room-scoped robot hall isolate matcher behavior
 (Fig.~\ref{fig:update}): \emph{(A) unchanged repeat}: 55/55 nodes carried,
 zero VLM calls, zero identity switches; \emph{(B) move}: 1/1 moved with ID
-preserved; \emph{(C) remove+insert}: exact absent/insert classification, and
-re-verifying the insertion cost \$0.23 versus a full-scene rebuild;
+preserved; \emph{(C) remove+insert}: exact absent/insert classification;
 \emph{(D) occlusion}: at 20\% crop both affected objects still match (as
 updated, labels kept), at 40\% matching fails into 2 false-absents + 2
 false-news---the matcher's quantified breaking point, and the motivation for
-overlap-based matching features in future work. Selective re-verification
-prices an epoch at 2.7\% of full rebuild cost (0\% for scenario A).
+overlap-based matching features in future work. On the combined-edit
+re-scan (move, insertion, and removal applied together), selective
+re-verification re-ran Stage B on only the two changed clusters: 26 of 822
+VLM calls, \$0.23 versus \$7.37 for a full re-verification---3.1\% of
+rebuild cost, and 0\% for scenario A.
 
 \paragraph{Real three-epoch study.}
 The three epochs of Table~\ref{tab:scenes} form a real update sequence:
@@ -319,9 +344,10 @@ specific-type objects. Oversized footprints of merged mega-clusters
 \emph{Escalation on/off} is the base-4 column of
 Table~\ref{tab:verification}: +11.1/+6.3 points. \emph{Gating style}:
 instructing the model to respect verification status blocks 1/4 traps;
-structural demotion blocks 4/4 under identical prompts---the single
-strongest argument that reliability must live in the data contract, not in
-instructions. \emph{Pose context}: injecting mounting-height context as a
+structural demotion blocks 4/4 under identical prompts in this isolated
+comparison (in the separate end-to-end run of Table~\ref{tab:query}, one
+count-phrased trap leaked, 3/4)---still the single strongest argument that
+reliability must live in the data contract, not in instructions. \emph{Pose context}: injecting mounting-height context as a
 targeted defense removed all three phantom ceiling keyboards in its pilot,
 but applying it to every object \emph{reduced} escalated accuracy
 (86.1\%$\rightarrow$72.2\%) and escalated precision

@@ -87,7 +87,9 @@ the structure-remnant filter (inset: ceiling-soffit phantom before/after).}
 Each cluster is summarized by an explicit model: axis extents and centroid,
 yaw from the principal component of the horizontal point distribution,
 dominant color, and point count. These attributes are deterministic functions
-of the cluster. A provisional semantic label is then attached by Uni3D
+of the cluster; the backbone's determinism claim covers geometry and these
+explicit attributes only---the provisional label below is stochastic and
+excluded from it. A provisional semantic label is then attached by Uni3D
 open-vocabulary classification over a 30-class industrial vocabulary. The
 provisional label is explicitly \emph{not trusted}: our own vocabulary
 ablation (Sec.~5.6) shows that narrowing the vocabulary to the deployment
@@ -124,7 +126,7 @@ attributes (movability, openability, key-object status) are inferred once at
 fusion time from the winning view set.
 
 Escalation bounds cost: only split votes pay for the wider view set
-(trigger rates 52--58\%, Sec.~5.3), and per-call cost is $\sim$\$0.009, so a
+(trigger rates 51--58\%, Sec.~5.3), and per-call cost is $\sim$\$0.009, so a
 scene verifies for a few dollars (Sec.~7).
 
 \begin{figure}[t]
@@ -206,8 +208,12 @@ candidate label is moved to a separate \texttt{failedCandidateType} field
 whose semantics (``a classifier guess that did not survive verification'') are
 stated in the schema, not in behavioral instructions. With the gate in the
 data rather than the prompt, the model cannot assert an unverified label
-without visibly contradicting its input; all four traps are blocked and
-hallucination drops accordingly (Sec.~5.4).
+without visibly contradicting its input: the four unverified-label traps are
+blocked in the gating-style ablation (4/4, Sec.~5.6), while in the
+end-to-end benchmark one count-phrased trap still leaks through the
+quarantine field itself (3/4, Sec.~5.4). Traps whose label was wrongly
+\emph{verified} lie beyond any status-based gate---a bound we quantify in
+Sec.~5.4.
 
 \subsection{Object-Grounded Place Layer}
 \label{sec:place}

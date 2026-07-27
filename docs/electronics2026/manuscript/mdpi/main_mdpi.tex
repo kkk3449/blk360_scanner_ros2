@@ -60,29 +60,25 @@ Suwon, Republic of Korea}
 % 2026.}
 
 \abstract{Indoor service and inspection robots need environment knowledge
-that is not only semantically rich but also queryable, reliable, and
-maintainable as the environment changes. Existing open-vocabulary 3D
-pipelines propagate unverified labels into downstream representations, and
-build-once scene models offer no principled path for keeping the model
-consistent with a changing site. We present TLS-SMF, a TLS-driven semantic
-modeling framework that converts registered terrestrial laser scans into a
-confidence-aware semantic knowledge graph and keeps it current across
-repeated scans. The framework combines (i) a deterministic geometric backbone---seeded-RANSAC structure
-removal, fixed-parameter clustering with a structure-remnant filter, and
-explicit PCA-based object modeling---whose re-runs are byte-identical on the
-same host; (ii) multi-view vision--language-model (VLM) verification with
-automatic escalation, which fuses per-view forced-schema classifications and
-escalates split votes to a wider view set, retaining unresolved objects as
-explicitly unverified; and (iii) an identity-preserving incremental update
-that matches re-scanned objects to mint-once node identities and applies
-confidence-gated node-level upserts without rebuilding the graph. On two
-industrial indoor scenes, escalation lifts verification accuracy from 75.0\%
-to 86.1\% and 78.1\% to 84.4\%, with 100\% precision for unanimous votes;
+that is queryable, reliable, and maintainable as the site changes, yet
+open-vocabulary 3D pipelines propagate unverified labels downstream and
+build-once scene models offer no maintenance path. We present TLS-SMF, a
+TLS-driven semantic modeling framework that converts registered terrestrial
+laser scans into a confidence-aware semantic knowledge graph and keeps it
+current across repeated scans. TLS-SMF combines a deterministic geometric
+backbone whose re-runs are byte-identical on the same host; multi-view
+vision--language-model verification with automatic escalation, which
+retains unresolved objects as explicitly unverified; and an
+identity-preserving incremental update that applies confidence-gated
+node-level upserts to mint-once node identities without rebuilding the
+graph. On two industrial indoor scenes, escalation lifts verification
+accuracy from 75.0\% to 86.1\% and from 78.1\% to 84.4\%, with
+94.4--100\% precision for unanimous votes; on the showroom scene,
 structurally gated querying answers 83.3\% of benchmark questions versus
-52.1\% for an ungrounded LLM while blocking 3 of 4 hallucination traps; and
-selective re-verification prices a repeat scan at 2.7\% of a full rebuild
-(0\% when unchanged). A real three-epoch study of the same room---including
-a controlled-change re-scan---detects 2/2 physical changes at geometry level
+52.1\% for an ungrounded LLM while blocking unverified-label hallucination
+traps; and selective re-verification prices a changed re-scan at 3.1\% of a
+full rebuild (0\% when unchanged). A real three-epoch study with a
+controlled-change re-scan detects 2/2 physical changes at geometry level
 while preserving object identity across all three epochs.}
 
 \keyword{terrestrial laser scanning; semantic mapping; knowledge graph;
@@ -118,6 +114,10 @@ to the published version of the manuscript.}
 % If this changes, mirror the funding text used in sensors-4464625 for
 % consistency across the group's concurrent submissions.
 
+\institutionalreview{Not applicable.}
+
+\informedconsent{Not applicable.}
+
 \dataavailability{The TLS-SMF implementation is openly available at
 \url{https://github.com/kkk3449/tls-smf}. The processed semantic-object
 records, knowledge-graph snapshots, and benchmark query sets are available
@@ -125,7 +125,13 @@ from the corresponding author on reasonable request. Raw scan data is
 subject to facility-owner restrictions.}
 
 \acknowledgments{The authors thank CASELAB Co., Ltd. for access to the
-scanned facility and for ground-truth confirmation of object labels.}
+scanned facility and for ground-truth confirmation of object labels. During
+the preparation of this manuscript, the authors used a generative AI
+assistant (Claude, Anthropic) for drafting and editing support; the authors
+have reviewed and edited all output and take full responsibility for the
+content of this publication. (The use of the claude-sonnet-4-6 model as the
+verification component of the proposed method is described in the Methods
+and is unrelated to this disclosure.)}
 
 \conflictsofinterest{Authors Sangmin Kim, Yonghyeon Song, and Byeongjun Kim
 are employed by CASELAB Co., Ltd. The company provided access to the indoor
