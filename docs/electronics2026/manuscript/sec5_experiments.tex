@@ -287,8 +287,10 @@ at T3, at
 \centering
 \includegraphics[width=0.9\linewidth]{fig8_incremental_update.png}
 \caption{Controlled re-scan scenarios A--D (room-scoped robot hall, 55
-objects). Gray shapes are unchanged furniture; each edited object is
-annotated with the matcher's decision. (A)~A repeat scan with no changes
+objects), top-down view. Colored points are the segmented clusters, thin
+rotated rectangles their explicit-model footprints with node names, and the
+dark contour the test-room boundary; each edited object is annotated with
+the matcher's decision. (A)~A repeat scan with no changes
 carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is
 classified \texttt{moved} with its node ID preserved. (C)~A removed object
 is marked \texttt{absent} (node kept and flagged) and a newly placed object
@@ -302,9 +304,12 @@ pairs---the matcher's quantified breaking point.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{fig9_two_epoch_update.png}
-\caption{Real multi-epoch update, latest transition (T2$\rightarrow$T3):
-matched, moved (ID preserved), inserted, and absent nodes over the room
-mask.}
+\caption{Real multi-epoch update, latest transition (T2$\rightarrow$T3),
+top-down view. Colored points are the T3 segmented clusters inside the
+test-room boundary; yaw-rotated node footprints are colored by diff state
+(matched, moved with ID preserved, inserted, absent), with names on
+specific-type objects. Oversized footprints of merged mega-clusters
+(e.g., \texttt{machine\_012}, Sec.~\ref{sec:exp-ablation}) are faded.}
 \label{fig:epochs}
 \end{figure}
 
