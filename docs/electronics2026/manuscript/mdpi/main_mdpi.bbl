@@ -114,6 +114,21 @@ Wald, J.; Avetisyan, A.; Navab, N.; Tombari, F.; Nie{\ss}ner, M.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
   2019, pp. 7657--7666.
 
+\bibitem[Bormann et~al.(2016)Bormann, Jordan, Li, Hampp, and
+  H{\"a}gele]{bormann2016room}
+Bormann, R.; Jordan, F.; Li, W.; Hampp, J.; H{\"a}gele, M.
+\newblock Room Segmentation: Survey, Implementation, and Analysis.
+\newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
+  (ICRA),  2016, pp. 1019--1026.
+
+\bibitem[Luperto et~al.(2022)Luperto, Kucner, Tassi, Magnusson, and
+  Amigoni]{luperto2022robust}
+Luperto, M.; Kucner, T.P.; Tassi, A.; Magnusson, M.; Amigoni, F.
+\newblock Robust Structure Identification and Room Segmentation of Cluttered
+  Indoor Environments from Occupancy Grid Maps.
+\newblock {\em IEEE Robotics and Automation Letters} {\bf 2022}, {\em
+  7},~7974--7981.
+
 \bibitem[Kim et~al.(2026)Kim, Kim, and Kuc]{raaicon2026}
 Kim, S.; Kim, B.; Kuc, T.Y.
 \newblock An Automated Scan-to-Simulation Pipeline for Indoor Digital Twin

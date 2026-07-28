@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 00:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -484,44 +484,44 @@ Package pdftex.def Info: ../figs/fig4_record_cards.png  used on input line 222.
 (pdftex.def)             Requested size: 432.48051pt x 170.82928pt.
 
 [7 <../figs/fig3_multiview_escalation.png>]
-<../figs/fig11_place_map.png, id=269, 431.9337pt x 452.4102pt>
+<../figs/fig11_place_map.png, id=271, 431.9337pt x 452.4102pt>
 File: ../figs/fig11_place_map.png Graphic file (type png)
 <use ../figs/fig11_place_map.png>
-Package pdftex.def Info: ../figs/fig11_place_map.png  used on input line 255.
+Package pdftex.def Info: ../figs/fig11_place_map.png  used on input line 261.
 (pdftex.def)             Requested size: 386.96027pt x 405.32916pt.
 ) (./sec5_experiments.tex [8 <../figs/fig5_identity_upsert.png> <../figs/fig4_r
 ecord_cards.png>] [9 <../figs/fig11_place_map.png>] [10]
-<../figs/fig6_escalation_cost.png, id=312, 406.6392pt x 293.898pt>
+<../figs/fig6_escalation_cost.png, id=320, 406.6392pt x 293.898pt>
 File: ../figs/fig6_escalation_cost.png Graphic file (type png)
 <use ../figs/fig6_escalation_cost.png>
 Package pdftex.def Info: ../figs/fig6_escalation_cost.png  used on input line 1
 89.
 (pdftex.def)             Requested size: 386.96027pt x 279.68134pt.
-<../figs/fig10_error_taxonomy.png, id=313, 602.4909pt x 496.4949pt>
+<../figs/fig10_error_taxonomy.png, id=321, 602.4909pt x 496.4949pt>
 File: ../figs/fig10_error_taxonomy.png Graphic file (type png)
 <use ../figs/fig10_error_taxonomy.png>
 Package pdftex.def Info: ../figs/fig10_error_taxonomy.png  used on input line 1
 96.
 (pdftex.def)             Requested size: 409.71692pt x 337.64236pt.
  [11]
-<../figs/fig7_query_benchmark.png, id=327, 698.8509pt x 277.5168pt>
+<../figs/fig7_query_benchmark.png, id=335, 698.8509pt x 277.5168pt>
 File: ../figs/fig7_query_benchmark.png Graphic file (type png)
 <use ../figs/fig7_query_benchmark.png>
 Package pdftex.def Info: ../figs/fig7_query_benchmark.png  used on input line 2
 57.
 (pdftex.def)             Requested size: 409.71692pt x 162.70026pt.
  [12 <../figs/fig6_escalation_cost.png>]
-<../figs/fig8_incremental_update.png, id=341, 782.6841pt x 669.2202pt>
+<../figs/fig8_incremental_update.png, id=349, 782.6841pt x 669.2202pt>
 File: ../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../figs/fig8_incremental_update.png  used on input lin
-e 313.
+e 312.
 (pdftex.def)             Requested size: 409.71692pt x 350.32472pt.
-<../figs/fig9_two_epoch_update.png, id=342, 432.6564pt x 463.0098pt>
+<../figs/fig9_two_epoch_update.png, id=350, 432.6564pt x 463.0098pt>
 File: ../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../figs/fig9_two_epoch_update.png  used on input line 
-331.
+330.
 (pdftex.def)             Requested size: 409.71692pt x 438.48619pt.
 )
 (./sec6_applications.tex [13 <../figs/fig10_error_taxonomy.png>])
@@ -536,10 +536,10 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 681E6534AE1C67AC3FD9554797F7E220;6678.
  ) 
 Here is how much of TeX's memory you used:
- 11710 strings out of 467168
- 179549 string characters out of 5409468
- 619635 words of memory out of 5000000
- 40693 multiletter control sequences out of 15000+600000
+ 11714 strings out of 467168
+ 179627 string characters out of 5409468
+ 619832 words of memory out of 5000000
+ 40695 multiletter control sequences out of 15000+600000
  643540 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  74i,9n,79p,973b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -565,10 +565,10 @@ f-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2026/texmf-
 dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2026/texmf-di
 st/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2026/texmf-dist
 /fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on main.pdf (18 pages, 5214909 bytes).
+Output written on main.pdf (18 pages, 5055418 bytes).
 PDF statistics:
- 505 PDF objects out of 1000 (max. 8388607)
- 413 compressed objects within 5 object streams
- 107 named destinations out of 1000 (max. 500000)
+ 515 PDF objects out of 1000 (max. 8388607)
+ 421 compressed objects within 5 object streams
+ 109 named destinations out of 1000 (max. 500000)
  312 words of extra memory for PDF output out of 10000 (max. 10000000)
 

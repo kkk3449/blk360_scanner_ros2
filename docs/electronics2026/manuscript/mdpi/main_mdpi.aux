@@ -79,6 +79,7 @@
 \newlabel{sec:matching}{{4.5}{7}{Object Identity Matching}{subsection.4.5}{}}
 \newlabel{sec:matching@cref}{{[subsection][5][4]4.5}{[1][7][]7}{}{}{}}
 \citation{joo2025dksmf}
+\citation{bormann2016room,luperto2022robust}
 \def\@LN@column{1}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan.}}{8}{figure.caption.6}\protected@file@percent }
 \newlabel{fig:upsert}{{4}{8}{Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan}{figure.caption.6}{}}
@@ -92,13 +93,11 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Object-Grounded Place Layer}{8}{subsection.4.8}\protected@file@percent }
 \newlabel{sec:place}{{4.8}{8}{Object-Grounded Place Layer}{subsection.4.8}{}}
 \newlabel{sec:place@cref}{{[subsection][8][4]4.8}{[1][8][]8}{}{}{}}
+\citation{bormann2016room,luperto2022robust}
 \def\@LN@column{1}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces TOSM semantic-object records (symbolic / explicit / implicit layers). (a)~A verified record asserts its type. (b)~An unverified record is structurally gated at query time: the type is demoted to \texttt  {unknown} and the failed classifier guess is quarantined in \texttt  {failedCandidateType}.}}{9}{figure.caption.7}\protected@file@percent }
 \newlabel{fig:cards}{{5}{9}{TOSM semantic-object records (symbolic / explicit / implicit layers). (a)~A verified record asserts its type. (b)~An unverified record is structurally gated at query time: the type is demoted to \texttt {unknown} and the failed classifier guess is quarantined in \texttt {failedCandidateType}}{figure.caption.7}{}}
 \newlabel{fig:cards@cref}{{[figure][5][]5}{[1][8][]9}{}{}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Scene statistics (det sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan.}}{9}{table.caption.9}\protected@file@percent }
-\newlabel{tab:scenes}{{3}{9}{Scene statistics (det sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan}{table.caption.9}{}}
-\newlabel{tab:scenes@cref}{{[table][3][]3}{[1][9][]9}{}{}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{9}{section.5}\protected@file@percent }
 \newlabel{sec:experiments}{{5}{9}{Experiments}{section.5}{}}
 \newlabel{sec:experiments@cref}{{[section][5][]5}{[1][9][]9}{}{}{}}
@@ -106,17 +105,20 @@
 \newlabel{sec:setup}{{5.1}{9}{Setup}{subsection.5.1}{}}
 \newlabel{sec:setup@cref}{{[subsection][1][5]5.1}{[1][9][]9}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.1.0.1}Scenes and epochs.}{9}{paragraph.5.1.0.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\numberline {5.1.0.2}Ground truth.}{9}{paragraph.5.1.0.2}\protected@file@percent }
 \def\@LN@column{1}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Object-grounded place layer at T3: registered section polygons carry LLM-derived names computed from verified-object ring codes; unverified objects (open markers) do not contribute, so the confidence gate propagates into place semantics.}}{10}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:placemap}{{6}{10}{Object-grounded place layer at T3: registered section polygons carry LLM-derived names computed from verified-object ring codes; unverified objects (open markers) do not contribute, so the confidence gate propagates into place semantics}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Object-grounded place layer at T3. Registered section polygons are completed to a full partition of the room mask (Voronoi-style assignment~\cite  {bormann2016room,luperto2022robust}) and carry LLM-derived names computed from verified-object ring codes; unverified objects (open markers) do not contribute, so the confidence gate propagates into place semantics.}}{10}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:placemap}{{6}{10}{Object-grounded place layer at T3. Registered section polygons are completed to a full partition of the room mask (Voronoi-style assignment~\cite {bormann2016room,luperto2022robust}) and carry LLM-derived names computed from verified-object ring codes; unverified objects (open markers) do not contribute, so the confidence gate propagates into place semantics}{figure.caption.8}{}}
 \newlabel{fig:placemap@cref}{{[figure][6][]6}{[1][9][]10}{}{}{}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {5.1.0.2}Ground truth.}{10}{paragraph.5.1.0.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.1.0.3}Metrics.}{10}{paragraph.5.1.0.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\numberline {5.1.0.4}Controls.}{10}{paragraph.5.1.0.4}\protected@file@percent }
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {5.1.0.4}Controls.}{11}{paragraph.5.1.0.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Scene statistics (det sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan.}}{11}{table.caption.9}\protected@file@percent }
+\newlabel{tab:scenes}{{3}{11}{Scene statistics (det sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan}{table.caption.9}{}}
+\newlabel{tab:scenes@cref}{{[table][3][]3}{[1][9][]11}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Segmentation: Repeatability, Filtering, and Sensitivity}{11}{subsection.5.2}\protected@file@percent }
 \newlabel{sec:exp-seg}{{5.2}{11}{Segmentation: Repeatability, Filtering, and Sensitivity}{subsection.5.2}{}}
-\newlabel{sec:exp-seg@cref}{{[subsection][2][5]5.2}{[1][11][]11}{}{}{}}
+\newlabel{sec:exp-seg@cref}{{[subsection][2][5]5.2}{[1][10][]11}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.2.0.1}Repeatability.}{11}{paragraph.5.2.0.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.2.0.2}Remnant filter.}{11}{paragraph.5.2.0.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.2.0.3}Parameter sensitivity.}{11}{paragraph.5.2.0.3}\protected@file@percent }
@@ -132,9 +134,6 @@
 \newlabel{fig:esccost}{{7}{12}{Escalation accuracy--cost curves for both scenes}{figure.caption.11}{}}
 \newlabel{fig:esccost@cref}{{[figure][7][]7}{[1][12][]12}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.3.0.1}Error taxonomy.}{12}{paragraph.5.3.0.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Knowledge-Grounded Query Evaluation}{12}{subsection.5.4}\protected@file@percent }
-\newlabel{sec:exp-query}{{5.4}{12}{Knowledge-Grounded Query Evaluation}{subsection.5.4}{}}
-\newlabel{sec:exp-query@cref}{{[subsection][4][5]5.4}{[1][12][]12}{}{}{}}
 \def\@LN@column{1}
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity.}}{13}{figure.caption.12}\protected@file@percent }
 \newlabel{fig:taxonomy}{{8}{13}{Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity}{figure.caption.12}{}}
@@ -142,65 +141,70 @@
 \@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Query benchmark, four conditions (accuracy / hallucination rate / traps blocked).}}{13}{table.caption.13}\protected@file@percent }
 \newlabel{tab:query}{{5}{13}{Query benchmark, four conditions (accuracy / hallucination rate / traps blocked)}{table.caption.13}{}}
 \newlabel{tab:query@cref}{{[table][5][]5}{[1][13][]13}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Knowledge-Grounded Query Evaluation}{13}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:exp-query}{{5.4}{13}{Knowledge-Grounded Query Evaluation}{subsection.5.4}{}}
+\newlabel{sec:exp-query@cref}{{[subsection][4][5]5.4}{[1][13][]13}{}{}{}}
 \def\@LN@column{1}
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Four-condition query benchmark with trap-question panel.}}{14}{figure.caption.14}\protected@file@percent }
 \newlabel{fig:query}{{9}{14}{Four-condition query benchmark with trap-question panel}{figure.caption.14}{}}
-\newlabel{fig:query@cref}{{[figure][9][]9}{[1][13][]14}{}{}{}}
+\newlabel{fig:query@cref}{{[figure][9][]9}{[1][14][]14}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Incremental Update Evaluation}{14}{subsection.5.5}\protected@file@percent }
 \newlabel{sec:exp-update}{{5.5}{14}{Incremental Update Evaluation}{subsection.5.5}{}}
-\newlabel{sec:exp-update@cref}{{[subsection][5][5]5.5}{[1][13][]14}{}{}{}}
+\newlabel{sec:exp-update@cref}{{[subsection][5][5]5.5}{[1][14][]14}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.5.0.1}Synthetic scenarios.}{14}{paragraph.5.5.0.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {5.5.0.2}Real three-epoch study.}{14}{paragraph.5.5.0.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Ablation and Sensitivity}{14}{subsection.5.6}\protected@file@percent }
-\newlabel{sec:exp-ablation}{{5.6}{14}{Ablation and Sensitivity}{subsection.5.6}{}}
-\newlabel{sec:exp-ablation@cref}{{[subsection][6][5]5.6}{[1][14][]14}{}{}{}}
-\citation{raaicon2026}
 \def\@LN@column{1}
 \@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Controlled re-scan scenarios A--D (room-scoped robot hall, 55 objects), top-down view. Colored points are the segmented clusters, thin rotated rectangles their explicit-model footprints with node names, and the dark contour the test-room boundary; each edited object is annotated with the matcher's decision. (A)~A repeat scan with no changes carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is classified \texttt  {moved} with its node ID preserved. (C)~A removed object is marked \texttt  {absent} (node kept and flagged) and a newly placed object is \texttt  {inserted} under a new ID; only the insertion is re-verified (\$0.23). (D)~Partial occlusion: both cropped objects still match at 20\%, but at 40\% matching fails into two false-absent plus two false-new pairs---the matcher's quantified breaking point.}}{15}{figure.caption.15}\protected@file@percent }
 \newlabel{fig:update}{{10}{15}{Controlled re-scan scenarios A--D (room-scoped robot hall, 55 objects), top-down view. Colored points are the segmented clusters, thin rotated rectangles their explicit-model footprints with node names, and the dark contour the test-room boundary; each edited object is annotated with the matcher's decision. (A)~A repeat scan with no changes carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is classified \texttt {moved} with its node ID preserved. (C)~A removed object is marked \texttt {absent} (node kept and flagged) and a newly placed object is \texttt {inserted} under a new ID; only the insertion is re-verified (\$0.23). (D)~Partial occlusion: both cropped objects still match at 20\%, but at 40\% matching fails into two false-absent plus two false-new pairs---the matcher's quantified breaking point}{figure.caption.15}{}}
 \newlabel{fig:update@cref}{{[figure][10][]10}{[1][14][]15}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Ablation and Sensitivity}{15}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:exp-ablation}{{5.6}{15}{Ablation and Sensitivity}{subsection.5.6}{}}
+\newlabel{sec:exp-ablation@cref}{{[subsection][6][5]5.6}{[1][14][]15}{}{}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Application Demonstrations}{15}{section.6}\protected@file@percent }
 \newlabel{sec:applications}{{6}{15}{Application Demonstrations}{section.6}{}}
 \newlabel{sec:applications@cref}{{[section][6][]6}{[1][15][]15}{}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Knowledge-Grounded Dialogue}{15}{subsection.6.1}\protected@file@percent }
+\citation{raaicon2026}
 \def\@LN@column{1}
 \@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Real multi-epoch update, latest transition (T2$\rightarrow $T3), top-down view. Colored points are the T3 segmented clusters inside the test-room boundary; yaw-rotated node footprints are colored by diff state (matched, moved with ID preserved, inserted, absent), with names on specific-type objects. Oversized footprints of merged mega-clusters (e.g., \texttt  {machine\_012}, Sec.~\ref {sec:exp-ablation}) are faded.}}{16}{figure.caption.16}\protected@file@percent }
 \newlabel{fig:epochs}{{11}{16}{Real multi-epoch update, latest transition (T2$\rightarrow $T3), top-down view. Colored points are the T3 segmented clusters inside the test-room boundary; yaw-rotated node footprints are colored by diff state (matched, moved with ID preserved, inserted, absent), with names on specific-type objects. Oversized footprints of merged mega-clusters (e.g., \texttt {machine\_012}, Sec.~\ref {sec:exp-ablation}) are faded}{figure.caption.16}{}}
 \newlabel{fig:epochs@cref}{{[figure][11][]11}{[1][14][]16}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Knowledge-Grounded Dialogue}{16}{subsection.6.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Simulation Twin Injection}{16}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Manipulation Readiness}{16}{subsection.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{16}{section.7}\protected@file@percent }
-\newlabel{sec:discussion}{{7}{16}{Discussion}{section.7}{}}
-\newlabel{sec:discussion@cref}{{[section][7][]7}{[1][16][]16}{}{}{}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {7.0.0.1}Cost and latency.}{16}{paragraph.7.0.0.1}\protected@file@percent }
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Manipulation Readiness}{17}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{17}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{17}{Discussion}{section.7}{}}
+\newlabel{sec:discussion@cref}{{[section][7][]7}{[1][17][]17}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{\numberline {7.0.0.1}Cost and latency.}{17}{paragraph.7.0.0.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {7.0.0.2}Residual unverified content.}{17}{paragraph.7.0.0.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {7.0.0.3}Small low-reflectance objects.}{17}{paragraph.7.0.0.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {7.0.0.4}Structure remnants.}{17}{paragraph.7.0.0.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {7.0.0.5}The coverage paradox.}{17}{paragraph.7.0.0.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {7.0.0.6}Scope.}{17}{paragraph.7.0.0.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{17}{section.8}\protected@file@percent }
-\newlabel{sec:conclusion}{{8}{17}{Conclusion}{section.8}{}}
-\newlabel{sec:conclusion@cref}{{[section][8][]8}{[1][17][]17}{}{}{}}
 \bibdata{../refs}
 \bibcite{armeni20193dsg}{{1}{2019}{{Armeni et~al.}}{{Armeni, He, Gwak, Zamir, Fischer, Malik, and Savarese}}}
 \bibcite{koch2024open3dsg}{{2}{2024}{{Koch et~al.}}{{Koch, Vaskevicius, Colosi, Hermosilla, and Ropinski}}}
 \bibcite{gu2024conceptgraphs}{{3}{2024}{{Gu et~al.}}{{Gu, Kuwajerwala, Morin, Jatavallabhula, Sen, Agarwal, Rivera, Paul, Ellis, Chellappa, Gan, de~Melo, Tenenbaum, Torralba, Shkurti, and Paull}}}
 \bibcite{honerkamp2024momallm}{{4}{2024}{{Honerkamp et~al.}}{{Honerkamp, B{\"u}chner, Despinoy, Welschehold, and Valada}}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{18}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{18}{Conclusion}{section.8}{}}
+\newlabel{sec:conclusion@cref}{{[section][8][]8}{[1][17][]18}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}References}{18}{section.9}\protected@file@percent }
 \bibcite{joo2025dksmf}{{5}{2025}{{Joo et~al.}}{{Joo, Jeong, Kwon, Jeong, Kim, and Kuc}}}
 \bibcite{zhou2024uni3d}{{6}{2024}{{Zhou et~al.}}{{Zhou, Wang, Ma, Liu, Huang, and Wang}}}
 \bibcite{zhu2023pointclipv2}{{7}{2023}{{Zhu et~al.}}{{Zhu, Zhang, He, Guo, Zeng, Qin, Zhang, and Gao}}}
 \bibcite{sun2023spformer}{{8}{2023}{{Sun et~al.}}{{Sun, Qing, Tan, and Xu}}}
 \bibcite{wu2024ptv3}{{9}{2024}{{Wu et~al.}}{{Wu, Jiang, Wang, Liu, Liu, Qiao, Ouyang, He, and Zhao}}}
 \bibcite{zhou2024pointsam}{{10}{2025}{{Zhou et~al.}}{{Zhou, Gu, Chiang, Xiang, and Su}}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {9}References}{18}{section.9}\protected@file@percent }
 \bibcite{kim2026ictc}{{11}{2026}{{Kim et~al.}}{{Kim, Kim, Song, and Kuc}}}
 \bibcite{lewis2020rag}{{12}{2020}{{Lewis et~al.}}{{Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal, K{\"u}ttler, Lewis, Yih, Rockt{\"a}schel, Riedel, and Kiela}}}
 \bibcite{kim2025isis}{{13}{2025}{{Kim and Kuc}}{{}}}
 \bibcite{fehr2017tsdf}{{14}{2017}{{Fehr et~al.}}{{Fehr, Furrer, Dryanovski, Sturm, Gilitschenski, Siegwart, and Cadena}}}
 \bibcite{wald2019rescan}{{15}{2019}{{Wald et~al.}}{{Wald, Avetisyan, Navab, Tombari, and Nie{\ss }ner}}}
-\bibcite{raaicon2026}{{16}{2026}{{Kim et~al.}}{{Kim, Kim, and Kuc}}}
+\bibcite{bormann2016room}{{16}{2016}{{Bormann et~al.}}{{Bormann, Jordan, Li, Hampp, and H{\"a}gele}}}
+\bibcite{luperto2022robust}{{17}{2022}{{Luperto et~al.}}{{Luperto, Kucner, Tassi, Magnusson, and Amigoni}}}
+\bibcite{raaicon2026}{{18}{2026}{{Kim et~al.}}{{Kim, Kim, and Kuc}}}
 \def\@LN@column{1}
 \newlabel{LastPage}{{8}{19}{Conclusion}{page.19}{}}
 \gdef\lastpage@lastpage{19}

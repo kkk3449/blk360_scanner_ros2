@@ -109,6 +109,20 @@ Johanna Wald, Armen Avetisyan, Nassir Navab, Federico Tombari, and Matthias
 \newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, pages
   7657--7666, 2019.
 
+\bibitem{bormann2016room}
+Richard Bormann, Florian Jordan, Wenzhe Li, Joshua Hampp, and Martin
+  H{\"a}gele.
+\newblock Room segmentation: Survey, implementation, and analysis.
+\newblock In {\em IEEE Int. Conf. on Robotics and Automation (ICRA)}, pages
+  1019--1026, 2016.
+
+\bibitem{luperto2022robust}
+Matteo Luperto, Tomasz~Piotr Kucner, Andrea Tassi, Martin Magnusson, and
+  Francesco Amigoni.
+\newblock Robust structure identification and room segmentation of cluttered
+  indoor environments from occupancy grid maps.
+\newblock {\em IEEE Robotics and Automation Letters}, 7(3):7974--7981, 2022.
+
 \bibitem{raaicon2026}
 Sangmin Kim, Byeongjun Kim, and Tae-Yong Kuc.
 \newblock An automated scan-to-simulation pipeline for indoor digital twin
