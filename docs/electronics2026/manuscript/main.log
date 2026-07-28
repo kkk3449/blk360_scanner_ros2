@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -515,13 +515,13 @@ Package pdftex.def Info: ../figs/fig7_query_benchmark.png  used on input line 2
 File: ../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../figs/fig8_incremental_update.png  used on input lin
-e 313.
+e 312.
 (pdftex.def)             Requested size: 409.71692pt x 350.32472pt.
 <../figs/fig9_two_epoch_update.png, id=351, 432.6564pt x 463.0098pt>
 File: ../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../figs/fig9_two_epoch_update.png  used on input line 
-331.
+330.
 (pdftex.def)             Requested size: 409.71692pt x 438.48619pt.
 )
 (./sec6_applications.tex [13 <../figs/fig10_error_taxonomy.png>])
@@ -566,7 +566,7 @@ ist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2026/texmf-dis
 t/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2026/texmf-dist/
 fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2026/texmf-dist/fo
 nts/type1/public/cm-super/sftt1000.pfb>
-Output written on main.pdf (18 pages, 5115649 bytes).
+Output written on main.pdf (18 pages, 5106272 bytes).
 PDF statistics:
  520 PDF objects out of 1000 (max. 8388607)
  425 compressed objects within 5 object streams

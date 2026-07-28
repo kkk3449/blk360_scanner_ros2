@@ -237,12 +237,12 @@ polygon, containment, and purpose---we add a place layer grounded in the
 verified object layer. Place regions are obtained automatically from the
 robot-facing occupancy grid map (0.05\,m---generated from the scan here,
 and equally the exploration SLAM map on deployment), following DK-SMF's
-recipe: the map is partitioned by SLIC superpixel
-segmentation~\cite{achanta2012slic} with the number of superpixels as the
-governing parameter (7 requested here), only regions inside free space are
-retained, fragments below an area threshold (1.5\,m$^2$) are discarded,
-and each region's centroid is the moment-based center of its cells (cf.
-grid-map room segmentation~\cite{bormann2016room,luperto2022robust}). Each
+recipe: the room interior delimited by the mapped outer boundary is
+partitioned by SLIC superpixel segmentation~\cite{achanta2012slic} with the
+number of superpixels as the governing parameter (7 requested here),
+fragments below an area threshold (1.5\,m$^2$) are discarded, and each
+region's centroid is the moment-based center of its cells (cf. grid-map
+room segmentation~\cite{bormann2016room,luperto2022robust}). Each
 object's \texttt{isInsideOf} resolves to the region containing its anchor
 cell. Each place is then summarized by its
 \emph{ring code}: the sequence of member objects sorted by bearing around the
@@ -262,9 +262,9 @@ layer of TOSM is out of scope here.
 \centering
 \includegraphics[width=0.85\linewidth]{fig11_place_map.png}
 \caption{Object-grounded place layer at T3. SLIC superpixel
-regions~\cite{achanta2012slic} over the free space of the nav-stack
-occupancy grid (white voids are obstacles) carry LLM-derived names computed
-from verified-object ring codes; unverified objects (open markers) do not
+regions~\cite{achanta2012slic} tile the room interior delimited by the
+nav-stack grid map's outer boundary and carry LLM-derived names computed
+from verified-object ring codes; unverified objects (blue markers) do not
 contribute, so the confidence gate propagates into place semantics.}
 \label{fig:placemap}
 \end{figure}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1640,7 +1640,7 @@ Package pdftex.def Info: ../../figs/fig7_query_benchmark.png  used on input lin
 e 257.
 (pdftex.def)             Requested size: 354.91728pt x 140.93884pt.
 
-Overfull \hbox (20.33194pt too wide) in paragraph at lines 296--310
+Overfull \hbox (20.33194pt too wide) in paragraph at lines 296--309
 \T1/cmtt/m/n/10 operator_control_station \T1/ppl/m/n/10 (-20) be-come clutter-d
 ominated at T2 and \T1/cmtt/m/n/10 machine_operator_station\T1/ppl/m/n/10 (-20)
  /
@@ -1650,13 +1650,13 @@ ominated at T2 and \T1/cmtt/m/n/10 machine_operator_station\T1/ppl/m/n/10 (-20)
 File: ../../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../../figs/fig8_incremental_update.png  used on input 
-line 313.
+line 312.
 (pdftex.def)             Requested size: 354.91728pt x 303.47452pt.
 <../../figs/fig9_two_epoch_update.png, id=368, 432.6564pt x 463.0098pt>
 File: ../../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../../figs/fig9_two_epoch_update.png  used on input li
-ne 331.
+ne 330.
 (pdftex.def)             Requested size: 354.91728pt x 379.84004pt.
 ) (../sec6_applications.tex
 
@@ -1741,7 +1741,7 @@ local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/tex
 live/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/20
 26/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (19 pages, 4988228 bytes).
+Output written on main_mdpi.pdf (19 pages, 4978858 bytes).
 PDF statistics:
  495 PDF objects out of 1000 (max. 8388607)
  418 compressed objects within 5 object streams
