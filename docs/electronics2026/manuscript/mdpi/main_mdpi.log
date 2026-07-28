@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1569,12 +1569,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [8 <../../figs/fig5_identity_upsert.png>]
-<../../figs/fig11_place_map.png, id=296, 473.3685pt x 452.4102pt>
+<../../figs/fig11_place_map.png, id=296, 473.3685pt x 463.4916pt>
 File: ../../figs/fig11_place_map.png Graphic file (type png)
 <use ../../figs/fig11_place_map.png>
 Package pdftex.def Info: ../../figs/fig11_place_map.png  used on input line 263
 .
-(pdftex.def)             Requested size: 335.20435pt x 320.37819pt.
+(pdftex.def)             Requested size: 335.20435pt x 328.22557pt.
 ) (../sec5_experiments.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1741,7 +1741,7 @@ local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/tex
 live/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/20
 26/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (19 pages, 4946702 bytes).
+Output written on main_mdpi.pdf (19 pages, 4988228 bytes).
 PDF statistics:
  495 PDF objects out of 1000 (max. 8388607)
  418 compressed objects within 5 object streams

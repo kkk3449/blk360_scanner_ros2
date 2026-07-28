@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 01:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -484,11 +484,11 @@ Package pdftex.def Info: ../figs/fig4_record_cards.png  used on input line 222.
 (pdftex.def)             Requested size: 432.48051pt x 170.82928pt.
 
 [7 <../figs/fig3_multiview_escalation.png>]
-<../figs/fig11_place_map.png, id=272, 473.3685pt x 452.4102pt>
+<../figs/fig11_place_map.png, id=272, 473.3685pt x 463.4916pt>
 File: ../figs/fig11_place_map.png Graphic file (type png)
 <use ../figs/fig11_place_map.png>
 Package pdftex.def Info: ../figs/fig11_place_map.png  used on input line 263.
-(pdftex.def)             Requested size: 386.96027pt x 369.83972pt.
+(pdftex.def)             Requested size: 386.96027pt x 378.89862pt.
  [8 <../figs/fig5_identity_upsert.png> <../figs/fig4_record_cards.png>]) (./sec
 5_experiments.tex [9 <../figs/fig11_place_map.png>] [10]
 <../figs/fig6_escalation_cost.png, id=321, 406.6392pt x 293.898pt>
@@ -566,7 +566,7 @@ ist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2026/texmf-dis
 t/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2026/texmf-dist/
 fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2026/texmf-dist/fo
 nts/type1/public/cm-super/sftt1000.pfb>
-Output written on main.pdf (18 pages, 5074116 bytes).
+Output written on main.pdf (18 pages, 5115649 bytes).
 PDF statistics:
  520 PDF objects out of 1000 (max. 8388607)
  425 compressed objects within 5 object streams
