@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  27 JUL 2026 07:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 00:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1537,7 +1537,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 File: ../../figs/fig3_multiview_escalation.png Graphic file (type png)
 <use ../../figs/fig3_multiview_escalation.png>
 Package pdftex.def Info: ../../figs/fig3_multiview_escalation.png  used on inpu
-t line 134.
+t line 135.
 (pdftex.def)             Requested size: 374.63625pt x 319.40602pt.
 
 
@@ -1552,9 +1552,15 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 File: ../../figs/fig5_identity_upsert.png Graphic file (type png)
 <use ../../figs/fig5_identity_upsert.png>
 Package pdftex.def Info: ../../figs/fig5_identity_upsert.png  used on input lin
-e 192.
+e 193.
 (pdftex.def)             Requested size: 354.91728pt x 183.23853pt.
-) (../sec5_experiments.tex
+<../../figs/fig4_record_cards.png, id=283, 838.5729pt x 331.2375pt>
+File: ../../figs/fig4_record_cards.png Graphic file (type png)
+<use ../../figs/fig4_record_cards.png>
+Package pdftex.def Info: ../../figs/fig4_record_cards.png  used on input line 2
+22.
+(pdftex.def)             Requested size: 374.63625pt x 147.97893pt.
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1563,6 +1569,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
 [8 <../../figs/fig5_identity_upsert.png>]
+<../../figs/fig11_place_map.png, id=293, 431.9337pt x 452.4102pt>
+File: ../../figs/fig11_place_map.png Graphic file (type png)
+<use ../../figs/fig11_place_map.png>
+Package pdftex.def Info: ../../figs/fig11_place_map.png  used on input line 255
+.
+(pdftex.def)             Requested size: 335.20435pt x 351.11131pt.
+) (../sec5_experiments.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1570,7 +1583,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[9]
+[9 <../../figs/fig4_record_cards.png>]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1578,14 +1591,22 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[10]
-<../../figs/fig6_escalation_cost.png, id=324, 406.6392pt x 293.898pt>
+[10 <../../figs/fig11_place_map.png>]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 16.18796pt, for example:
+(fancyhdr)                \setlength{\headheight}{16.18796pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
+
+[11]
+<../../figs/fig6_escalation_cost.png, id=337, 406.6392pt x 293.898pt>
 File: ../../figs/fig6_escalation_cost.png Graphic file (type png)
 <use ../../figs/fig6_escalation_cost.png>
 Package pdftex.def Info: ../../figs/fig6_escalation_cost.png  used on input lin
 e 189.
 (pdftex.def)             Requested size: 335.20435pt x 242.27599pt.
-<../../figs/fig10_error_taxonomy.png, id=325, 602.4909pt x 496.4949pt>
+<../../figs/fig10_error_taxonomy.png, id=338, 602.4909pt x 496.4949pt>
 File: ../../figs/fig10_error_taxonomy.png Graphic file (type png)
 <use ../../figs/fig10_error_taxonomy.png>
 Package pdftex.def Info: ../../figs/fig10_error_taxonomy.png  used on input lin
@@ -1599,11 +1620,17 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[11 <../../figs/fig6_escalation_cost.png>]
+[12 <../../figs/fig6_escalation_cost.png>]
 Overfull \hbox (13.63402pt too wide) in paragraph at lines 227--237
  [][] 
  []
 
+<../../figs/fig7_query_benchmark.png, id=348, 698.8509pt x 277.5168pt>
+File: ../../figs/fig7_query_benchmark.png Graphic file (type png)
+<use ../../figs/fig7_query_benchmark.png>
+Package pdftex.def Info: ../../figs/fig7_query_benchmark.png  used on input lin
+e 257.
+(pdftex.def)             Requested size: 354.91728pt x 140.93884pt.
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1611,20 +1638,14 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[12 <../../figs/fig10_error_taxonomy.png>]
-<../../figs/fig7_query_benchmark.png, id=341, 698.8509pt x 277.5168pt>
-File: ../../figs/fig7_query_benchmark.png Graphic file (type png)
-<use ../../figs/fig7_query_benchmark.png>
-Package pdftex.def Info: ../../figs/fig7_query_benchmark.png  used on input lin
-e 257.
-(pdftex.def)             Requested size: 354.91728pt x 140.93884pt.
-<../../figs/fig8_incremental_update.png, id=346, 782.6841pt x 669.2202pt>
+[13 <../../figs/fig10_error_taxonomy.png>]
+<../../figs/fig8_incremental_update.png, id=360, 782.6841pt x 669.2202pt>
 File: ../../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../../figs/fig8_incremental_update.png  used on input 
 line 313.
 (pdftex.def)             Requested size: 354.91728pt x 303.47452pt.
-<../../figs/fig9_two_epoch_update.png, id=347, 432.6564pt x 463.0098pt>
+<../../figs/fig9_two_epoch_update.png, id=361, 432.6564pt x 463.0098pt>
 File: ../../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../../figs/fig9_two_epoch_update.png  used on input li
@@ -1638,7 +1659,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[13 <../../figs/fig7_query_benchmark.png>]
+[14 <../../figs/fig7_query_benchmark.png>]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1646,7 +1667,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[14 <../../figs/fig8_incremental_update.png>]) (../sec7_discussion.tex
+[15 <../../figs/fig8_incremental_update.png>]) (../sec7_discussion.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1654,8 +1675,8 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[15 <../../figs/fig9_two_epoch_update.png>]
-Overfull \hbox (3.57976pt too wide) in paragraph at lines 25--31
+[16 <../../figs/fig9_two_epoch_update.png>]
+Overfull \hbox (3.57976pt too wide) in paragraph at lines 26--32
 []\T1/ppl/m/n/10 (-20) The clutter-absorption er-ror class---disassembled robot
 , poster stand, and the controlled-
  []
@@ -1668,7 +1689,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[16]) (./main_mdpi.bbl
+[17]) (./main_mdpi.bbl
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1676,7 +1697,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[17])
+[18])
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 16.18796pt, for example:
@@ -1684,7 +1705,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-4.18796pt}.
 
-[18] 
+[19] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (./main_mdpi.aux)
  ***********
@@ -1695,13 +1716,13 @@ Package rerunfilecheck Info: File `main_mdpi.out' has not changed.
 (rerunfilecheck)             Checksum: D3D9BE6A6B4C69FD599B0EE5A71A8963;6739.
  ) 
 Here is how much of TeX's memory you used:
- 34375 strings out of 467168
- 640076 string characters out of 5409468
+ 34412 strings out of 467168
+ 640907 string characters out of 5409468
  1137377 words of memory out of 5000000
- 62432 multiletter control sequences out of 15000+600000
- 701599 words of font info for 452 fonts, out of 8000000 for 9000
+ 62454 multiletter control sequences out of 15000+600000
+ 702161 words of font info for 460 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 123i,13n,121p,1002b,785s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 123i,13n,121p,1002b,797s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 ></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
 /usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
@@ -1713,10 +1734,10 @@ local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/tex
 live/2026/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/20
 26/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on main_mdpi.pdf (18 pages, 4410053 bytes).
+Output written on main_mdpi.pdf (19 pages, 5095431 bytes).
 PDF statistics:
- 473 PDF objects out of 1000 (max. 8388607)
- 401 compressed objects within 5 object streams
- 105 named destinations out of 1000 (max. 500000)
- 94540 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 486 PDF objects out of 1000 (max. 8388607)
+ 409 compressed objects within 5 object streams
+ 108 named destinations out of 1000 (max. 500000)
+ 94550 words of extra memory for PDF output out of 106986 (max. 10000000)
 

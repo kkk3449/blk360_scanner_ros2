@@ -4,8 +4,9 @@
 \paragraph{Cost and latency.}
 VLM verification is the only paid stage. Escalation is bounded by its
 trigger rate (51--58\% of objects), and per-call cost is $\sim$\$0.009;
-full verification averages $\sim$\$0.09 per object (\$3.5--7.4 for our
-38--86-cluster scenes, all calls included). The incremental design changes
+full verification averages $\sim$\$0.09 per object (\$3.63 for a 38-cluster
+run and \$7.37 for an 86-cluster run, all calls included). The incremental
+design changes
 the cost model qualitatively: a repeat scan costs \$0 (hash carry-over) and
 a changed scene costs in proportion to its change (3.1\% of rebuild in our
 measurement). Verification is offline; no VLM call sits on a robot's control
@@ -17,9 +18,9 @@ manual scan; 43\% on the 1/6-coverage ablation)---scan quality is the
 dominant driver of verification yield. The framework's position is to expose
 this residue, not shrink it cosmetically: unverified nodes stay queryable
 with demoted types, and the gate is only as good as the verifier
-(Sec.~5.3's unanimous-but-wrong cases; the escalated keyboard trap that
-survives gating in both scenes). Verifier-bounded gating is a property users
-must design around, and we report it as such.
+(Sec.~5.3's unanimous-but-wrong cases; the escalated-verified keyboard trap
+that survives gating on the robot hall). Verifier-bounded gating is a
+property users must design around, and we report it as such.
 
 \paragraph{Small low-reflectance objects.}
 The clutter-absorption error class---disassembled robot, poster stand, and

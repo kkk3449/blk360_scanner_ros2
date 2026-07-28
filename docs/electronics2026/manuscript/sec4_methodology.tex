@@ -112,7 +112,8 @@ parameters, and model version are recorded with every result.
 Per-view votes are combined by confidence-weighted late fusion into a fused
 type and a \emph{vote share}. Three outcomes follow. If the votes are
 unanimous, the object is \texttt{verified}; unanimity is empirically a strong
-signal (100\% precision on both scenes' confirmed ground truth, Sec.~5.3),
+signal (94.4--100\% precision on the two scenes' confirmed ground truth,
+Sec.~5.3),
 although Sec.~5.3 also documents its failure modes. If the vote splits, the
 object \emph{escalates automatically}: eight additional images---four diagonal
 azimuths and four zoomed close-ups---are classified, and the fusion is
@@ -184,7 +185,7 @@ JSON graph and as mapId-scoped Neo4j Cypher, so multiple sites and epochs
 coexist in one database. Because unchanged objects reproduce byte-identical
 clusters (Sec.~\ref{sec:decomposition}), their verification results are
 carried over by content hash and a repeat scan costs \emph{zero} VLM calls;
-across-epoch scans pay only for changed clusters (2.7\% of full cost in our
+across-epoch scans pay only for changed clusters (3.1\% of full cost in our
 measurement, Sec.~5.5).
 
 \begin{figure}[t]
@@ -206,14 +207,26 @@ still asserted trap labels in 3 of 4 cases (Sec.~5.6). We therefore
 unverified node's type is demoted to \texttt{unknown}, and the failed
 candidate label is moved to a separate \texttt{failedCandidateType} field
 whose semantics (``a classifier guess that did not survive verification'') are
-stated in the schema, not in behavioral instructions. With the gate in the
-data rather than the prompt, the model cannot assert an unverified label
-without visibly contradicting its input: the four unverified-label traps are
-blocked in the gating-style ablation (4/4, Sec.~5.6), while in the
-end-to-end benchmark one count-phrased trap still leaks through the
-quarantine field itself (3/4, Sec.~5.4). Traps whose label was wrongly
-\emph{verified} lie beyond any status-based gate---a bound we quantify in
-Sec.~5.4.
+stated in the schema, not in behavioral instructions. Fig.~\ref{fig:cards}
+contrasts the two record states as the query interface sees them. With the
+gate in the data rather than the prompt, the model cannot assert an
+unverified label without visibly contradicting its input: the four
+unverified-label traps are blocked in the gating-style ablation (4/4,
+Sec.~5.6), while in the end-to-end benchmark one count-phrased trap still
+leaks through the quarantine field itself (3/4, Sec.~5.4). Traps whose
+label was wrongly \emph{verified} lie beyond any status-based gate---a
+bound we quantify in Sec.~5.4.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig4_record_cards.png}
+\caption{TOSM semantic-object records (symbolic / explicit / implicit
+layers). (a)~A verified record asserts its type. (b)~An unverified record
+is structurally gated at query time: the type is demoted to
+\texttt{unknown} and the failed classifier guess is quarantined in
+\texttt{failedCandidateType}.}
+\label{fig:cards}
+\end{figure}
 
 \subsection{Object-Grounded Place Layer}
 \label{sec:place}
@@ -233,5 +246,16 @@ names that track the room's actual use (exhibition-era
 \texttt{control\_panel\_station} $\rightarrow$ storage-era
 \texttt{storage\_area} $\rightarrow$ test-era \texttt{operator\_workstation};
 Sec.~5.5), demonstrating that place semantics stay current without manual
-re-annotation. Automatic room segmentation (as in DK-SMF's SLIC approach) and
+re-annotation. Fig.~\ref{fig:placemap} shows the resulting T3 place layer.
+Automatic room segmentation (as in DK-SMF's SLIC approach) and
 the robot layer of TOSM are out of scope here.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{fig11_place_map.png}
+\caption{Object-grounded place layer at T3: registered section polygons
+carry LLM-derived names computed from verified-object ring codes; unverified
+objects (open markers) do not contribute, so the confidence gate propagates
+into place semantics.}
+\label{fig:placemap}
+\end{figure}
