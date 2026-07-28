@@ -181,8 +181,16 @@ provenance (per-view votes, fused share, escalation flag, model version), a
 per-revision history of every change, and \texttt{firstSeen}/\texttt{lastSeen}
 timestamps. Edges (spatial relations---\texttt{isNextTo}, \texttt{isOn},
 \texttt{isAboveOf}---recomputed from explicit models) are scoped to the map
-and revision; Fig.~\ref{fig:relmap} shows the resulting relation-annotated
-map at T3. The result is exported both as a canonical
+and revision, and organized by the place layer: \texttt{isNextTo} is kept
+only between objects of the same place (proximity across a place boundary
+is expressed at the place level as \texttt{isAdjacentTo}), vertical
+relations are kept regardless, and each place designates a key object
+(the VLM's implicit \texttt{isKeyObject} among verified members, falling
+back to the most confident specific-type verified member). On the T3
+epoch this scoping removes 24 of 49 raw proximity edges---long
+cross-place spokes centered on the largest cluster---leaving 25
+intra-place edges over 11 place adjacencies; Fig.~\ref{fig:relmap} shows
+the resulting map. The result is exported both as a canonical
 JSON graph and as mapId-scoped Neo4j Cypher, so multiple sites and epochs
 coexist in one database. Because unchanged objects reproduce byte-identical
 clusters (Sec.~\ref{sec:decomposition}), their verification results are
@@ -193,12 +201,12 @@ measurement, Sec.~5.5).
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\linewidth]{fig12_relations_map.png}
-\caption{Relation-annotated TOSM map (T3): \texttt{isNextTo},
-\texttt{isOn}, and \texttt{isAboveOf} edges recomputed from the explicit
-models at every revision, drawn over the place layer of
-Fig.~\ref{fig:placemap} (pastel)---object--place containment
-(\texttt{isInsideOf}) is the region an object lies in---with verified
-(filled) and unverified (open) object nodes.}
+\caption{Place-scoped TOSM relation map (T3) over the place layer of
+Fig.~\ref{fig:placemap} (pastel): intra-place \texttt{isNextTo} edges,
+vertical \texttt{isOn}/\texttt{isAboveOf} relations, dashed place
+\texttt{isAdjacentTo} edges between region centroids, and per-place key
+objects (stars). Object--place containment (\texttt{isInsideOf}) is the
+region an object lies in.}
 \label{fig:relmap}
 \end{figure}
 
