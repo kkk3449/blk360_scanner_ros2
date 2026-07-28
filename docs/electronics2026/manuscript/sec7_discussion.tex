@@ -51,5 +51,7 @@ flagged-candidate discipline as our Point-SAM rule.
 Results come from one scanner, one building, and object-level change;
 structural change (walls, large fixtures) and cross-site generalization are
 untested. The three-epoch study mitigates but does not remove the two-scene
-limitation. The place layer depends on manually authored polygons from a
-prior deployment; automatic room segmentation is deliberately out of scope.
+limitation. The place layer's regions are parameterized SLIC superpixels over the grid
+map: spatial cells rather than architecturally meaningful rooms, with the
+superpixel count fixed by hand; inferring wall- and doorway-aligned region
+boundaries is future work.

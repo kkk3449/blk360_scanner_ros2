@@ -109,6 +109,13 @@ Johanna Wald, Armen Avetisyan, Nassir Navab, Federico Tombari, and Matthias
 \newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, pages
   7657--7666, 2019.
 
+\bibitem{achanta2012slic}
+Radhakrishna Achanta, Appu Shaji, Kevin Smith, Aurelien Lucchi, Pascal Fua, and
+  Sabine S{\"u}sstrunk.
+\newblock {SLIC} superpixels compared to state-of-the-art superpixel methods.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  34(11):2274--2282, 2012.
+
 \bibitem{bormann2016room}
 Richard Bormann, Florian Jordan, Wenzhe Li, Joshua Hampp, and Martin
   H{\"a}gele.

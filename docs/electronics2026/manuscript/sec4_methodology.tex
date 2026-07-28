@@ -234,36 +234,37 @@ is structurally gated at query time: the type is demoted to
 Robot tasking refers to places (``the docking area'') as often as to objects.
 Following the TOSM place schema of DK-SMF~\cite{joo2025dksmf}---boundary
 polygon, containment, and purpose---we add a place layer grounded in the
-verified object layer. Manually authored section polygons (from our 2025
-deployment of the same room) are registered into the scan frame by 2D
-occupancy-map alignment and completed to a \emph{full partition} of the room
-mask: every free cell is assigned to its containing polygon, or to the
-nearest one where the manual polygons leave gaps---a Voronoi-style
-completion in the spirit of occupancy-grid room
-segmentation~\cite{bormann2016room,luperto2022robust}. Each object's
-\texttt{isInsideOf} therefore resolves to exactly one place. Each place is
-then summarized by its
+verified object layer. Place regions are obtained automatically from the
+robot-facing occupancy grid map (0.05\,m---generated from the scan here,
+and equally the exploration SLAM map on deployment), following DK-SMF's
+recipe: the map is partitioned by SLIC superpixel
+segmentation~\cite{achanta2012slic} with the number of superpixels as the
+governing parameter (7 requested here), only regions inside free space are
+retained, fragments below an area threshold (1.5\,m$^2$) are discarded,
+and each region's centroid is the moment-based center of its cells (cf.
+grid-map room segmentation~\cite{bormann2016room,luperto2022robust}). Each
+object's \texttt{isInsideOf} resolves to the region containing its anchor
+cell. Each place is then summarized by its
 \emph{ring code}: the sequence of member objects sorted by bearing around the
 place centroid---restricted to verified-tier objects, so the confidence gate
 propagates into place semantics---and a single LLM call names the place from
-its ring code. Across our three scan epochs the same polygons re-derive
-names that track the room's actual use (the docking section:
-exhibition-era \texttt{doorway\_passage} $\rightarrow$ storage-era
+its ring code. Because the segmentation depends only on the map, region
+identity is stable across scan epochs, and the same regions re-derive names
+that track the room's actual use (the machine bay: exhibition-era
+\texttt{machine\_access\_area} $\rightarrow$ storage-era
 \texttt{clutter\_zone} $\rightarrow$ test-era
 \texttt{machine\_operator\_station}; Sec.~5.5), demonstrating that place
 semantics stay current without manual re-annotation.
-Fig.~\ref{fig:placemap} shows the resulting T3 place layer. Fully automatic
-room segmentation (as in DK-SMF's SLIC approach) and the robot layer of
-TOSM are out of scope here.
+Fig.~\ref{fig:placemap} shows the resulting T3 place layer. The robot
+layer of TOSM is out of scope here.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\linewidth]{fig11_place_map.png}
-\caption{Object-grounded place layer at T3. Registered section polygons are
-completed to a full partition of the room mask (Voronoi-style
-assignment~\cite{bormann2016room,luperto2022robust}) and carry LLM-derived
-names computed from verified-object ring codes; unverified objects (open
-markers) do not contribute, so the confidence gate propagates into place
-semantics.}
+\caption{Object-grounded place layer at T3. SLIC superpixel
+regions~\cite{achanta2012slic} over the free space of the nav-stack
+occupancy grid (white voids are obstacles) carry LLM-derived names computed
+from verified-object ring codes; unverified objects (open markers) do not
+contribute, so the confidence gate propagates into place semantics.}
 \label{fig:placemap}
 \end{figure}

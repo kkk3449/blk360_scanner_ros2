@@ -114,6 +114,13 @@ Wald, J.; Avetisyan, A.; Navab, N.; Tombari, F.; Nie{\ss}ner, M.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
   2019, pp. 7657--7666.
 
+\bibitem[Achanta et~al.(2012)Achanta, Shaji, Smith, Lucchi, Fua, and
+  S{\"u}sstrunk]{achanta2012slic}
+Achanta, R.; Shaji, A.; Smith, K.; Lucchi, A.; Fua, P.; S{\"u}sstrunk, S.
+\newblock {SLIC} Superpixels Compared to State-of-the-Art Superpixel Methods.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence}
+  {\bf 2012}, {\em 34},~2274--2282.
+
 \bibitem[Bormann et~al.(2016)Bormann, Jordan, Li, Hampp, and
   H{\"a}gele]{bormann2016room}
 Bormann, R.; Jordan, F.; Li, W.; Hampp, J.; H{\"a}gele, M.
