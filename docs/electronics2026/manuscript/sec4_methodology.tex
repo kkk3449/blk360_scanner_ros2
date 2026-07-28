@@ -184,7 +184,9 @@ timestamps. Edges (spatial relations---\texttt{isNextTo}, \texttt{isOn},
 and revision, and organized by the place layer: \texttt{isNextTo} is kept
 only between objects of the same place (proximity across a place boundary
 is expressed at the place level as \texttt{isAdjacentTo}), vertical
-relations are kept regardless, and each place designates a key object
+relations must pass a rotated-footprint overlap test (a separating-axis
+check that discards the long-range stacked relations oversized merged
+clusters otherwise produce), and each place designates a key object
 (the VLM's implicit \texttt{isKeyObject} among verified members, falling
 back to the most confident specific-type verified member). On the T3
 epoch this scoping removes 24 of 49 raw proximity edges---long
