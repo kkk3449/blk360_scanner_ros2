@@ -179,14 +179,26 @@ Each scan epoch applies its matched record set to the knowledge graph as a
 node-level upsert---no rebuild. Every node carries its verification status,
 provenance (per-view votes, fused share, escalation flag, model version), a
 per-revision history of every change, and \texttt{firstSeen}/\texttt{lastSeen}
-timestamps. Edges (spatial relations recomputed from explicit models) are
-scoped to the map and revision. The result is exported both as a canonical
+timestamps. Edges (spatial relations---\texttt{isNextTo}, \texttt{isOn},
+\texttt{isAboveOf}---recomputed from explicit models) are scoped to the map
+and revision; Fig.~\ref{fig:relmap} shows the resulting relation-annotated
+map at T3. The result is exported both as a canonical
 JSON graph and as mapId-scoped Neo4j Cypher, so multiple sites and epochs
 coexist in one database. Because unchanged objects reproduce byte-identical
 clusters (Sec.~\ref{sec:decomposition}), their verification results are
 carried over by content hash and a repeat scan costs \emph{zero} VLM calls;
 across-epoch scans pay only for changed clusters (3.1\% of full cost in our
 measurement, Sec.~5.5).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{fig12_relations_map.png}
+\caption{Relation-annotated semantic map (T3): \texttt{isNextTo},
+\texttt{isOn}, and \texttt{isAboveOf} edges recomputed from the explicit
+models at every revision, over verified (filled) and unverified (open)
+object nodes.}
+\label{fig:relmap}
+\end{figure}
 
 \begin{figure}[t]
 \centering

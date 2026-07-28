@@ -109,10 +109,23 @@ operating point, not global optimality.
 Under a pre-registered rule (adopt iff $\geq$50\% of merged-cluster failures
 separate correctly \emph{and} label accuracy improves $\geq$5 points),
 Point-SAM separated 3/6 flagged merged clusters and sub-cluster labels
-reached 9/11 versus 5/11 for their parents (+36.4 points), so refinement is
+reached 9/11 versus 5/11 for their parents (+36.4 points,
+Fig.~\ref{fig:baselines}), so refinement is
 adopted---but only for \emph{flagged merged candidates}, since automatic
 candidate selection also produced 2/6 false positives that fragment single
-objects. The T3 epoch supplied a stress case: at 99.6\% coverage, inter-object
+objects.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig13_pointsam_uni3d.png}
+\caption{Learned components used as bounded tools. (a)~The Uni3D provisional
+label degrades as the vocabulary narrows to the deployment's true classes
+(Sec.~\ref{sec:exp-ablation})---why it is treated as untrusted context.
+(b,c)~Conditional Point-SAM refinement of a flagged merged cluster: a
+machine, an office chair, and a chair re-emerge from a single
+\texttt{clutter} blob, each re-verified independently.}
+\label{fig:baselines}
+\end{figure} The T3 epoch supplied a stress case: at 99.6\% coverage, inter-object
 gaps close and DBSCAN chains 120K points (41\% of the clean cloud) into one
 $10.4\times9.6$\,m mega-cluster that survives the giant-split. Refinement
 recovers little of the resulting diff inflation---Point-SAM ($K{=}7$
