@@ -213,6 +213,42 @@ failure mode.
 Classes (b) and (c) motivate reporting verification as \emph{tiered
 evidence} rather than truth, and drive the structural gating design.
 
+\paragraph{Owner ground-truth audit (T3).}
+The room occupant exhaustively labeled all 41 T3 clusters, giving a
+second, fully independent ground truth beyond the showroom scoring sets.
+Of the 31 verified-tier clusters, 6 were correct, 13 were real objects
+flattened to \texttt{clutter}, 6 were structure-noise phantoms, 2 carried
+a wrong specific label, and 3 were multi-object merges (one unanswered).
+The absorption cause is now identifiable: the room is a robotics testbed
+(mobile robots, manipulators, charging stations, a disinfection robot),
+and none of these classes exist in the classifier vocabulary. The
+unverified tier behaved as designed in five structure/fixture cases but
+also withheld three real objects, including the wall TV of
+Sec.~\ref{sec:exp-verify}. Three audit-driven mitigations follow.
+\emph{(i) Hybrid structure filter:} registering every cluster against the
+exploration-scan occupancy grid --- an independent, drift-free wall prior
+--- and combining a wall-line hug test with local (per-metre-segment)
+sheet thickness, a full-height band rule ($z$-span $>2.5$\,m), a ceiling
+band, and a room-polygon outside test removes structure noise at 12/12
+recall with 3 false positives (thin wall-flush real objects: a cabinet
+leg, a poster stand). Crucially, the wall-flush monitor bank survives:
+its wall-hug fraction is 99\% (the grid map draws it as wall), but its
+1.8\,m height and per-segment depth separate it from the 3.2\,m
+floor-to-ceiling wall band that plane removal missed. All seven verified
+structure phantoms --- including the staircase band and a fluorescent
+fixture verified as a keyboard at 3.3\,m --- are eliminated upstream.
+\emph{(ii) Recovery re-verification:} re-asking the verifier with
+\texttt{clutter} treated as \emph{unidentified} plus a candidate
+shortlist recovered 4 specific types at 4/5 precision with 12 honest
+keeps; injecting site vocabulary (robot classes) as candidates doubled
+recovery (9 correct) but halved precision (8 wrong) through candidate
+anchoring --- the TV became a ``conveyor belt'' when the shortlist ranked
+it first. \emph{(iii) Agreement gating:} adopting a recovered label only
+when both passes agree, or when a pass agrees with the cluster's own
+base label, yields five adoptions at 5/5 precision (two chairs, an
+office chair, a machine, and the TV) and resurrects no owner-refuted
+phantom. Domain knowledge helps recall; only agreement makes it safe.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\linewidth]{fig6_escalation_cost.png}

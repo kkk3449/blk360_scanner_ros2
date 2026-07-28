@@ -28,14 +28,24 @@ the controlled-change floor circulator all verified as
 \texttt{clutter}---shows a systematic blind spot: geometrically detected,
 semantically flattened. Change detection still works (the circulator was
 correctly inserted), but type-level recall for small dark appliances needs
-either close-range imagery or targeted re-rendering.
+either close-range imagery or targeted re-rendering. The T3 owner audit
+(Sec.~\ref{sec:exp-verify}) adds a vocabulary dimension: when the
+deployment site contains object families absent from the classifier
+vocabulary (robots, in our testbed), absorption becomes the dominant
+error, and naively injecting site vocabulary as candidates trades
+precision for recall through candidate anchoring; agreement gating
+restores precision at reduced recall.
 
 \paragraph{Structure remnants.}
 The soffit filter removes vertical transition bands, but horizontal and
 sloped ceiling patches and content seen through openings survive structure
 removal (six residual cases in the robot hall). These are bounded,
-enumerable artifacts; extending the filter to non-vertical remnants is
-mechanical future work.
+enumerable artifacts. The T3 audit shows the practical fix: a hybrid
+filter that registers clusters against the exploration-scan occupancy
+grid recovers all remaining wall, ceiling, and outside-boundary remnants
+(12/12) while keeping wall-flush furniture, at the cost of thin
+wall-flush objects (a poster stand) --- geometry alone cannot separate a
+0.1\,m sheet standing at the wall from the wall itself.
 
 \paragraph{The coverage paradox.}
 Better scans can make density-based decomposition worse: at 99.6\% coverage,
