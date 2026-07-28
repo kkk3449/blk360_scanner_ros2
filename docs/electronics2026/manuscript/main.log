@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 02:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 02:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -505,37 +505,37 @@ Package pdftex.def Info: ../figs/fig13_pointsam_uni3d.png  used on input line 1
 20.
 (pdftex.def)             Requested size: 432.48051pt x 147.45726pt.
  [11 <../figs/fig13_pointsam_uni3d.png>]
-<../figs/fig6_escalation_cost.png, id=336, 406.6392pt x 293.898pt>
+<../figs/fig6_escalation_cost.png, id=337, 406.6392pt x 293.898pt>
 File: ../figs/fig6_escalation_cost.png Graphic file (type png)
 <use ../figs/fig6_escalation_cost.png>
 Package pdftex.def Info: ../figs/fig6_escalation_cost.png  used on input line 2
-06.
+08.
 (pdftex.def)             Requested size: 386.96027pt x 279.68134pt.
-<../figs/fig10_error_taxonomy.png, id=337, 602.4909pt x 496.4949pt>
+<../figs/fig10_error_taxonomy.png, id=338, 602.4909pt x 496.4949pt>
 File: ../figs/fig10_error_taxonomy.png Graphic file (type png)
 <use ../figs/fig10_error_taxonomy.png>
 Package pdftex.def Info: ../figs/fig10_error_taxonomy.png  used on input line 2
-13.
+15.
 (pdftex.def)             Requested size: 409.71692pt x 337.64236pt.
  [12]
-<../figs/fig7_query_benchmark.png, id=350, 698.8509pt x 277.5168pt>
+<../figs/fig7_query_benchmark.png, id=351, 698.8509pt x 277.5168pt>
 File: ../figs/fig7_query_benchmark.png Graphic file (type png)
 <use ../figs/fig7_query_benchmark.png>
 Package pdftex.def Info: ../figs/fig7_query_benchmark.png  used on input line 2
-74.
+76.
 (pdftex.def)             Requested size: 409.71692pt x 162.70026pt.
  [13 <../figs/fig6_escalation_cost.png>]
 <../figs/fig8_incremental_update.png, id=365, 782.6841pt x 669.2202pt>
 File: ../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../figs/fig8_incremental_update.png  used on input lin
-e 329.
+e 331.
 (pdftex.def)             Requested size: 409.71692pt x 350.32472pt.
 <../figs/fig9_two_epoch_update.png, id=366, 432.6564pt x 463.0098pt>
 File: ../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../figs/fig9_two_epoch_update.png  used on input line 
-347.
+349.
 (pdftex.def)             Requested size: 409.71692pt x 438.48619pt.
 )
 (./sec6_applications.tex [14 <../figs/fig10_error_taxonomy.png>])
@@ -580,10 +580,10 @@ ist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2026/texmf-dis
 t/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2026/texmf-dist/
 fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2026/texmf-dist/fo
 nts/type1/public/cm-super/sftt1000.pfb>
-Output written on main.pdf (19 pages, 6566146 bytes).
+Output written on main.pdf (19 pages, 6566329 bytes).
 PDF statistics:
- 536 PDF objects out of 1000 (max. 8388607)
- 435 compressed objects within 5 object streams
+ 537 PDF objects out of 1000 (max. 8388607)
+ 436 compressed objects within 5 object streams
  113 named destinations out of 1000 (max. 500000)
  322 words of extra memory for PDF output out of 10000 (max. 10000000)
 
