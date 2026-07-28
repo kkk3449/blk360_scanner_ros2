@@ -188,7 +188,9 @@ relations must pass a rotated-footprint overlap test (a separating-axis
 check that discards the long-range stacked relations oversized merged
 clusters otherwise produce), and each place designates a key object
 (the VLM's implicit \texttt{isKeyObject} among verified members, falling
-back to the most confident specific-type verified member). On the T3
+back to the most confident specific-type verified member; objects refuted
+by owner ground-truth feedback are excluded from designation while
+remaining in the graph as annotated errors). On the T3
 epoch this scoping removes 24 of 49 raw proximity edges---long
 cross-place spokes centered on the largest cluster---leaving 25
 intra-place edges over 11 place adjacencies; Fig.~\ref{fig:relmap} shows
@@ -208,7 +210,9 @@ Fig.~\ref{fig:placemap} (pastel): dotted object$\rightarrow$place
 \texttt{isInsideOf} containment, intra-place \texttt{isNextTo} edges,
 vertical \texttt{isOn}/\texttt{isAboveOf} relations, dashed place
 \texttt{isAdjacentTo} edges between region centroids, and per-place key
-objects (stars).}
+objects (named stars). Owner-refuted phantoms (a verified keyboard and
+staircase that do not exist in the room) are crossed out and excluded from
+key-object designation.}
 \label{fig:relmap}
 \end{figure}
 
