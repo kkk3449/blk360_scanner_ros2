@@ -22,6 +22,7 @@ setup(
         "console_scripts": [
             "mission_bt = semantic_nav_bt.mission_node:main",
             "semantic_cli = semantic_nav_bt.semantic_cli:main",
+            "ui_server = semantic_nav_bt.ui_server:main",
         ],
     },
 )

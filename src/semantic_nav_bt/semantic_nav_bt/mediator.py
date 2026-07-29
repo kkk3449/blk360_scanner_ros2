@@ -25,6 +25,8 @@ import numpy as np
 class Mediator:
     def __init__(self, kg_path, places_path, naming_path=None, map_yaml=None,
                  gated=True, naming_key="T3_slic_rev4"):
+        self.kg_path = kg_path
+        self._kg_mtime = os.path.getmtime(kg_path)
         self.kg = json.load(open(kg_path))
         d = json.load(open(places_path))
         self.places = d["semanticPlaces"]
@@ -139,9 +141,20 @@ class Mediator:
         yaw = math.atan2(y - gy, x - gx)
         return {"x": round(gx, 3), "y": round(gy, 3), "yaw": round(yaw, 3)}
 
+    def _maybe_reload(self):
+        """Pick up KG edits made by the management UI without a restart."""
+        try:
+            mt = os.path.getmtime(self.kg_path)
+            if mt != self._kg_mtime:
+                self.kg = json.load(open(self.kg_path))
+                self._kg_mtime = mt
+        except (OSError, json.JSONDecodeError):
+            pass
+
     def resolve(self, cmd):
         """command dict -> {"goals": [goal...]} or {"error": ...}.
         goal = {x, y, yaw, label, kind, [pick_target]}"""
+        self._maybe_reload()
         c = cmd.get("cmd")
         if c == "goto_place":
             p, nm = self.find_place(cmd.get("target", ""))
