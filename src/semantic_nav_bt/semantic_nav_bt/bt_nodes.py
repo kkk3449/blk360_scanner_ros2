@@ -6,12 +6,12 @@ reference tutorial, ported to ROS2/Nav2 and made semantic):
   Root: Fallback
    ├─ ReactiveSequence                    (reactive layer, checked every tick)
    │   ├─ BatteryOK        (condition; FAILURE => whole branch fails => dock)
-   │   ├─ NoDockInterrupt  (condition; a {"cmd":"dock"} preempts the mission)
+   │   ├─ NoHomeInterrupt  (condition; a {"cmd":"return_home"} preempts the mission)
    │   └─ MissionExecutor  (deliberative layer)
    │       ├─ WaitForCommand      (pull next command; new command preempts)
    │       ├─ ResolveSemanticGoal (mediator: KG -> goal list on blackboard)
    │       └─ ExecuteGoals        (per goal: NavigateToPose [-> ArmPick])
-   └─ GoDock                (dock subtree: resolve dock goal -> navigate)
+   └─ GoHome                (return-home subtree: resolve home -> navigate)
 
 Blackboard keys: command, goals, goal_idx, status_text.
 """
@@ -36,15 +36,15 @@ class Blackboard:
         self.pending = queue.Queue()  # commands waiting
         self.goals = []
         self.goal_idx = 0
-        self.dock_requested = False
-        self.docked = False
+        self.home_requested = False
+        self.at_home = False
         self.battery_level = 1.0
         self.status = "idle"
         self.history = []
 
     def put_command(self, cmd):
-        if cmd.get("cmd") == "dock":
-            self.dock_requested = True
+        if cmd.get("cmd") in ("return_home", "dock"):
+            self.home_requested = True
         else:
             self.pending.put(cmd)
 
@@ -57,22 +57,22 @@ class BatteryOK(py_trees.behaviour.Behaviour):
     def update(self):
         if self.bb.battery_level < self.threshold:
             if self.bb.docked:
-                self.bb.status = (f"charging at dock "
+                self.bb.status = (f"low battery, holding at home "
                                   f"({self.bb.battery_level:.2f})")
                 return Status.RUNNING
             self.bb.status = f"battery {self.bb.battery_level:.2f} < " \
-                             f"{self.threshold} -> dock"
+                             f"{self.threshold} -> return home"
             return Status.FAILURE
         return Status.SUCCESS
 
 
-class NoDockInterrupt(py_trees.behaviour.Behaviour):
+class NoHomeInterrupt(py_trees.behaviour.Behaviour):
     def __init__(self, bb):
-        super().__init__("NoDockInterrupt")
+        super().__init__("NoHomeInterrupt")
         self.bb = bb
 
     def update(self):
-        return Status.FAILURE if self.bb.dock_requested else Status.SUCCESS
+        return Status.FAILURE if self.bb.home_requested else Status.SUCCESS
 
 
 class WaitForCommand(py_trees.behaviour.Behaviour):
@@ -244,30 +244,30 @@ class AdvanceGoal(py_trees.behaviour.Behaviour):
         return Status.SUCCESS
 
 
-class ResolveDock(py_trees.behaviour.Behaviour):
+class ResolveHome(py_trees.behaviour.Behaviour):
     def __init__(self, bb, mediator):
-        super().__init__("ResolveDock")
+        super().__init__("ResolveHome")
         self.bb, self.mediator = bb, mediator
 
     def update(self):
-        r = self.mediator.resolve({"cmd": "dock"})
+        r = self.mediator.resolve({"cmd": "return_home"})
         self.bb.goals = r["goals"]
         self.bb.goal_idx = 0
-        self.bb.status = f"docking -> {r['goals'][0]['label']}"
+        self.bb.status = f"returning home -> {r['goals'][0]['label']}"
         return Status.SUCCESS
 
 
-class DockDone(py_trees.behaviour.Behaviour):
+class HomeDone(py_trees.behaviour.Behaviour):
     def __init__(self, bb):
-        super().__init__("DockDone")
+        super().__init__("HomeDone")
         self.bb = bb
 
     def update(self):
-        self.bb.dock_requested = False
+        self.bb.home_requested = False
         self.bb.docked = True
         self.bb.command, self.bb.goals, self.bb.goal_idx = None, [], 0
-        self.bb.history.append({"cmd": {"cmd": "dock"}, "result": "docked"})
-        self.bb.status = "docked"
+        self.bb.history.append({"cmd": {"cmd": "return_home"}, "result": "at_home"})
+        self.bb.status = "at home"
         return Status.SUCCESS
 
 
@@ -286,21 +286,21 @@ def build_tree(bb, mediator, node=None, dry_run=False):
     ])
     # failures inside the mission (mediator refusal, nav abort, pick refusal)
     # are logged + skipped by the leaves themselves; this wrapper keeps them
-    # from bubbling up and spuriously triggering the dock branch — docking is
+    # from bubbling up and spuriously triggering the go-home branch — returning home is
     # reserved for the battery / interrupt conditions
     mission_safe = py_trees.decorators.FailureIsSuccess(
         name="MissionSafe", child=mission)
     reactive = py_trees.composites.Sequence("ReactiveLayer", memory=False,
                                             children=[
         BatteryOK(bb),
-        NoDockInterrupt(bb),
+        NoHomeInterrupt(bb),
         mission_safe,
     ])
-    dock = py_trees.composites.Sequence("GoDock", memory=True, children=[
-        ResolveDock(bb, mediator),
-        NavigateToGoal(bb, node, dry_run, name="NavigateToDock"),
-        DockDone(bb),
+    home = py_trees.composites.Sequence("GoHome", memory=True, children=[
+        ResolveHome(bb, mediator),
+        NavigateToGoal(bb, node, dry_run, name="NavigateHome"),
+        HomeDone(bb),
     ])
     root = py_trees.composites.Selector("Root", memory=False,
-                                        children=[reactive, dock])
+                                        children=[reactive, home])
     return py_trees.trees.BehaviourTree(root)

@@ -11,7 +11,7 @@ Commands (JSON on /semantic_command):
   {"cmd": "goto_place",  "target": "display_briefing_area" | "region_006"}
   {"cmd": "goto_object", "target": "tv" | "tv_006"}
   {"cmd": "patrol",      "targets": ["seating_area", ...]}   # default: all
-  {"cmd": "dock"}
+  {"cmd": "return_home"}
   {"cmd": "pick",        "target": "chair_011"}
 """
 import json
@@ -179,17 +179,11 @@ class Mediator:
             for g in goals:
                 g["kind"] = "patrol"
             return {"goals": goals}
-        if c == "dock":
-            n = self.find_object("charging station")
-            if n:
-                g = self._approach_pose(n)
-                g["label"] = f"dock@{n['name']}"
-            else:
-                rob = self.robot()
-                hp = (rob or {}).get("explicit", {}).get("pose",
-                                                         {"x": 0, "y": 0})
-                g = {"x": hp["x"], "y": hp["y"], "yaw": 0.0,
-                     "label": "dock@home"}
-            g["kind"] = "dock"
+        if c == "return_home":
+            rob = self.robot()
+            hp = (rob or {}).get("explicit", {}).get("pose",
+                                                     {"x": 0, "y": 0})
+            g = {"x": hp["x"], "y": hp["y"], "yaw": 0.0, "label": "home"}
+            g["kind"] = "return_home"
             return {"goals": [g]}
         return {"error": f"unknown cmd '{c}'"}

@@ -4,7 +4,7 @@
   ros2 run semantic_nav_bt semantic_cli goto_object tv
   ros2 run semantic_nav_bt semantic_cli pick chair_011
   ros2 run semantic_nav_bt semantic_cli patrol
-  ros2 run semantic_nav_bt semantic_cli dock
+  ros2 run semantic_nav_bt semantic_cli return_home
 """
 import json
 import sys
@@ -44,7 +44,7 @@ def main():
             s = json.loads(last)
             print("status:", s["status"])
             if s["command"] is None and "complete" in str(s["status"]) \
-                    or "docked" in str(s["status"]):
+                    or "at home" in str(s["status"]):
                 break
     rclpy.shutdown()
 

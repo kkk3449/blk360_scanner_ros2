@@ -56,7 +56,7 @@ class MissionNode(Node):
         except json.JSONDecodeError:
             # bare-word convenience: "dock", or "goto <target>"
             w = msg.data.strip().split()
-            cmd = {"cmd": "dock"} if w[0] == "dock" else \
+            cmd = {"cmd": "return_home"} if w[0] in ("home", "dock") else \
                 {"cmd": "goto_object", "target": " ".join(w[1:])} \
                 if w[0] == "goto" else None
         if not cmd:
@@ -81,7 +81,7 @@ class MissionNode(Node):
                "goal_idx": self.bb.goal_idx,
                "n_goals": len(self.bb.goals),
                "battery": self.bb.battery_level,
-               "dock_requested": self.bb.dock_requested}
+               "home_requested": self.bb.home_requested}
         self.status_pub.publish(String(data=json.dumps(out)))
 
 
