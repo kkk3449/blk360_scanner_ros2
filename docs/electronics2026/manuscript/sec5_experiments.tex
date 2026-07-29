@@ -248,6 +248,34 @@ when both passes agree, or when a pass agrees with the cluster's own
 base label, yields five adoptions at 5/5 precision (two chairs, an
 office chair, a machine, and the TV) and resurrects no owner-refuted
 phantom. Domain knowledge helps recall; only agreement makes it safe.
+Fig.~\ref{fig:structfilter} shows the filter's effect on the T3 epoch.
+Regression on the other epochs (no ground truth, manual inspection)
+flags 8/50 T1 and 18/55 T2 clusters --- dominated by the documented
+soffit phantoms (keyboards, chairs at 2.4\,m, a stair at 3.4\,m) and a
+cluster the classifier itself had named \texttt{wall} --- while every
+door, chair, machine, elevator, and wall-mounted control panel survives;
+the one systematic casualty is a closed-door fragment lying in the wall
+plane, consistent with the door-detection asymmetry of
+Sec.~\ref{sec:discussion}. Finally, refutations, corrections, and
+adopted labels are applied as a fourth KG revision through the same
+upsert history mechanism as a rescan: eight phantoms leave the graph,
+the poster stand is corrected in place, five recovered types land, the
+TV becomes its region's key object, and the relation layer sheds nine
+noise-anchored edges (25 to 16 intra-place).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig14_structure_filter.png}
+\caption{Hybrid structure-noise filter on the T3 epoch. (a) All 41
+detected clusters; the 15 flagged ones are colored by rule --- wall
+remnant/band (grid-map hug $\times$ thin vertical sheet, or long
+full-height band), ceiling fixture/noise, outside the room boundary.
+(b) The 26 survivors with recovery / owner-corrected labels. The
+wall-flush monitor bank (labeled \texttt{tv}) and wall-mounted equipment
+survive; residual merge labels (\texttt{electrical cabinet},
+\texttt{ducting}) are retained pipeline output, not corrections.}
+\label{fig:structfilter}
+\end{figure}
 
 \begin{figure}[t]
 \centering
