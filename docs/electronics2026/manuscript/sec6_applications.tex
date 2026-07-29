@@ -1,8 +1,88 @@
 \section{Application Demonstrations}
 \label{sec:applications}
 
-The demonstrations in this section illustrate integration surfaces; they are
-not claimed as contributions.
+This section demonstrates the framework in use. The semantic mission
+experiment of Sec.~\ref{sec:semnav} is quantitative; the remaining
+demonstrations illustrate integration surfaces.
+
+\subsection{Semantic Mission Execution in Simulation}
+\label{sec:semnav}
+
+We close the loop from scan-derived knowledge to autonomous behavior. The
+TOSM robot layer is instantiated from the platform's URDF and navigation
+configuration (footprint, drive type, sensor mounts, velocity limits) and
+ingested alongside objects and places, completing the three-element TOSM
+model. A \emph{semantic mediator} resolves natural mission commands ---
+\texttt{goto\_place}, \texttt{goto\_object}, \texttt{patrol},
+\texttt{return\_home} --- against the knowledge graph: places resolve to
+free-space points at region centroids, objects to approach poses computed
+from the target's footprint and the robot's radius, with the verification
+gate deciding eligibility. A hybrid deliberative/reactive behavior tree
+(Fig.~\ref{fig:bttree}) executes the resolved goals through Nav2, with a
+reactive layer that preempts the mission on low battery or an interrupt
+and returns the robot to its home pose. The management console
+(Sec.~\ref{sec:exp-query}) issues commands and edits the graph live; the
+mediator hot-reloads owner edits, so refuting a phantom in the UI changes
+robot behavior on the next command without a restart.
+
+Experiments run in a Gazebo world generated from the same exploration
+occupancy grid that anchors the place layer, so world, navigation map, and
+knowledge graph share one frame. Over three repetitions of a three-mission
+battery (approach the TV, go to the seating area, return home), all nine
+missions succeeded (mean leg paths $5.5/6.1/2.5$\,m). The phantom
+experiment (Table~\ref{tab:semnav}) sends the robot to three
+owner-refuted phantoms under two knowledge states. Against the
+pre-feedback graph, all three phantoms carry \emph{verified} labels, so
+the confidence gate passes them and the robot physically drives to empty
+locations --- $18.3$\,m and $106$\,s of wasted mission. Against the
+graph after structure filtering and owner feedback, the same commands are
+refused in under $0.3$\,s with zero motion. Verification gating alone
+cannot stop verified phantoms; it is the combination of gating,
+structure-noise removal, and owner feedback that makes the knowledge
+safe to act on. Fig.~\ref{fig:semnav} shows a gated mission trajectory
+and an ungated phantom drive.
+
+\begin{table}[t]
+\caption{Phantom-goal mission waste in simulation. The same three
+commands are resolved against the knowledge graph before and after
+structure filtering + owner feedback (both with the verification gate
+active). Wasted path includes the return leg.}
+\label{tab:semnav}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{KG state} & \textbf{Phantom target (truth)} & \textbf{Outcome} &
+\textbf{Wasted path} & \textbf{Wasted time} \\
+\midrule
+pre-feedback & keyboard (fluorescent lamp) & driven & 2.5\,m & 22.7\,s \\
+pre-feedback & staircase (bare wall) & driven & 2.6\,m & 22.3\,s \\
+pre-feedback & book (wall pillar) & driven & 13.2\,m & 60.9\,s \\
+\midrule
+filtered + owner feedback & all three & refused & 0\,m & $<0.3$\,s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig16_bt_tree.png}
+\caption{Hybrid deliberative/reactive mission behavior tree. The reactive
+layer re-evaluates battery and interrupt conditions every tick and can
+preempt navigation (canceling the active Nav2 goal); the deliberative
+branch resolves semantic commands through the TOSM mediator, which
+hot-reloads the knowledge graph when the management console edits it.}
+\label{fig:bttree}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\linewidth]{fig15_semantic_nav_run.png}
+\caption{Semantic-goal navigation in the Gazebo twin of the test room
+(world, map, and knowledge graph share the exploration-scan frame). Blue:
+a gated three-mission run (TV $\rightarrow$ seating area $\rightarrow$
+home). Red dashed: an ungated run drives to a phantom keyboard --- a
+fluorescent lamp that verification refuses under the gated view.}
+\label{fig:semnav}
+\end{figure}
 
 \subsection{Knowledge-Grounded Dialogue}
 The gated query interface supports task-language interaction in which
