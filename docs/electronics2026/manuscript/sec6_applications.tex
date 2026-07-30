@@ -86,11 +86,14 @@ hot-reloads the knowledge graph when the management console edits it.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\linewidth]{fig15_semantic_nav_run.png}
-\caption{Semantic-goal navigation in the Gazebo twin of the test room
-(world, map, and knowledge graph share the exploration-scan frame). Blue:
-a gated three-mission run (TV $\rightarrow$ seating area $\rightarrow$
-home). Red dashed: an ungated run drives to a phantom keyboard --- a
-fluorescent lamp that verification refuses under the gated view.}
+\caption{Semantic-goal navigation of the AMMR proxy in the Gazebo twin of
+the test room (world, map, and knowledge graph share the
+exploration-scan frame). Blue: a gated three-mission run (TV
+$\rightarrow$ seating area $\rightarrow$ home). Red dashed: against the
+pre-feedback graph the robot drives toward a verified-phantom keyboard
+--- a fluorescent lamp; crosses mark the three phantom goals with their
+failure modes (pointless drive, false arrival, unreachable). All three
+are refused once structure filtering and owner feedback are applied.}
 \label{fig:semnav}
 \end{figure}
 
