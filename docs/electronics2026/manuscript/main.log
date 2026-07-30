@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  28 JUL 2026 02:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.12)  30 JUL 2026 04:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**main
+**main.tex
 (./main.tex
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-06-18>
@@ -450,113 +450,136 @@ Overfull \hbox (6.34375pt too wide) in paragraph at lines 56--61
  []
 
 ) (./sec2_related.tex [2]) (./sec3_overview.tex [3]
-<../figs/fig1_architecture.png, id=214, 1163.547pt x 483.12495pt>
+<../figs/fig1_architecture.png, id=218, 1163.547pt x 483.12495pt>
 File: ../figs/fig1_architecture.png Graphic file (type png)
 <use ../figs/fig1_architecture.png>
 Package pdftex.def Info: ../figs/fig1_architecture.png  used on input line 43.
 (pdftex.def)             Requested size: 432.48051pt x 179.5717pt.
 ) (./sec4_methodology.tex
 [4 <../figs/fig1_architecture.png>]
-<../figs/fig2_pipeline.png, id=236, 910.602pt x 152.0079pt>
+<../figs/fig2_pipeline.png, id=240, 910.602pt x 152.0079pt>
 File: ../figs/fig2_pipeline.png Graphic file (type png)
 <use ../figs/fig2_pipeline.png>
 Package pdftex.def Info: ../figs/fig2_pipeline.png  used on input line 78.
 (pdftex.def)             Requested size: 432.48051pt x 72.1929pt.
  [5]
-<../figs/fig3_multiview_escalation.png, id=245, 617.6676pt x 526.6074pt>
+<../figs/fig3_multiview_escalation.png, id=249, 617.6676pt x 526.6074pt>
 File: ../figs/fig3_multiview_escalation.png Graphic file (type png)
 <use ../figs/fig3_multiview_escalation.png>
 Package pdftex.def Info: ../figs/fig3_multiview_escalation.png  used on input l
 ine 135.
 (pdftex.def)             Requested size: 432.48051pt x 368.72713pt.
  [6 <../figs/fig2_pipeline.png>]
-<../figs/fig12_relations_map.png, id=257, 454.3374pt x 474.573pt>
+<../figs/fig12_relations_map.png, id=261, 512.6352pt x 474.573pt>
 File: ../figs/fig12_relations_map.png Graphic file (type png)
 <use ../figs/fig12_relations_map.png>
-Package pdftex.def Info: ../figs/fig12_relations_map.png  used on input line 19
-5.
-(pdftex.def)             Requested size: 386.96027pt x 404.21448pt.
-<../figs/fig5_identity_upsert.png, id=260, 1075.73895pt x 555.39494pt>
+Package pdftex.def Info: ../figs/fig12_relations_map.png  used on input line 20
+7.
+(pdftex.def)             Requested size: 386.96027pt x 358.23163pt.
+<../figs/fig5_identity_upsert.png, id=266, 1075.73895pt x 555.39494pt>
 File: ../figs/fig5_identity_upsert.png Graphic file (type png)
 <use ../figs/fig5_identity_upsert.png>
 Package pdftex.def Info: ../figs/fig5_identity_upsert.png  used on input line 2
-07.
+23.
 (pdftex.def)             Requested size: 409.71692pt x 211.53532pt.
-<../figs/fig4_record_cards.png, id=262, 838.5729pt x 331.2375pt>
+
+[7 <../figs/fig3_multiview_escalation.png>]
+<../figs/fig4_record_cards.png, id=276, 838.5729pt x 331.2375pt>
 File: ../figs/fig4_record_cards.png Graphic file (type png)
 <use ../figs/fig4_record_cards.png>
-Package pdftex.def Info: ../figs/fig4_record_cards.png  used on input line 236.
+Package pdftex.def Info: ../figs/fig4_record_cards.png  used on input line 252.
 
 (pdftex.def)             Requested size: 432.48051pt x 170.82928pt.
-
-[7 <../figs/fig3_multiview_escalation.png>] [8 <../figs/fig12_relations_map.png
->]
-<../figs/fig11_place_map.png, id=287, 473.3685pt x 463.4916pt>
+ [8 <../figs/fig12_relations_map.png>]
+<../figs/fig11_place_map.png, id=293, 473.3685pt x 463.4916pt>
 File: ../figs/fig11_place_map.png Graphic file (type png)
 <use ../figs/fig11_place_map.png>
-Package pdftex.def Info: ../figs/fig11_place_map.png  used on input line 277.
+Package pdftex.def Info: ../figs/fig11_place_map.png  used on input line 293.
 (pdftex.def)             Requested size: 386.96027pt x 378.89862pt.
 ) (./sec5_experiments.tex [9 <../figs/fig5_identity_upsert.png> <../figs/fig4_r
 ecord_cards.png>] [10 <../figs/fig11_place_map.png>]
-<../figs/fig13_pointsam_uni3d.png, id=319, 884.5848pt x 301.6068pt>
+<../figs/fig13_pointsam_uni3d.png, id=326, 884.5848pt x 301.6068pt>
 File: ../figs/fig13_pointsam_uni3d.png Graphic file (type png)
 <use ../figs/fig13_pointsam_uni3d.png>
 Package pdftex.def Info: ../figs/fig13_pointsam_uni3d.png  used on input line 1
 20.
 (pdftex.def)             Requested size: 432.48051pt x 147.45726pt.
- [11 <../figs/fig13_pointsam_uni3d.png>]
-<../figs/fig6_escalation_cost.png, id=339, 406.6392pt x 293.898pt>
+ [11] [12 <../figs/fig13_pointsam_uni3d.png>]
+<../figs/fig14_structure_filter.png, id=361, 765.0984pt x 406.8801pt>
+File: ../figs/fig14_structure_filter.png Graphic file (type png)
+<use ../figs/fig14_structure_filter.png>
+Package pdftex.def Info: ../figs/fig14_structure_filter.png  used on input line
+ 276.
+(pdftex.def)             Requested size: 455.24411pt x 242.09976pt.
+<../figs/fig6_escalation_cost.png, id=362, 406.6392pt x 293.898pt>
 File: ../figs/fig6_escalation_cost.png Graphic file (type png)
 <use ../figs/fig6_escalation_cost.png>
 Package pdftex.def Info: ../figs/fig6_escalation_cost.png  used on input line 2
-08.
+90.
 (pdftex.def)             Requested size: 386.96027pt x 279.68134pt.
-<../figs/fig10_error_taxonomy.png, id=340, 602.4909pt x 496.4949pt>
+<../figs/fig10_error_taxonomy.png, id=363, 602.4909pt x 496.4949pt>
 File: ../figs/fig10_error_taxonomy.png Graphic file (type png)
 <use ../figs/fig10_error_taxonomy.png>
 Package pdftex.def Info: ../figs/fig10_error_taxonomy.png  used on input line 2
-15.
+97.
 (pdftex.def)             Requested size: 409.71692pt x 337.64236pt.
- [12]
-<../figs/fig7_query_benchmark.png, id=353, 698.8509pt x 277.5168pt>
+ [13]
+<../figs/fig7_query_benchmark.png, id=374, 698.8509pt x 277.5168pt>
 File: ../figs/fig7_query_benchmark.png Graphic file (type png)
 <use ../figs/fig7_query_benchmark.png>
-Package pdftex.def Info: ../figs/fig7_query_benchmark.png  used on input line 2
-76.
+Package pdftex.def Info: ../figs/fig7_query_benchmark.png  used on input line 3
+58.
 (pdftex.def)             Requested size: 409.71692pt x 162.70026pt.
- [13 <../figs/fig6_escalation_cost.png>]
-<../figs/fig8_incremental_update.png, id=367, 782.6841pt x 669.2202pt>
+ [14 <../figs/fig14_structure_filter.png>]
+<../figs/fig8_incremental_update.png, id=388, 782.6841pt x 669.2202pt>
 File: ../figs/fig8_incremental_update.png Graphic file (type png)
 <use ../figs/fig8_incremental_update.png>
 Package pdftex.def Info: ../figs/fig8_incremental_update.png  used on input lin
-e 331.
+e 413.
 (pdftex.def)             Requested size: 409.71692pt x 350.32472pt.
-<../figs/fig9_two_epoch_update.png, id=368, 432.6564pt x 463.0098pt>
+<../figs/fig9_two_epoch_update.png, id=389, 432.6564pt x 463.0098pt>
 File: ../figs/fig9_two_epoch_update.png Graphic file (type png)
 <use ../figs/fig9_two_epoch_update.png>
 Package pdftex.def Info: ../figs/fig9_two_epoch_update.png  used on input line 
-349.
+431.
 (pdftex.def)             Requested size: 409.71692pt x 438.48619pt.
 )
-(./sec6_applications.tex [14 <../figs/fig10_error_taxonomy.png>])
-(./sec7_discussion.tex [15 <../figs/fig7_query_benchmark.png>] [16 <../figs/fig
-8_incremental_update.png>]) (./sec8_conclusion.tex) (./main.bbl [17]) [18]
-[19 <../figs/fig9_two_epoch_update.png>] (./main.aux)
+(./sec6_applications.tex [15 <../figs/fig6_escalation_cost.png>] [16 <../figs/f
+ig10_error_taxonomy.png>]
+Overfull \hbox (46.10637pt too wide) in paragraph at lines 61--73
+[][] 
+ []
+
+<../figs/fig16_bt_tree.png, id=412, 697.6464pt x 385.6809pt>
+File: ../figs/fig16_bt_tree.png Graphic file (type png)
+<use ../figs/fig16_bt_tree.png>
+Package pdftex.def Info: ../figs/fig16_bt_tree.png  used on input line 77.
+(pdftex.def)             Requested size: 409.71692pt x 226.5081pt.
+<../figs/fig15_semantic_nav_run.png, id=413, 758.835pt x 578.16pt>
+File: ../figs/fig15_semantic_nav_run.png Graphic file (type png)
+<use ../figs/fig15_semantic_nav_run.png>
+Package pdftex.def Info: ../figs/fig15_semantic_nav_run.png  used on input line
+ 88.
+(pdftex.def)             Requested size: 364.19667pt x 277.48718pt.
+) (./sec7_discussion.tex [17 <../figs/fig7_query_benchmark.png>] [18 <../figs/f
+ig8_incremental_update.png>]) (./sec8_conclusion.tex) (./main.bbl [19] [20])
+[21] [22 <../figs/fig9_two_epoch_update.png>] [23 <../figs/fig16_bt_tree.png> <
+../figs/fig15_semantic_nav_run.png>] (./main.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-06-18>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 681E6534AE1C67AC3FD9554797F7E220;6678.
+(rerunfilecheck)             Checksum: 0AB37A228809B74336B0F4EB6097CC61;6948.
  ) 
 Here is how much of TeX's memory you used:
- 11739 strings out of 467168
- 180371 string characters out of 5409468
- 620615 words of memory out of 5000000
- 40716 multiletter control sequences out of 15000+600000
+ 11782 strings out of 467168
+ 181509 string characters out of 5409468
+ 622694 words of memory out of 5000000
+ 40749 multiletter control sequences out of 15000+600000
  643540 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,9n,79p,973b,562s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,9n,79p,977b,562s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 ></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><
 /usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></u
@@ -580,10 +603,10 @@ ist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2026/texmf-dis
 t/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2026/texmf-dist/
 fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2026/texmf-dist/fo
 nts/type1/public/cm-super/sftt1000.pfb>
-Output written on main.pdf (19 pages, 6701921 bytes).
+Output written on main.pdf (23 pages, 7400538 bytes).
 PDF statistics:
- 539 PDF objects out of 1000 (max. 8388607)
- 437 compressed objects within 5 object streams
- 113 named destinations out of 1000 (max. 500000)
- 322 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 586 PDF objects out of 1000 (max. 8388607)
+ 472 compressed objects within 5 object streams
+ 123 named destinations out of 1000 (max. 500000)
+ 345 words of extra memory for PDF output out of 10000 (max. 10000000)
 

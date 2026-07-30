@@ -161,7 +161,12 @@ class Mediator:
             if not p:
                 return {"error": f"unknown place '{cmd.get('target')}'"}
             cx, cy = p["centroid"]
-            gx, gy = self._nearest_free(cx, cy)
+            # clearance-check with the robot's own radius (a place centroid
+            # that fits a 0.25 m puck can be a dead pocket for the AMMR)
+            rob = self.robot()
+            rad = (rob or {}).get("explicit", {}).get("limits", {}) \
+                .get("nav_radius_m", 0.25)
+            gx, gy = self._nearest_free(cx, cy, radius=rad, rmax=3.0)
             return {"goals": [{"x": round(gx, 3), "y": round(gy, 3),
                                "yaw": 0.0, "label": nm, "kind": "place"}]}
         if c in ("goto_object", "pick"):

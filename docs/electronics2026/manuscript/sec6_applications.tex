@@ -27,24 +27,34 @@ robot behavior on the next command without a restart.
 
 Experiments run in a Gazebo world generated from the same exploration
 occupancy grid that anchors the place layer, so world, navigation map, and
-knowledge graph share one frame. Over three repetitions of a three-mission
-battery (approach the TV, go to the seating area, return home), all nine
-missions succeeded (mean leg paths $5.5/6.1/2.5$\,m). The phantom
-experiment (Table~\ref{tab:semnav}) sends the robot to three
-owner-refuted phantoms under two knowledge states. Against the
-pre-feedback graph, all three phantoms carry \emph{verified} labels, so
-the confidence gate passes them and the robot physically drives to empty
-locations --- $18.3$\,m and $106$\,s of wasted mission. Against the
-graph after structure filtering and owner feedback, the same commands are
-refused in under $0.3$\,s with zero motion. Verification gating alone
-cannot stop verified phantoms; it is the combination of gating,
-structure-noise removal, and owner feedback that makes the knowledge
-safe to act on. Fig.~\ref{fig:semnav} shows a gated mission trajectory
-and an ungated phantom drive.
+knowledge graph share one frame. The simulated vehicle is a digital proxy
+of the target platform itself: the AMMR's footprint
+($1.25\times0.8$\,m), lidar mount, and velocity limits from the robot
+layer are instantiated in the world, and the mediator derives approach
+poses and clearance checks from the same layer (circumscribed radius
+$0.74$\,m) --- the knowledge that \emph{describes} the robot is the
+knowledge that \emph{drives} it. Over three repetitions of a
+three-mission battery (approach the TV, go to the seating area, return
+home), all nine missions succeeded (mean leg paths $4.6/5.4/1.8$\,m in
+$16.5/24.9/15.0$\,s). The phantom experiment (Table~\ref{tab:semnav})
+sends the robot to three owner-refuted phantoms under two knowledge
+states. Against the pre-feedback graph, all three phantoms carry
+\emph{verified} labels, so the confidence gate passes them --- and the
+waste takes three distinct forms: a pointless drive to a fluorescent
+lamp; a \emph{false arrival} at a $7.4$\,m ``staircase'' whose approach
+ring encloses the robot's own position, so the mission reports success at
+a structure that does not exist; and $22$\,s of futile replanning toward
+a wall-pillar ``book'' whose approach pose the platform's footprint
+cannot reach at all. Against the graph after structure filtering and
+owner feedback, the same commands are refused in about one second with
+zero motion. Verification gating alone cannot stop verified phantoms; it
+is the combination of gating, structure-noise removal, and owner
+feedback that makes the knowledge safe to act on. Fig.~\ref{fig:semnav}
+shows a gated mission trajectory and an ungated phantom drive.
 
 \begin{table}[t]
-\caption{Phantom-goal mission waste in simulation. The same three
-commands are resolved against the knowledge graph before and after
+\caption{Phantom-goal mission waste in simulation (AMMR proxy). The same
+three commands are resolved against the knowledge graph before and after
 structure filtering + owner feedback (both with the verification gate
 active). Wasted path includes the return leg.}
 \label{tab:semnav}
@@ -53,11 +63,11 @@ active). Wasted path includes the return leg.}
 \textbf{KG state} & \textbf{Phantom target (truth)} & \textbf{Outcome} &
 \textbf{Wasted path} & \textbf{Wasted time} \\
 \midrule
-pre-feedback & keyboard (fluorescent lamp) & driven & 2.5\,m & 22.7\,s \\
-pre-feedback & staircase (bare wall) & driven & 2.6\,m & 22.3\,s \\
-pre-feedback & book (wall pillar) & driven & 13.2\,m & 60.9\,s \\
+pre-feedback & keyboard (fluorescent lamp) & driven & 1.7\,m & 16.8\,s \\
+pre-feedback & staircase (bare wall) & false arrival & 0.6\,m & 5.7\,s \\
+pre-feedback & book (wall pillar) & unreachable, aborted & 0\,m & 22.2\,s \\
 \midrule
-filtered + owner feedback & all three & refused & 0\,m & $<0.3$\,s \\
+filtered + owner feedback & all three & refused & 0\,m & $\sim$1\,s \\
 \bottomrule
 \end{tabular}
 \end{table}
