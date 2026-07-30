@@ -94,8 +94,8 @@ function tab(t){CUR=t;for(const x of ['obj','pla','rob','bt'])
   document.getElementById('t_'+x).className='tab'+(x===t?' on':'');render();}
 // ---- Groot-style live BT view (dark canvas, status-colored node borders) --
 const BTC={RUNNING:'#ffb703',SUCCESS:'#3ddc84',FAILURE:'#ff5964',INVALID:'#5c6370'};
-const BTICON={Fallback:'?',Sequence:'→',ReactiveSequence:'⇒',
-  FailureIsSuccess:'↻'};
+const BTICON={Fallback:'?',ReactiveFallback:'?',Sequence:'→',
+  ReactiveSequence:'⇒',FailureIsSuccess:'↻',ForceSuccess:'↻'};
 function btSvg(bt){
   const BW=148,BH=46,GX=16,GY=92;let leaf=0;const nodes=[];
   (function walk(n,d,pi){const me={n:n,d:d,pi:pi,i:nodes.length};nodes.push(me);

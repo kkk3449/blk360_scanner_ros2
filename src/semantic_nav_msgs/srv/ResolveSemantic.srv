@@ -1,0 +1,6 @@
+# Resolve a semantic mission command against the TOSM knowledge graph.
+# command_json: {"cmd": "goto_object", "target": "tv"} etc.
+# result_json:  {"goals": [...]} on success, {"error": "..."} on refusal.
+string command_json
+---
+string result_json

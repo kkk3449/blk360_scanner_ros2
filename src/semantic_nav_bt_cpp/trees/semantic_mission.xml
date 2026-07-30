@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TOSM semantic mission tree (hybrid deliberative/reactive).
+     Same architecture as the py_trees implementation / paper Fig. 16;
+     editable in Groot2. Loaded by mission_bt_cpp at startup. -->
+<root BTCPP_format="4" main_tree_to_execute="SemanticMission">
+  <BehaviorTree ID="SemanticMission">
+    <ReactiveFallback name="Root">
+      <ReactiveSequence name="ReactiveLayer">
+        <BatteryOK name="BatteryOK"/>
+        <NoHomeInterrupt name="NoHomeInterrupt"/>
+        <ForceSuccess name="MissionSafe">
+          <Sequence name="MissionExecutor">
+            <WaitForCommand name="WaitForCommand"/>
+            <ResolveSemanticGoal name="ResolveSemanticGoal"/>
+            <Sequence name="ExecuteGoal">
+              <NavigateToGoal name="NavigateToGoal"/>
+              <ArmPick name="ArmPick"/>
+              <AdvanceGoal name="AdvanceGoal"/>
+            </Sequence>
+          </Sequence>
+        </ForceSuccess>
+      </ReactiveSequence>
+      <Sequence name="GoHome">
+        <ResolveHome name="ResolveHome"/>
+        <NavigateToGoal name="NavigateHome"/>
+        <HomeDone name="HomeDone"/>
+      </Sequence>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Condition ID="BatteryOK"/>
+    <Condition ID="NoHomeInterrupt"/>
+    <Action ID="WaitForCommand"/>
+    <Action ID="ResolveSemanticGoal"/>
+    <Action ID="NavigateToGoal"/>
+    <Action ID="ArmPick"/>
+    <Action ID="AdvanceGoal"/>
+    <Action ID="ResolveHome"/>
+    <Action ID="HomeDone"/>
+  </TreeNodesModel>
+</root>
