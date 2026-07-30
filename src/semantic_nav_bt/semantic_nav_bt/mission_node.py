@@ -3,6 +3,8 @@
 Subscribes  /semantic_command   std_msgs/String (JSON command)
             /battery_state      sensor_msgs/BatteryState (optional)
 Publishes   /semantic_status    std_msgs/String (JSON: status + mission state)
+            /bt_snapshot        std_msgs/String (JSON tree: per-node status
+                                every tick, for the Groot-style live view)
 
   ros2 run semantic_nav_bt mission_bt --ros-args \
       -p kg_path:=/path/testroom_epochs_kg.json \
@@ -11,6 +13,7 @@ Publishes   /semantic_status    std_msgs/String (JSON: status + mission state)
 """
 import json
 
+import py_trees
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -20,6 +23,26 @@ from .mediator import Mediator
 from .bt_nodes import Blackboard, build_tree
 
 BLK = "/home/caselab/Downloads/Cyclone360_data/blk360_seg/outputs"
+
+_CONDITIONS = {"BatteryOK", "NoHomeInterrupt"}
+
+
+def _snap(b):
+    """Serialize a py_trees (sub)tree with live per-node status, using
+    Groot/BT.CPP naming for the composites (Fallback / ReactiveSequence)."""
+    cls = type(b).__name__
+    if isinstance(b, py_trees.composites.Sequence):
+        cls = "Sequence" if b.memory else "ReactiveSequence"
+    elif isinstance(b, py_trees.composites.Selector):
+        cls = "Fallback"
+    kind = ("condition" if type(b).__name__ in _CONDITIONS else
+            "action" if not b.children else
+            "decorator" if len(b.children) == 1 and not isinstance(
+                b, (py_trees.composites.Sequence,
+                    py_trees.composites.Selector)) else "composite")
+    return {"name": b.name, "cls": cls, "kind": kind,
+            "status": b.status.name,
+            "children": [_snap(c) for c in b.children]}
 
 
 class MissionNode(Node):
@@ -45,6 +68,7 @@ class MissionNode(Node):
         self.create_subscription(BatteryState, "battery_state",
                                  self._on_batt, 10)
         self.status_pub = self.create_publisher(String, "semantic_status", 10)
+        self.bt_pub = self.create_publisher(String, "bt_snapshot", 10)
         self._last_status = None
         self.create_timer(1.0 / tick_hz, self._tick)
         self.get_logger().info(
@@ -83,6 +107,7 @@ class MissionNode(Node):
                "battery": self.bb.battery_level,
                "home_requested": self.bb.home_requested}
         self.status_pub.publish(String(data=json.dumps(out)))
+        self.bt_pub.publish(String(data=json.dumps(_snap(self.tree.root))))
 
 
 def main():

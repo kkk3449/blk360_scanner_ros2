@@ -83,14 +83,49 @@ th{background:#eef2f7;position:sticky;top:0}
     <span class="tab on" id=t_obj onclick="tab('obj')">Objects</span>
     <span class=tab id=t_pla onclick="tab('pla')">Places</span>
     <span class=tab id=t_rob onclick="tab('rob')">Robots</span>
+    <span class=tab id=t_bt onclick="tab('bt')">Behavior Tree</span>
   </div>
   <div class=tbox id=tbl></div>
 </div>
 </div>
 <script>
 let CUR='obj', STATE=null, LOG=[];
-function tab(t){CUR=t;for(const x of ['obj','pla','rob'])
+function tab(t){CUR=t;for(const x of ['obj','pla','rob','bt'])
   document.getElementById('t_'+x).className='tab'+(x===t?' on':'');render();}
+// ---- Groot-style live BT view (dark canvas, status-colored node borders) --
+const BTC={RUNNING:'#ffb703',SUCCESS:'#3ddc84',FAILURE:'#ff5964',INVALID:'#5c6370'};
+const BTICON={Fallback:'?',Sequence:'→',ReactiveSequence:'⇒',
+  FailureIsSuccess:'↻'};
+function btSvg(bt){
+  const BW=148,BH=46,GX=16,GY=92;let leaf=0;const nodes=[];
+  (function walk(n,d,pi){const me={n:n,d:d,pi:pi,i:nodes.length};nodes.push(me);
+    if(!n.children.length){me.x=leaf++;}
+    else{const xs=n.children.map(c=>walk(c,d+1,me.i));
+      me.x=(xs[0]+xs[xs.length-1])/2;}
+    return me.x;})(bt,0,-1);
+  const W=leaf*(BW+GX)+GX, H=(Math.max(...nodes.map(m=>m.d))+1)*GY+30;
+  const px=m=>GX+m.x*(BW+GX)+BW/2, py=m=>18+m.d*GY;
+  let s=`<svg width="${W}" height="${H}" style="background:#232629;border-radius:8px">`;
+  for(const m of nodes){if(m.pi<0)continue;const p=nodes[m.pi];
+    s+=`<path d="M${px(p)},${py(p)+BH} C${px(p)},${py(p)+BH+26} ${px(m)},${py(m)-26} ${px(m)},${py(m)}"
+      stroke="#0fb8ad" stroke-width="2" fill="none"/>
+      <circle cx="${px(p)}" cy="${py(p)+BH}" r="3" fill="#0fb8ad"/>
+      <circle cx="${px(m)}" cy="${py(m)}" r="3" fill="#0fb8ad"/>`;}
+  for(const m of nodes){const n=m.n,c=BTC[n.status]||'#5c6370';
+    const icon=BTICON[n.cls]||(n.kind==='condition'?'C:':'A:');
+    const glow=n.status==='RUNNING'?` filter="drop-shadow(0 0 5px ${c})"`:'';
+    s+=`<g${glow}><rect x="${px(m)-BW/2}" y="${py(m)}" width="${BW}" height="${BH}"
+      rx="7" fill="#3b4045" stroke="${c}" stroke-width="2.5"/>
+      <text x="${px(m)}" y="${py(m)+19}" text-anchor="middle" fill="#fff"
+        font-size="12.5" font-weight="600" font-family="system-ui">${icon} ${n.name}</text>
+      <text x="${px(m)}" y="${py(m)+35}" text-anchor="middle" fill="#9aa0a6"
+        font-size="9.5" font-family="system-ui">${n.cls}</text></g>`;}
+  s+='</svg>';
+  const leg=Object.entries(BTC).map(([k,v])=>
+    `<span style="color:${v}">&#9632; ${k.toLowerCase()}</span>`).join(' &nbsp; ');
+  return `<div style="overflow-x:auto">${s}</div>
+    <div class=small style="margin-top:6px">${leg} &nbsp;|&nbsp; live from /bt_snapshot
+    (tick ${''+new Date().toLocaleTimeString()})</div>`;}
 function cmd(c){fetch('/api/command',{method:'POST',body:JSON.stringify(c)});}
 function goPlace(){cmd({cmd:'goto_place',target:document.getElementById('selPlace').value});}
 function goObj(){cmd({cmd:'goto_object',target:document.getElementById('selObj').value});}
@@ -111,6 +146,8 @@ if(CUR==='obj'){h='<table><tr><th>name</th><th>type</th><th>status</th><th>conf<
 if(CUR==='pla'){h='<table><tr><th>region</th><th>name</th><th>members</th><th>verified</th><th>key object</th><th>centroid</th></tr>';
   for(const p of d.places){h+=`<tr><td>${p.region}</td><td><b>${p.name}</b></td><td>${p.members}</td>
    <td>${p.verified}</td><td>${p.key||''}</td><td>(${p.cx},${p.cy})</td></tr>`;}h+='</table>';}
+if(CUR==='bt'){h=d.bt?btSvg(d.bt):
+  '<div class=small>no /bt_snapshot yet — is mission_bt running?</div>';}
 if(CUR==='rob'){for(const r of d.robots){h+=`<table><tr><th colspan=2>${r.name} (${r.symbolic.type}, ${r.symbolic.drive})</th></tr>`;
   h+=`<tr><td>pose</td><td>(${r.explicit.pose.x}, ${r.explicit.pose.y})</td></tr>`;
   h+=`<tr><td>footprint</td><td>${r.explicit.footprint.length} × ${r.explicit.footprint.width} × ${r.explicit.footprint.height} m</td></tr>`;
@@ -163,6 +200,9 @@ class UIServer(Node):
         self.status_log = []
         self.battery = 1.0
         self.robot_pose = None
+        self.bt = None
+        self.create_subscription(String, "bt_snapshot",
+                                 self._on_bt, 10)
         self.create_subscription(String, "semantic_status", self._on_status,
                                  10)
         # nav2 AMCL latches amcl_pose (reliable + transient_local, depth 1);
@@ -192,6 +232,12 @@ class UIServer(Node):
         with self.frame_cv:
             self.frames[key] = bytes(msg.data)
             self.frame_cv.notify_all()
+
+    def _on_bt(self, msg):
+        try:
+            self.bt = json.loads(msg.data)
+        except json.JSONDecodeError:
+            pass
 
     def _on_status(self, msg):
         d = json.loads(msg.data)
@@ -246,7 +292,8 @@ class UIServer(Node):
                 "robots": kg.get("robots", []),
                 "status_log": self.status_log,
                 "battery": self.battery,
-                "robot_pose": self.robot_pose}
+                "robot_pose": self.robot_pose,
+                "bt": self.bt}
 
     # ------------------------------------------------------------- edits --
     def edit_object(self, req):
