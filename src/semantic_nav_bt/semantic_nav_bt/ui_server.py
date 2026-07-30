@@ -9,6 +9,8 @@ Serves a single-page UI on http://<host>:8080 with
     object-level owner edits (refute -> absent, correct type, toggle
     isMovable) written back to the KG json with history entries — the
     mission BT's mediator hot-reloads the file on its next resolve.
+  - Gazebo live view: MJPEG relays of the world's overhead camera and the
+    robot's onboard camera (CompressedImage passthrough, no re-encode).
 
   ros2 run semantic_nav_bt ui_server --ros-args -p port:=8080
 """
@@ -66,6 +68,17 @@ th{background:#eef2f7;position:sticky;top:0}
   </div>
 </div>
 <div>
+  <div class=card style="margin-bottom:12px"><h3>Gazebo live view</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="position:relative"><div class=small>overhead (world frame, +y up)</div>
+        <img id=ovimg src="/stream/overhead" style="height:320px;border-radius:8px;background:#222">
+        <div id=robotmark style="position:absolute;width:13px;height:13px;border:3px solid #e63946;
+          border-radius:50%;box-shadow:0 0 7px #e63946;transform:translate(-50%,-50%);
+          display:none;pointer-events:none"></div></div>
+      <div><div class=small>robot camera</div>
+        <img src="/stream/robot" style="height:320px;border-radius:8px;background:#222"></div>
+    </div>
+  </div>
   <div>
     <span class="tab on" id=t_obj onclick="tab('obj')">Objects</span>
     <span class=tab id=t_pla onclick="tab('pla')">Places</span>
@@ -120,6 +133,14 @@ function poll(){fetch('/api/state').then(r=>r.json()).then(d=>{STATE=d;
   lg.scrollTop=lg.scrollHeight;
   document.getElementById('robotpose').textContent=d.robot_pose?
     `robot @ (${d.robot_pose[0].toFixed(2)}, ${d.robot_pose[1].toFixed(2)})  battery ${(d.battery*100).toFixed(0)}%`:'';
+  // overhead camera: static top-down at (-2,-1.5,13), hfov 1.3, 960x720
+  // -> linear world->pixel map (48.57 px/m, +y up / +x right)
+  const mk=document.getElementById('robotmark'),img=document.getElementById('ovimg');
+  if(d.robot_pose&&img.clientWidth>0){const PPM=48.57;
+    const u=480+(d.robot_pose[0]+2.0)*PPM, v=360-(d.robot_pose[1]+1.5)*PPM;
+    mk.style.left=(img.offsetLeft+u*img.clientWidth/960)+'px';
+    mk.style.top=(img.offsetTop+v*img.clientHeight/720)+'px';
+    mk.style.display='block';}
   render();}).catch(()=>{document.getElementById('conn').textContent=' — offline';});}
 setInterval(poll,1000);poll();
 </script></body></html>"""
@@ -144,9 +165,33 @@ class UIServer(Node):
         self.robot_pose = None
         self.create_subscription(String, "semantic_status", self._on_status,
                                  10)
+        # nav2 AMCL latches amcl_pose (reliable + transient_local, depth 1);
+        # match it so we get the last pose even while the robot is idle
+        from rclpy.qos import (QoSProfile, QoSDurabilityPolicy,
+                               QoSReliabilityPolicy)
+        amcl_qos = QoSProfile(
+            depth=1, reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL)
         self.create_subscription(PoseWithCovarianceStamped, "amcl_pose",
-                                 self._on_pose, 10)
+                                 self._on_pose, amcl_qos)
         self._last = None
+        # Gazebo live views: keep the latest JPEG per camera and fan it out
+        # to /stream/<key> MJPEG clients (compressed passthrough).
+        from sensor_msgs.msg import CompressedImage
+        from rclpy.qos import qos_profile_sensor_data
+        self.frames = {"overhead": None, "robot": None}
+        self.frame_cv = threading.Condition()
+        self.create_subscription(
+            CompressedImage, "/overhead/image_raw/compressed",
+            lambda m: self._on_frame("overhead", m), qos_profile_sensor_data)
+        self.create_subscription(
+            CompressedImage, "/camera/image_raw/compressed",
+            lambda m: self._on_frame("robot", m), qos_profile_sensor_data)
+
+    def _on_frame(self, key, msg):
+        with self.frame_cv:
+            self.frames[key] = bytes(msg.data)
+            self.frame_cv.notify_all()
 
     def _on_status(self, msg):
         d = json.loads(msg.data)
@@ -269,8 +314,32 @@ def make_handler(node):
                 self._send(200, PAGE, "text/html; charset=utf-8")
             elif self.path == "/api/state":
                 self._send(200, json.dumps(node.state()))
+            elif self.path.startswith("/stream/"):
+                self._stream(self.path.rsplit("/", 1)[-1])
             else:
                 self._send(404, "{}")
+
+        def _stream(self, key):
+            if key not in node.frames:
+                return self._send(404, "{}")
+            self.send_response(200)
+            self.send_header("Content-Type",
+                             "multipart/x-mixed-replace; boundary=frame")
+            self.end_headers()
+            try:
+                while True:
+                    with node.frame_cv:
+                        node.frame_cv.wait(timeout=1.0)
+                        buf = node.frames.get(key)
+                    if buf is None:
+                        continue
+                    self.wfile.write(
+                        b"--frame\r\nContent-Type: image/jpeg\r\n"
+                        b"Content-Length: %d\r\n\r\n" % len(buf))
+                    self.wfile.write(buf)
+                    self.wfile.write(b"\r\n")
+            except (BrokenPipeError, ConnectionResetError):
+                pass
 
         def do_POST(self):
             n = int(self.headers.get("Content-Length", 0))
