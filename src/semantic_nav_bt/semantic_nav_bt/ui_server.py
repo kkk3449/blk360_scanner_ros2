@@ -100,25 +100,33 @@ const BTICON={Fallback:'?',ReactiveFallback:'R?',Sequence:'→',
   Root:'▣'};
 const BTKC={composite:'#ff7ab8',subtree:'#e8eaed',decorator:'#5eead4',
   action:'#e8eaed',condition:'#e8eaed'};
+let BTDIR=localStorage.getItem('btdir')||'h';   // 'h' = Groot-like, 'v' = top-down
 function btSvg(bt){
   // synthetic subtree chip so the composition matches Groot's canvas
   const tree={name:'Root',cls:'Root',kind:'subtree',status:bt.status,
     children:[bt]};
-  const BW=170,BH=46,GX=46,GY=13;let leaf=0;const nodes=[];
+  const horiz=BTDIR==='h';
+  const BW=170,BH=46,GX=horiz?46:16,GY=horiz?13:44;let leaf=0;const nodes=[];
   (function walk(n,d,pi){const me={n:n,d:d,pi:pi,i:nodes.length};nodes.push(me);
-    if(!n.children.length){me.y=leaf++;}
-    else{const ys=n.children.map(c=>walk(c,d+1,me.i));
-      me.y=(ys[0]+ys[ys.length-1])/2;}
-    return me.y;})(tree,0,-1);
-  const W=(Math.max(...nodes.map(m=>m.d))+1)*(BW+GX)+GX,
-        H=leaf*(BH+GY)+GY+14;
-  const px=m=>GX/2+m.d*(BW+GX), py=m=>12+m.y*(BH+GY);
-  const sc=Math.min(1,480/H);
+    if(!n.children.length){me.c=leaf++;}
+    else{const cs=n.children.map(c=>walk(c,d+1,me.i));
+      me.c=(cs[0]+cs[cs.length-1])/2;}
+    return me.c;})(tree,0,-1);
+  const depth=Math.max(...nodes.map(m=>m.d))+1;
+  const W=horiz?depth*(BW+GX)+GX:leaf*(BW+GX)+GX,
+        H=horiz?leaf*(BH+GY)+GY+14:depth*(BH+GY)+14;
+  const px=m=>horiz?GX/2+m.d*(BW+GX):GX/2+m.c*(BW+GX),
+        py=m=>horiz?12+m.c*(BH+GY):12+m.d*(BH+GY);
+  const sc=Math.min(1,(horiz?480:520)/H);
   let s=`<svg viewBox="0 0 ${W} ${H}" width="${Math.round(W*sc)}" height="${Math.round(H*sc)}"
     style="background:#232629;border-radius:8px">`;
   for(const m of nodes){if(m.pi<0)continue;const p=nodes[m.pi];
-    const x1=px(p)+BW,y1=py(p)+BH/2,x2=px(m),y2=py(m)+BH/2;
-    s+=`<path d="M${x1},${y1} C${x1+GX*0.55},${y1} ${x2-GX*0.55},${y2} ${x2},${y2}"
+    let x1,y1,x2,y2,d1,d2;
+    if(horiz){x1=px(p)+BW;y1=py(p)+BH/2;x2=px(m);y2=py(m)+BH/2;
+      d1=`${x1+GX*0.55},${y1}`;d2=`${x2-GX*0.55},${y2}`;}
+    else{x1=px(p)+BW/2;y1=py(p)+BH;x2=px(m)+BW/2;y2=py(m);
+      d1=`${x1},${y1+GY*0.55}`;d2=`${x2},${y2-GY*0.55}`;}
+    s+=`<path d="M${x1},${y1} C${d1} ${d2} ${x2},${y2}"
       stroke="#0fb8ad" stroke-width="2" fill="none"/>
       <circle cx="${x1}" cy="${y1}" r="3" fill="#0fb8ad"/>
       <circle cx="${x2}" cy="${y2}" r="3" fill="#0fb8ad"/>`;}
@@ -139,7 +147,10 @@ function btSvg(bt){
   const leg=Object.entries(BTC).map(([k,v])=>
     `<span style="color:${v}">&#9632; ${k.toLowerCase()}</span>`).join(' &nbsp; ');
   return `<div style="overflow-x:auto">${s}</div>
-    <div class=small style="margin-top:6px">${leg} &nbsp;|&nbsp; live from /bt_snapshot
+    <div class=small style="margin-top:6px">
+    <button onclick="BTDIR=BTDIR==='h'?'v':'h';localStorage.setItem('btdir',BTDIR);render()"
+      style="padding:3px 9px;font-size:11px">${horiz?'↕ top-down':'↔ left-to-right'}</button>
+    &nbsp; ${leg} &nbsp;|&nbsp; live from /bt_snapshot
     (tick ${''+new Date().toLocaleTimeString()})</div>`;}
 function cmd(c){fetch('/api/command',{method:'POST',body:JSON.stringify(c)});}
 function goPlace(){cmd({cmd:'goto_place',target:document.getElementById('selPlace').value});}
