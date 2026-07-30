@@ -102,45 +102,69 @@ th{background:#eef2f7;position:sticky;top:0}
 let CUR='obj', STATE=null, LOG=[];
 function tab(t){CUR=t;for(const x of ['obj','pla','rob','bt'])
   document.getElementById('t_'+x).className='tab'+(x===t?' on':'');render();}
-// ---- overhead view: zoom / pan / rotate + segmentation overlays ----------
-let OV={s:1,tx:0,ty:0,r:0}, SEL=null;
+// ---- overhead view: zoom / pan / 2D rotate / 3D orbit + overlays ---------
+let OV={s:1,tx:0,ty:0,r:0}, SELS=[], CAM={mode:'top',az:90,el:60,t:0};
+const PAL=['#e6194b','#3cb44b','#d4a800','#4363d8','#f58231','#911eb4',
+  '#0aa6a6','#f032e6','#7a9e12','#c05858','#008080','#8b6fc9','#9a6324',
+  '#800000','#3f9e6e','#808000','#b05e2c','#000075'];
+function objColor(name){const i=STATE?STATE.objects.findIndex(o=>o.name===name):0;
+  return PAL[(i<0?0:i)%PAL.length];}
 function ovApply(){document.getElementById('ovwrap').style.transform=
   `translate(${OV.tx}px,${OV.ty}px) rotate(${OV.r}deg) scale(${OV.s})`;}
 function ovRot(d){OV.r+=d;ovApply();}
-function ovReset(){OV={s:1,tx:0,ty:0,r:0};ovApply();}
+function sendCam(body){const now=Date.now();
+  if(body.reset||now-CAM.t>150){CAM.t=now;
+    fetch('/api/campose',{method:'POST',body:JSON.stringify(body)});}}
+function ovReset(){OV={s:1,tx:0,ty:0,r:0};ovApply();
+  CAM.mode='top';CAM.az=90;CAM.el=60;sendCam({reset:true});
+  drawOverlay();poll();}
 window.addEventListener('load',()=>{const v=document.getElementById('ovview');
+  v.addEventListener('contextmenu',e=>e.preventDefault());
   v.addEventListener('wheel',e=>{e.preventDefault();
     OV.s=Math.min(6,Math.max(0.5,OV.s*(e.deltaY<0?1.15:1/1.15)));ovApply();},{passive:false});
-  let dr=null;
-  v.addEventListener('mousedown',e=>{dr=[e.clientX,e.clientY];v.style.cursor='grabbing';e.preventDefault();});
-  window.addEventListener('mousemove',e=>{if(!dr)return;
-    OV.tx+=e.clientX-dr[0];OV.ty+=e.clientY-dr[1];dr=[e.clientX,e.clientY];ovApply();});
-  window.addEventListener('mouseup',()=>{dr=null;v.style.cursor='grab';});});
-function pickObj(name){const o=STATE.objects.find(v=>v.name===name);
-  SEL=(SEL&&SEL.kind==='obj'&&SEL.o.name===name)?null:{kind:'obj',o:o};
-  drawOverlay();render();}
-function pickPlace(region){
-  if(SEL&&SEL.kind==='place'&&SEL.region===region){SEL=null;drawOverlay();render();return;}
+  let dr=null,rdr=null;
+  v.addEventListener('mousedown',e=>{e.preventDefault();
+    if(e.button===2){rdr=[e.clientX,e.clientY];}
+    else{dr=[e.clientX,e.clientY];v.style.cursor='grabbing';}});
+  window.addEventListener('mousemove',e=>{
+    if(dr){OV.tx+=e.clientX-dr[0];OV.ty+=e.clientY-dr[1];
+      dr=[e.clientX,e.clientY];ovApply();}
+    if(rdr){CAM.mode='3d';
+      CAM.az-=(e.clientX-rdr[0])*0.5;
+      CAM.el=Math.min(88,Math.max(15,CAM.el+(e.clientY-rdr[1])*0.4));
+      rdr=[e.clientX,e.clientY];sendCam({az:CAM.az,el:CAM.el});drawOverlay();}});
+  window.addEventListener('mouseup',e=>{
+    if(rdr&&e.button===2){sendCam({az:CAM.az,el:CAM.el});}
+    dr=null;rdr=null;v.style.cursor='grab';});});
+function pickObj(name){const i=SELS.findIndex(s=>s.kind==='obj'&&s.o.name===name);
+  if(i>=0){SELS.splice(i,1);drawOverlay();render();return;}
+  const o=STATE.objects.find(v=>v.name===name);
+  SELS.push({kind:'obj',o:o});drawOverlay();render();}
+function pickPlace(region){const i=SELS.findIndex(s=>s.kind==='place'&&s.region===region);
+  if(i>=0){SELS.splice(i,1);drawOverlay();render();return;}
   fetch('/api/region?name='+region).then(r=>r.json()).then(c=>{
-    SEL={kind:'place',region:region,cells:c};drawOverlay();render();});}
+    SELS.push({kind:'place',region:region,cells:c});drawOverlay();render();});}
 function drawOverlay(){const img=document.getElementById('ovimg'),
   cv=document.getElementById('ovcanvas');
   if(!img||!img.clientWidth)return;
   cv.width=img.clientWidth;cv.height=img.clientHeight;
   const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
-  if(!SEL)return;
+  if(CAM.mode==='3d'||!SELS.length)return;   // overlays valid only top-down
   const PPM=48.57,sx=img.clientWidth/960,sy=img.clientHeight/720;
   const wx=x=>(480+(x+2.0)*PPM)*sx, wy=y=>(360-(y+1.5)*PPM)*sy;
-  if(SEL.kind==='obj'){const o=SEL.o,cx=wx(o.x),cy=wy(o.y);
-    ctx.save();ctx.translate(cx,cy);ctx.rotate(-(o.theta||0));
-    const w=(o.length||0.5)*PPM*sx,h=(o.width||0.5)*PPM*sy;
-    ctx.fillStyle='rgba(255,214,10,.3)';ctx.strokeStyle='#ffd60a';ctx.lineWidth=2.5;
-    ctx.fillRect(-w/2,-h/2,w,h);ctx.strokeRect(-w/2,-h/2,w,h);ctx.restore();
-    ctx.font='bold 11px system-ui';ctx.fillStyle='#ffd60a';
-    ctx.fillText(o.name,cx+5,cy-5);}
-  else{const c=SEL.cells,cs=Math.max(1.5,c.cs*PPM*sx);
-    ctx.fillStyle='rgba(94,234,212,.4)';
-    for(const p of c.cells){ctx.fillRect(wx(p[0])-cs/2,wy(p[1])-cs/2,cs,cs);}}}
+  for(const S of SELS){
+    if(S.kind==='place'){const c=S.cells,cs=Math.max(1.5,c.cs*PPM*sx);
+      const [r,g,b]=c.color;
+      ctx.fillStyle=`rgba(${r},${g},${b},.45)`;
+      for(const p of c.cells){ctx.fillRect(wx(p[0])-cs/2,wy(p[1])-cs/2,cs,cs);}}}
+  for(const S of SELS){
+    if(S.kind==='obj'){const o=S.o,cx=wx(o.x),cy=wy(o.y),col=objColor(o.name);
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(-(o.theta||0));
+      const w=(o.length||0.5)*PPM*sx,h=(o.width||0.5)*PPM*sy;
+      ctx.fillStyle=col+'4d';ctx.strokeStyle=col;ctx.lineWidth=2.5;
+      ctx.fillRect(-w/2,-h/2,w,h);ctx.strokeRect(-w/2,-h/2,w,h);ctx.restore();
+      ctx.font='bold 11px system-ui';ctx.fillStyle=col;
+      ctx.fillText(o.name,cx+5,cy-5);}}}
 // ---- Groot-composition live BT view: left-to-right layout, type line over
 // ---- instance name (as Groot2 draws it), UI design language kept
 const BTC={RUNNING:'#ffb703',SUCCESS:'#3ddc84',FAILURE:'#ff5964',INVALID:'#5c6370'};
@@ -221,8 +245,8 @@ if(CUR==='obj'){h=`<div class=small style="margin:2px 0 8px;line-height:1.5">
    &nbsp;·&nbsp; <b>movable</b>: toggle isMovable (implicit layer; arm-pickup
    eligibility)</div>`;
   h+='<table><tr><th>name</th><th>type</th><th>status</th><th>conf</th><th>pose</th><th>movable</th><th>owner actions</th></tr>';
-  for(const o of d.objects){const on=SEL&&SEL.kind==='obj'&&SEL.o.name===o.name;
-   h+=`<tr style="cursor:pointer${on?';background:#fff3c4':''}" onclick="pickObj('${o.name}')">
+  for(const o of d.objects){const on=SELS.some(s=>s.kind==='obj'&&s.o.name===o.name);
+   h+=`<tr style="cursor:pointer${on?';background:'+objColor(o.name)+'33':''}" onclick="pickObj('${o.name}')">
    <td>${o.name}</td><td>${o.type}</td><td>${stBadge(o.status)}</td>
    <td>${o.confidence??''}</td><td>(${o.x},${o.y})</td><td>${o.isMovable?'✓':'✗'}</td>
    <td><button title="Owner refutation: '${o.name}' does not exist in the room (phantom / structure noise). Marks it absent in the KG — the mediator will refuse it as a goal from the next command."
@@ -235,8 +259,9 @@ if(CUR==='obj'){h=`<div class=small style="margin:2px 0 8px;line-height:1.5">
 if(CUR==='pla'){h=`<div class=small style="margin:2px 0 8px">click a row to shade the
    place's SLIC segmentation cells on the overhead view</div>`;
   h+='<table><tr><th>region</th><th>name</th><th>members</th><th>verified</th><th>key object</th><th>centroid</th></tr>';
-  for(const p of d.places){const on=SEL&&SEL.kind==='place'&&SEL.region===p.region;
-   h+=`<tr style="cursor:pointer${on?';background:#d9f7f0':''}" onclick="pickPlace('${p.region}')">
+  for(const p of d.places){const s=SELS.find(v=>v.kind==='place'&&v.region===p.region);
+   const bg=s?`;background:rgba(${s.cells.color[0]},${s.cells.color[1]},${s.cells.color[2]},.25)`:'';
+   h+=`<tr style="cursor:pointer${bg}" onclick="pickPlace('${p.region}')">
    <td>${p.region}</td><td><b>${p.name}</b></td><td>${p.members}</td>
    <td>${p.verified}</td><td>${p.key||''}</td><td>(${p.cx},${p.cy})</td></tr>`;}h+='</table>';}
 if(CUR==='bt'){h=d.bt?btSvg(d.bt):
@@ -266,7 +291,8 @@ function poll(){fetch('/api/state').then(r=>r.json()).then(d=>{STATE=d;
   // overhead camera: static top-down at (-2,-1.5,13), hfov 1.3, 960x720
   // -> linear world->pixel map (48.57 px/m, +y up / +x right)
   const mk=document.getElementById('robotmark'),img=document.getElementById('ovimg');
-  if(d.robot_pose&&img.clientWidth>0){const PPM=48.57;
+  if(CAM.mode==='3d'){mk.style.display='none';}
+  else if(d.robot_pose&&img.clientWidth>0){const PPM=48.57;
     const u=480+(d.robot_pose[0]+2.0)*PPM, v=360-(d.robot_pose[1]+1.5)*PPM;
     mk.style.left=(img.offsetLeft+u*img.clientWidth/960)+'px';
     mk.style.top=(img.offsetTop+v*img.clientHeight/720)+'px';
@@ -442,6 +468,43 @@ class UIServer(Node):
         json.dump(kg, open(self.kg_path, "w"), indent=1)
         return {"ok": True}
 
+    def set_campose(self, req):
+        """Orbit the Gazebo overhead camera (right-drag in the UI): move the
+        static overhead_cam model with gz set_pose. reset -> top-down."""
+        import math
+        import subprocess
+        if req.get("reset"):
+            pos = (-2.0, -1.5, 13.0)
+            rpy = (0.0, 1.5708, 1.5708)
+        else:
+            az = math.radians(float(req.get("az", 90.0)))
+            el = math.radians(
+                min(88.0, max(15.0, float(req.get("el", 60.0)))))
+            tx, ty, tz, r = -2.0, -1.5, 0.6, 12.5
+            pos = (tx + r * math.cos(el) * math.cos(az),
+                   ty + r * math.cos(el) * math.sin(az),
+                   tz + r * math.sin(el))
+            rpy = (0.0, el, az + math.pi)
+        cr, sr = math.cos(rpy[0] / 2), math.sin(rpy[0] / 2)
+        cp, sp = math.cos(rpy[1] / 2), math.sin(rpy[1] / 2)
+        cy, sy = math.cos(rpy[2] / 2), math.sin(rpy[2] / 2)
+        qw = cr * cp * cy + sr * sp * sy
+        qx = sr * cp * cy - cr * sp * sy
+        qy = cr * sp * cy + sr * cp * sy
+        qz = cr * cp * sy - sr * sp * cy
+        msg = (f'name: "overhead_cam", position: {{x: {pos[0]:.3f}, '
+               f'y: {pos[1]:.3f}, z: {pos[2]:.3f}}}, orientation: '
+               f'{{x: {qx:.5f}, y: {qy:.5f}, z: {qz:.5f}, w: {qw:.5f}}}')
+        try:
+            subprocess.run(
+                ["gz", "service", "-s", "/world/visn2_room/set_pose",
+                 "--reqtype", "gz.msgs.Pose", "--reptype", "gz.msgs.Boolean",
+                 "--timeout", "300", "--req", msg],
+                capture_output=True, timeout=2.0)
+            return {"ok": True}
+        except (OSError, subprocess.TimeoutExpired) as e:
+            return {"error": str(e)}
+
     def region_cells(self, region):
         """SLIC segmentation cells (world-frame x,y at 0.05 m pitch) for the
         overhead-view overlay."""
@@ -449,10 +512,13 @@ class UIServer(Node):
             pl = json.load(open(self.places_path))
             for p in pl["semanticPlaces"]:
                 if p["name"] == region:
-                    return {"cells": p.get("cells", []), "cs": 0.05}
-        except (OSError, json.JSONDecodeError):
+                    rgb = [int(v) for v in
+                           str(p.get("color", "120,120,120")).split(",")]
+                    return {"cells": p.get("cells", []), "cs": 0.05,
+                            "color": rgb}
+        except (OSError, json.JSONDecodeError, ValueError):
             pass
-        return {"cells": [], "cs": 0.05}
+        return {"cells": [], "cs": 0.05, "color": [120, 120, 120]}
 
     def publish_command(self, cmd):
         self.cmd_pub.publish(String(data=json.dumps(cmd)))
@@ -528,6 +594,8 @@ def make_handler(node):
                 self._send(200, '{"ok":true}')
             elif self.path == "/api/object":
                 self._send(200, json.dumps(node.edit_object(req)))
+            elif self.path == "/api/campose":
+                self._send(200, json.dumps(node.set_campose(req)))
             else:
                 self._send(404, "{}")
     return H
