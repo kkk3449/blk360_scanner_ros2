@@ -92,34 +92,49 @@ th{background:#eef2f7;position:sticky;top:0}
 let CUR='obj', STATE=null, LOG=[];
 function tab(t){CUR=t;for(const x of ['obj','pla','rob','bt'])
   document.getElementById('t_'+x).className='tab'+(x===t?' on':'');render();}
-// ---- Groot-style live BT view (dark canvas, status-colored node borders) --
+// ---- Groot-composition live BT view: left-to-right layout, type line over
+// ---- instance name (as Groot2 draws it), UI design language kept
 const BTC={RUNNING:'#ffb703',SUCCESS:'#3ddc84',FAILURE:'#ff5964',INVALID:'#5c6370'};
-const BTICON={Fallback:'?',ReactiveFallback:'?',Sequence:'→',
-  ReactiveSequence:'⇒',FailureIsSuccess:'↻',ForceSuccess:'↻'};
+const BTICON={Fallback:'?',ReactiveFallback:'R?',Sequence:'→',
+  ReactiveSequence:'R→',FailureIsSuccess:'✓',ForceSuccess:'✓',
+  Root:'▣'};
+const BTKC={composite:'#ff7ab8',subtree:'#e8eaed',decorator:'#5eead4',
+  action:'#e8eaed',condition:'#e8eaed'};
 function btSvg(bt){
-  const BW=148,BH=46,GX=16,GY=92;let leaf=0;const nodes=[];
+  // synthetic subtree chip so the composition matches Groot's canvas
+  const tree={name:'Root',cls:'Root',kind:'subtree',status:bt.status,
+    children:[bt]};
+  const BW=170,BH=46,GX=46,GY=13;let leaf=0;const nodes=[];
   (function walk(n,d,pi){const me={n:n,d:d,pi:pi,i:nodes.length};nodes.push(me);
-    if(!n.children.length){me.x=leaf++;}
-    else{const xs=n.children.map(c=>walk(c,d+1,me.i));
-      me.x=(xs[0]+xs[xs.length-1])/2;}
-    return me.x;})(bt,0,-1);
-  const W=leaf*(BW+GX)+GX, H=(Math.max(...nodes.map(m=>m.d))+1)*GY+30;
-  const px=m=>GX+m.x*(BW+GX)+BW/2, py=m=>18+m.d*GY;
-  let s=`<svg width="${W}" height="${H}" style="background:#232629;border-radius:8px">`;
+    if(!n.children.length){me.y=leaf++;}
+    else{const ys=n.children.map(c=>walk(c,d+1,me.i));
+      me.y=(ys[0]+ys[ys.length-1])/2;}
+    return me.y;})(tree,0,-1);
+  const W=(Math.max(...nodes.map(m=>m.d))+1)*(BW+GX)+GX,
+        H=leaf*(BH+GY)+GY+14;
+  const px=m=>GX/2+m.d*(BW+GX), py=m=>12+m.y*(BH+GY);
+  const sc=Math.min(1,480/H);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${Math.round(W*sc)}" height="${Math.round(H*sc)}"
+    style="background:#232629;border-radius:8px">`;
   for(const m of nodes){if(m.pi<0)continue;const p=nodes[m.pi];
-    s+=`<path d="M${px(p)},${py(p)+BH} C${px(p)},${py(p)+BH+26} ${px(m)},${py(m)-26} ${px(m)},${py(m)}"
+    const x1=px(p)+BW,y1=py(p)+BH/2,x2=px(m),y2=py(m)+BH/2;
+    s+=`<path d="M${x1},${y1} C${x1+GX*0.55},${y1} ${x2-GX*0.55},${y2} ${x2},${y2}"
       stroke="#0fb8ad" stroke-width="2" fill="none"/>
-      <circle cx="${px(p)}" cy="${py(p)+BH}" r="3" fill="#0fb8ad"/>
-      <circle cx="${px(m)}" cy="${py(m)}" r="3" fill="#0fb8ad"/>`;}
+      <circle cx="${x1}" cy="${y1}" r="3" fill="#0fb8ad"/>
+      <circle cx="${x2}" cy="${y2}" r="3" fill="#0fb8ad"/>`;}
   for(const m of nodes){const n=m.n,c=BTC[n.status]||'#5c6370';
-    const icon=BTICON[n.cls]||(n.kind==='condition'?'C:':'A:');
+    const icon=BTICON[n.cls]||(n.kind==='condition'?'≡':'⚡');
+    const tcol=BTKC[n.kind]||'#e8eaed';
+    const two=n.name!==n.cls;
     const glow=n.status==='RUNNING'?` filter="drop-shadow(0 0 5px ${c})"`:'';
-    s+=`<g${glow}><rect x="${px(m)-BW/2}" y="${py(m)}" width="${BW}" height="${BH}"
+    s+=`<g${glow}><rect x="${px(m)}" y="${py(m)}" width="${BW}" height="${BH}"
       rx="7" fill="#3b4045" stroke="${c}" stroke-width="2.5"/>
-      <text x="${px(m)}" y="${py(m)+19}" text-anchor="middle" fill="#fff"
-        font-size="12.5" font-weight="600" font-family="system-ui">${icon} ${n.name}</text>
-      <text x="${px(m)}" y="${py(m)+35}" text-anchor="middle" fill="#9aa0a6"
-        font-size="9.5" font-family="system-ui">${n.cls}</text></g>`;}
+      <text x="${px(m)+BW/2}" y="${py(m)+(two?19:28)}" text-anchor="middle"
+        fill="${tcol}" font-size="12.5" font-weight="600"
+        font-family="system-ui">${icon} ${n.cls}</text>`;
+    if(two){s+=`<text x="${px(m)+BW/2}" y="${py(m)+36}" text-anchor="middle"
+        fill="#c3c9d1" font-size="10.5" font-family="system-ui">${n.name}</text>`;}
+    s+='</g>';}
   s+='</svg>';
   const leg=Object.entries(BTC).map(([k,v])=>
     `<span style="color:${v}">&#9632; ${k.toLowerCase()}</span>`).join(' &nbsp; ');
