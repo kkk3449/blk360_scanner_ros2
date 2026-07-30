@@ -162,12 +162,24 @@ function edit(name,action,extra){let body={name:name,action:action,...extra};
 function stBadge(s){if(!s)return '';let c=s.startsWith('verified')?(s==='verified_owner'?'o':'v')
   :(s.startsWith('refuted')?'r':'u');return `<span class="badge ${c}">${s}</span>`;}
 function render(){if(!STATE)return;const d=STATE;let h='';
-if(CUR==='obj'){h='<table><tr><th>name</th><th>type</th><th>status</th><th>conf</th><th>pose</th><th>movable</th><th>owner actions</th></tr>';
+if(CUR==='obj'){h=`<div class=small style="margin:2px 0 8px;line-height:1.5">
+   <b>Owner actions</b> — write straight back to the knowledge graph (with a
+   history entry); the mission mediator hot-reloads the file, so an edit
+   changes robot behavior from the next command, no restart.
+   &nbsp;<b>refute</b>: this object does not exist (phantom) → marked absent,
+   excluded from goals &nbsp;·&nbsp; <b>type</b>: correct the label → promoted
+   to <span class="badge o">verified_owner</span> (conf 1.0)
+   &nbsp;·&nbsp; <b>movable</b>: toggle isMovable (implicit layer; arm-pickup
+   eligibility)</div>`;
+  h+='<table><tr><th>name</th><th>type</th><th>status</th><th>conf</th><th>pose</th><th>movable</th><th>owner actions</th></tr>';
   for(const o of d.objects){h+=`<tr><td>${o.name}</td><td>${o.type}</td><td>${stBadge(o.status)}</td>
    <td>${o.confidence??''}</td><td>(${o.x},${o.y})</td><td>${o.isMovable?'✓':'✗'}</td>
-   <td><button onclick="edit('${o.name}','refute')">refute</button>
-   <button onclick="edit('${o.name}','set_type',{type:prompt('correct type for ${o.name}:','${o.type}')})">type</button>
-   <button onclick="edit('${o.name}','toggle_movable')">movable</button></td></tr>`;}
+   <td><button title="Owner refutation: '${o.name}' does not exist in the room (phantom / structure noise). Marks it absent in the KG — the mediator will refuse it as a goal from the next command."
+     onclick="edit('${o.name}','refute')">refute</button>
+   <button title="Correct the semantic label of '${o.name}'. The new type is stored as verified_owner with confidence 1.0 and survives later re-scans (owner feedback outranks the verifier)."
+     onclick="edit('${o.name}','set_type',{type:prompt('correct type for ${o.name}:','${o.type}')})">type</button>
+   <button title="Toggle isMovable for '${o.name}' (implicit layer). Controls e.g. whether a pick mission is allowed on this object."
+     onclick="edit('${o.name}','toggle_movable')">movable</button></td></tr>`;}
   h+='</table>';}
 if(CUR==='pla'){h='<table><tr><th>region</th><th>name</th><th>members</th><th>verified</th><th>key object</th><th>centroid</th></tr>';
   for(const p of d.places){h+=`<tr><td>${p.region}</td><td><b>${p.name}</b></td><td>${p.members}</td>
