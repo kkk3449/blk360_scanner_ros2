@@ -74,7 +74,8 @@ th{background:#eef2f7;position:sticky;top:0}
           <button style="padding:1px 8px" onclick="ovRot(-15)">&#10226;</button>
           <button style="padding:1px 8px" onclick="ovRot(15)">&#10227;</button>
           <button style="padding:1px 8px" onclick="ovReset()">reset</button>
-          <span style="color:#999">wheel=zoom · drag=pan · click a row to highlight</span></div>
+          <span style="color:#999">wheel=zoom · drag=pan · right-drag=3D · hover=coords</span>
+          <span id=ovcoord style="font-family:ui-monospace,monospace;color:#1d3557"></span></div>
         <div id=ovview style="width:427px;height:320px;overflow:hidden;border-radius:8px;
             background:#222;position:relative;cursor:grab">
           <div id=ovwrap style="position:absolute;left:0;top:0;transform-origin:213px 160px">
@@ -83,6 +84,9 @@ th{background:#eef2f7;position:sticky;top:0}
             <div id=robotmark style="position:absolute;width:13px;height:13px;border:3px solid #e63946;
               border-radius:50%;box-shadow:0 0 7px #e63946;transform:translate(-50%,-50%);
               display:none;pointer-events:none"></div>
+          <div id=xhair style="position:absolute;width:15px;height:15px;
+              border:1.5px solid #1d3557;border-radius:50%;background:rgba(29,53,87,.15);
+              transform:translate(-50%,-50%);display:none;pointer-events:none"></div>
           </div>
         </div></div>
       <div><div class=small>robot camera</div>
@@ -135,7 +139,33 @@ window.addEventListener('load',()=>{const v=document.getElementById('ovview');
       rdr=[e.clientX,e.clientY];sendCam({az:CAM.az,el:CAM.el});drawOverlay();}});
   window.addEventListener('mouseup',e=>{
     if(rdr&&e.button===2){sendCam({az:CAM.az,el:CAM.el});}
-    dr=null;rdr=null;v.style.cursor='grab';});});
+    dr=null;rdr=null;v.style.cursor='grab';});
+  // hover readout: invert the CSS transform (translate ∘ rotate ∘ scale about
+  // the 213,160 origin), then the linear overhead-camera projection
+  v.addEventListener('mousemove',e=>{
+    const out=document.getElementById('ovcoord'),xh=document.getElementById('xhair');
+    if(CAM.mode!=='top'){out.textContent=' 3D view — press reset for coords';
+      xh.style.display='none';return;}
+    const img=document.getElementById('ovimg');
+    if(!img.clientWidth){return;}
+    const R=v.getBoundingClientRect();
+    const px=e.clientX-R.left-OV.tx, py=e.clientY-R.top-OV.ty;
+    const ORX=213,ORY=160,a=-OV.r*Math.PI/180;
+    const dx=px-ORX,dy=py-ORY;
+    const qx=ORX+(dx*Math.cos(a)-dy*Math.sin(a))/OV.s;
+    const qy=ORY+(dx*Math.sin(a)+dy*Math.cos(a))/OV.s;
+    const PPM=48.57;
+    const u=qx*960/img.clientWidth, w=qy*720/img.clientHeight;
+    const X=(u-480)/PPM-2.0, Y=(360-w)/PPM-1.5;
+    xh.style.left=qx+'px';xh.style.top=qy+'px';xh.style.display='block';
+    let near='';
+    if(STATE){let best=null;
+      for(const o of STATE.objects){const d=Math.hypot(o.x-X,o.y-Y);
+        if(!best||d<best[0])best=[d,o];}
+      if(best&&best[0]<2.0)near=` · nearest ${best[1].name} (${best[1].type}) ${best[0].toFixed(2)} m`;}
+    out.textContent=` x=${X.toFixed(2)} y=${Y.toFixed(2)}${near}`;});
+  v.addEventListener('mouseleave',()=>{
+    document.getElementById('xhair').style.display='none';});});
 function pickObj(name){const i=SELS.findIndex(s=>s.kind==='obj'&&s.o.name===name);
   if(i>=0){SELS.splice(i,1);drawOverlay();render();return;}
   const o=STATE.objects.find(v=>v.name===name);
