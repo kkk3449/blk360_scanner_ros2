@@ -70,11 +70,21 @@ th{background:#eef2f7;position:sticky;top:0}
 <div>
   <div class=card style="margin-bottom:12px"><h3>Gazebo live view</h3>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <div style="position:relative"><div class=small>overhead (world frame, +y up)</div>
-        <img id=ovimg src="/stream/overhead" style="height:320px;border-radius:8px;background:#222">
-        <div id=robotmark style="position:absolute;width:13px;height:13px;border:3px solid #e63946;
-          border-radius:50%;box-shadow:0 0 7px #e63946;transform:translate(-50%,-50%);
-          display:none;pointer-events:none"></div></div>
+      <div><div class=small>overhead (world frame, +y up)
+          <button style="padding:1px 8px" onclick="ovRot(-15)">&#10226;</button>
+          <button style="padding:1px 8px" onclick="ovRot(15)">&#10227;</button>
+          <button style="padding:1px 8px" onclick="ovReset()">reset</button>
+          <span style="color:#999">wheel=zoom · drag=pan · click a row to highlight</span></div>
+        <div id=ovview style="width:427px;height:320px;overflow:hidden;border-radius:8px;
+            background:#222;position:relative;cursor:grab">
+          <div id=ovwrap style="position:absolute;left:0;top:0;transform-origin:213px 160px">
+            <img id=ovimg src="/stream/overhead" style="display:block;height:320px">
+            <canvas id=ovcanvas style="position:absolute;left:0;top:0;pointer-events:none"></canvas>
+            <div id=robotmark style="position:absolute;width:13px;height:13px;border:3px solid #e63946;
+              border-radius:50%;box-shadow:0 0 7px #e63946;transform:translate(-50%,-50%);
+              display:none;pointer-events:none"></div>
+          </div>
+        </div></div>
       <div><div class=small>robot camera</div>
         <img src="/stream/robot" style="height:320px;border-radius:8px;background:#222"></div>
     </div>
@@ -92,6 +102,45 @@ th{background:#eef2f7;position:sticky;top:0}
 let CUR='obj', STATE=null, LOG=[];
 function tab(t){CUR=t;for(const x of ['obj','pla','rob','bt'])
   document.getElementById('t_'+x).className='tab'+(x===t?' on':'');render();}
+// ---- overhead view: zoom / pan / rotate + segmentation overlays ----------
+let OV={s:1,tx:0,ty:0,r:0}, SEL=null;
+function ovApply(){document.getElementById('ovwrap').style.transform=
+  `translate(${OV.tx}px,${OV.ty}px) rotate(${OV.r}deg) scale(${OV.s})`;}
+function ovRot(d){OV.r+=d;ovApply();}
+function ovReset(){OV={s:1,tx:0,ty:0,r:0};ovApply();}
+window.addEventListener('load',()=>{const v=document.getElementById('ovview');
+  v.addEventListener('wheel',e=>{e.preventDefault();
+    OV.s=Math.min(6,Math.max(0.5,OV.s*(e.deltaY<0?1.15:1/1.15)));ovApply();},{passive:false});
+  let dr=null;
+  v.addEventListener('mousedown',e=>{dr=[e.clientX,e.clientY];v.style.cursor='grabbing';e.preventDefault();});
+  window.addEventListener('mousemove',e=>{if(!dr)return;
+    OV.tx+=e.clientX-dr[0];OV.ty+=e.clientY-dr[1];dr=[e.clientX,e.clientY];ovApply();});
+  window.addEventListener('mouseup',()=>{dr=null;v.style.cursor='grab';});});
+function pickObj(name){const o=STATE.objects.find(v=>v.name===name);
+  SEL=(SEL&&SEL.kind==='obj'&&SEL.o.name===name)?null:{kind:'obj',o:o};
+  drawOverlay();render();}
+function pickPlace(region){
+  if(SEL&&SEL.kind==='place'&&SEL.region===region){SEL=null;drawOverlay();render();return;}
+  fetch('/api/region?name='+region).then(r=>r.json()).then(c=>{
+    SEL={kind:'place',region:region,cells:c};drawOverlay();render();});}
+function drawOverlay(){const img=document.getElementById('ovimg'),
+  cv=document.getElementById('ovcanvas');
+  if(!img||!img.clientWidth)return;
+  cv.width=img.clientWidth;cv.height=img.clientHeight;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
+  if(!SEL)return;
+  const PPM=48.57,sx=img.clientWidth/960,sy=img.clientHeight/720;
+  const wx=x=>(480+(x+2.0)*PPM)*sx, wy=y=>(360-(y+1.5)*PPM)*sy;
+  if(SEL.kind==='obj'){const o=SEL.o,cx=wx(o.x),cy=wy(o.y);
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(-(o.theta||0));
+    const w=(o.length||0.5)*PPM*sx,h=(o.width||0.5)*PPM*sy;
+    ctx.fillStyle='rgba(255,214,10,.3)';ctx.strokeStyle='#ffd60a';ctx.lineWidth=2.5;
+    ctx.fillRect(-w/2,-h/2,w,h);ctx.strokeRect(-w/2,-h/2,w,h);ctx.restore();
+    ctx.font='bold 11px system-ui';ctx.fillStyle='#ffd60a';
+    ctx.fillText(o.name,cx+5,cy-5);}
+  else{const c=SEL.cells,cs=Math.max(1.5,c.cs*PPM*sx);
+    ctx.fillStyle='rgba(94,234,212,.4)';
+    for(const p of c.cells){ctx.fillRect(wx(p[0])-cs/2,wy(p[1])-cs/2,cs,cs);}}}
 // ---- Groot-composition live BT view: left-to-right layout, type line over
 // ---- instance name (as Groot2 draws it), UI design language kept
 const BTC={RUNNING:'#ffb703',SUCCESS:'#3ddc84',FAILURE:'#ff5964',INVALID:'#5c6370'};
@@ -172,17 +221,23 @@ if(CUR==='obj'){h=`<div class=small style="margin:2px 0 8px;line-height:1.5">
    &nbsp;·&nbsp; <b>movable</b>: toggle isMovable (implicit layer; arm-pickup
    eligibility)</div>`;
   h+='<table><tr><th>name</th><th>type</th><th>status</th><th>conf</th><th>pose</th><th>movable</th><th>owner actions</th></tr>';
-  for(const o of d.objects){h+=`<tr><td>${o.name}</td><td>${o.type}</td><td>${stBadge(o.status)}</td>
+  for(const o of d.objects){const on=SEL&&SEL.kind==='obj'&&SEL.o.name===o.name;
+   h+=`<tr style="cursor:pointer${on?';background:#fff3c4':''}" onclick="pickObj('${o.name}')">
+   <td>${o.name}</td><td>${o.type}</td><td>${stBadge(o.status)}</td>
    <td>${o.confidence??''}</td><td>(${o.x},${o.y})</td><td>${o.isMovable?'✓':'✗'}</td>
    <td><button title="Owner refutation: '${o.name}' does not exist in the room (phantom / structure noise). Marks it absent in the KG — the mediator will refuse it as a goal from the next command."
-     onclick="edit('${o.name}','refute')">refute</button>
+     onclick="event.stopPropagation();edit('${o.name}','refute')">refute</button>
    <button title="Correct the semantic label of '${o.name}'. The new type is stored as verified_owner with confidence 1.0 and survives later re-scans (owner feedback outranks the verifier)."
-     onclick="edit('${o.name}','set_type',{type:prompt('correct type for ${o.name}:','${o.type}')})">type</button>
+     onclick="event.stopPropagation();edit('${o.name}','set_type',{type:prompt('correct type for ${o.name}:','${o.type}')})">type</button>
    <button title="Toggle isMovable for '${o.name}' (implicit layer). Controls e.g. whether a pick mission is allowed on this object."
-     onclick="edit('${o.name}','toggle_movable')">movable</button></td></tr>`;}
+     onclick="event.stopPropagation();edit('${o.name}','toggle_movable')">movable</button></td></tr>`;}
   h+='</table>';}
-if(CUR==='pla'){h='<table><tr><th>region</th><th>name</th><th>members</th><th>verified</th><th>key object</th><th>centroid</th></tr>';
-  for(const p of d.places){h+=`<tr><td>${p.region}</td><td><b>${p.name}</b></td><td>${p.members}</td>
+if(CUR==='pla'){h=`<div class=small style="margin:2px 0 8px">click a row to shade the
+   place's SLIC segmentation cells on the overhead view</div>`;
+  h+='<table><tr><th>region</th><th>name</th><th>members</th><th>verified</th><th>key object</th><th>centroid</th></tr>';
+  for(const p of d.places){const on=SEL&&SEL.kind==='place'&&SEL.region===p.region;
+   h+=`<tr style="cursor:pointer${on?';background:#d9f7f0':''}" onclick="pickPlace('${p.region}')">
+   <td>${p.region}</td><td><b>${p.name}</b></td><td>${p.members}</td>
    <td>${p.verified}</td><td>${p.key||''}</td><td>(${p.cx},${p.cy})</td></tr>`;}h+='</table>';}
 if(CUR==='bt'){h=d.bt?btSvg(d.bt):
   '<div class=small>no /bt_snapshot yet — is mission_bt running?</div>';}
@@ -198,7 +253,7 @@ function poll(){fetch('/api/state').then(r=>r.json()).then(d=>{STATE=d;
   document.getElementById('conn').textContent=' — live';
   const sp=document.getElementById('selPlace');
   if(sp.options.length!==d.places.length){sp.innerHTML='';
-    for(const p of d.places){sp.add(new Option(p.name,p.name));}}
+    for(const p of d.places){sp.add(new Option(p.name,p.region));}}
   const so=document.getElementById('selObj');
   const vs=d.objects.filter(o=>o.status&&o.status.startsWith('verified'));
   if(so.options.length!==vs.length){so.innerHTML='';
@@ -216,6 +271,7 @@ function poll(){fetch('/api/state').then(r=>r.json()).then(d=>{STATE=d;
     mk.style.left=(img.offsetLeft+u*img.clientWidth/960)+'px';
     mk.style.top=(img.offsetTop+v*img.clientHeight/720)+'px';
     mk.style.display='block';}
+  drawOverlay();
   render();}).catch(()=>{document.getElementById('conn').textContent=' — offline';});}
 setInterval(poll,1000);poll();
 </script></body></html>"""
@@ -305,11 +361,15 @@ class UIServer(Node):
         for n in kg["nodes"]:
             if n.get("presence") == "absent":
                 continue
+            dims = n.get("dimensions", {})
             objs.append({"name": n["name"], "type": n.get("type"),
                          "status": n.get("status"),
                          "confidence": n.get("confidence"),
                          "x": round(n["pose"]["x"], 2),
                          "y": round(n["pose"]["y"], 2),
+                         "length": round(dims.get("length", 0.5), 2),
+                         "width": round(dims.get("width", 0.5), 2),
+                         "theta": round(n["pose"].get("theta", 0.0), 3),
                          "isMovable": n.get("implicit", {}).get("isMovable")})
         objs.sort(key=lambda o: (str(o["status"]), o["name"]))
         try:
@@ -317,10 +377,21 @@ class UIServer(Node):
             keys = sc.get("keyObjects", {})
         except (OSError, json.JSONDecodeError):
             keys = {}
+        # duplicate LLM names (e.g. two clutter_zone regions) get _01/_02
+        # suffixes for display; commands always carry the region id
+        base = [names.get(p["name"], p["name"])
+                for p in pl["semanticPlaces"]]
+        from collections import Counter
+        cnt, seen = Counter(base), {}
         places = []
-        for p in pl["semanticPlaces"]:
+        for p, b in zip(pl["semanticPlaces"], base):
+            if cnt[b] > 1:
+                seen[b] = seen.get(b, 0) + 1
+                label = f"{b}_{seen[b]:02d}"
+            else:
+                label = b
             places.append({"region": p["name"],
-                           "name": names.get(p["name"], p["name"]),
+                           "name": label,
                            "members": p.get("memberCount"),
                            "verified": p.get("verifiedMemberCount"),
                            "key": keys.get(p["name"]),
@@ -371,6 +442,18 @@ class UIServer(Node):
         json.dump(kg, open(self.kg_path, "w"), indent=1)
         return {"ok": True}
 
+    def region_cells(self, region):
+        """SLIC segmentation cells (world-frame x,y at 0.05 m pitch) for the
+        overhead-view overlay."""
+        try:
+            pl = json.load(open(self.places_path))
+            for p in pl["semanticPlaces"]:
+                if p["name"] == region:
+                    return {"cells": p.get("cells", []), "cs": 0.05}
+        except (OSError, json.JSONDecodeError):
+            pass
+        return {"cells": [], "cs": 0.05}
+
     def publish_command(self, cmd):
         self.cmd_pub.publish(String(data=json.dumps(cmd)))
 
@@ -399,6 +482,11 @@ def make_handler(node):
                 self._send(200, PAGE, "text/html; charset=utf-8")
             elif self.path == "/api/state":
                 self._send(200, json.dumps(node.state()))
+            elif self.path.startswith("/api/region"):
+                from urllib.parse import urlparse, parse_qs
+                q = parse_qs(urlparse(self.path).query)
+                self._send(200, json.dumps(
+                    node.region_cells(q.get("name", [""])[0])))
             elif self.path.startswith("/stream/"):
                 self._stream(self.path.rsplit("/", 1)[-1])
             else:
