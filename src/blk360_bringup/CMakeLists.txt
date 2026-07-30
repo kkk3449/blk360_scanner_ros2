@@ -4,7 +4,7 @@ project(blk360_bringup)
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY launch config rviz maps worlds
+  DIRECTORY launch config rviz maps worlds models
   DESTINATION share/${PROJECT_NAME}
 )
 

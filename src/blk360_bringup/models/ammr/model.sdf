@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<!--
+  Stallentis AMMR — Gazebo Harmonic proxy for the semantic mission stack.
+
+  Geometry (footprint 1.244 x 0.794 x 0.612, lidar scan plane 99.5 mm,
+  swerve wheels / casters / arm as visuals) mirrors ammr_description/urdf.
+  Drive is a kinematic proxy: gz VelocityControl executes /cmd_vel and
+  OdometryPublisher provides odom + odom->base_footprint TF — Nav2 sees the
+  same contract as a physical drivetrain. True swerve physics is out of
+  scope here (thesis work).
+
+  Lidar range min 0.9 m > body circumradius (0.74 m): the GPU lidar's near
+  clip makes the sensor see through the robot's own hull, so the 99.5 mm
+  scan plane works without cutting holes in the chassis.
+-->
+<sdf version="1.8">
+  <model name="ammr">
+    <link name="base_footprint">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>120.0</mass>
+        <pose>0 0 0.334 0 0 0</pose>
+        <inertia><ixx>10.05</ixx><iyy>19.22</iyy><izz>21.78</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+      </inertial>
+
+      <collision name="chassis">
+        <pose>0 0 0.334 0 0 0</pose>
+        <geometry><box><size>1.244 0.794 0.612</size></box></geometry>
+      </collision>
+
+      <visual name="chassis">
+        <pose>0 0 0.334 0 0 0</pose>
+        <geometry><box><size>1.244 0.794 0.612</size></box></geometry>
+        <material><ambient>0.55 0.57 0.60 1</ambient>
+          <diffuse>0.55 0.57 0.60 1</diffuse></material>
+      </visual>
+      <visual name="deck">
+        <pose>0 0 0.680 0 0 0</pose>
+        <geometry><box><size>1.244 0.794 0.080</size></box></geometry>
+        <material><ambient>0.90 0.45 0.10 1</ambient>
+          <diffuse>0.90 0.45 0.10 1</diffuse></material>
+      </visual>
+      <visual name="lidar_puck">
+        <pose>0.58 0 0.0995 0 0 0</pose>
+        <geometry><cylinder><radius>0.035</radius><length>0.04</length></cylinder></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="wheel_rf">
+        <pose>0.364 -0.137 0.075 1.5707963 0 0</pose>
+        <geometry><cylinder><radius>0.075</radius><length>0.050</length></cylinder></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="wheel_lr">
+        <pose>-0.364 0.137 0.075 1.5707963 0 0</pose>
+        <geometry><cylinder><radius>0.075</radius><length>0.050</length></cylinder></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="caster_fl">
+        <pose>0.55 0.33 0.05 0 0 0</pose>
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="caster_fr">
+        <pose>0.55 -0.33 0.05 0 0 0</pose>
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="caster_rl">
+        <pose>-0.55 0.33 0.05 0 0 0</pose>
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="caster_rr">
+        <pose>-0.55 -0.33 0.05 0 0 0</pose>
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="arm_mount">
+        <pose>0.35 -0.15 0.82 0 0 0</pose>
+        <geometry><cylinder><radius>0.075</radius><length>0.20</length></cylinder></geometry>
+        <material><ambient>0.85 0.85 0.88 1</ambient>
+          <diffuse>0.85 0.85 0.88 1</diffuse></material>
+      </visual>
+      <visual name="arm_upper">
+        <pose>0.35 -0.15 1.14 0 0 0</pose>
+        <geometry><cylinder><radius>0.055</radius><length>0.45</length></cylinder></geometry>
+        <material><ambient>0.85 0.85 0.88 1</ambient>
+          <diffuse>0.85 0.85 0.88 1</diffuse></material>
+      </visual>
+      <visual name="arm_fore">
+        <pose>0.47 -0.15 1.38 0 1.2 0</pose>
+        <geometry><cylinder><radius>0.045</radius><length>0.40</length></cylinder></geometry>
+        <material><ambient>0.85 0.85 0.88 1</ambient>
+          <diffuse>0.85 0.85 0.88 1</diffuse></material>
+      </visual>
+
+      <sensor name="lidar" type="gpu_lidar">
+        <pose>0.58 0 0.0995 0 0 0</pose>
+        <topic>scan</topic>
+        <gz_frame_id>base_scan</gz_frame_id>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.14159</min_angle>
+              <max_angle>3.14159</max_angle>
+            </horizontal>
+          </scan>
+          <range><min>0.9</min><max>20.0</max><resolution>0.01</resolution></range>
+        </lidar>
+        <always_on>true</always_on>
+        <visualize>false</visualize>
+      </sensor>
+
+      <sensor name="front_camera" type="camera">
+        <pose>0.55 0 0.80 0 0 0</pose>
+        <topic>/camera/image_raw</topic>
+        <gz_frame_id>base_link</gz_frame_id>
+        <update_rate>10</update_rate>
+        <camera>
+          <horizontal_fov>1.2</horizontal_fov>
+          <image><width>640</width><height>480</height></image>
+          <clip><near>0.1</near><far>40</far></clip>
+        </camera>
+        <always_on>true</always_on>
+      </sensor>
+    </link>
+
+    <plugin filename="gz-sim-velocity-control-system"
+            name="gz::sim::systems::VelocityControl">
+      <topic>cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-odometry-publisher-system"
+            name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>odom</odom_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+      <odom_topic>odom</odom_topic>
+      <tf_topic>tf</tf_topic>
+      <odom_publish_frequency>30</odom_publish_frequency>
+      <dimensions>2</dimensions>
+    </plugin>
+  </model>
+</sdf>
