@@ -45,7 +45,28 @@ filter that registers clusters against the exploration-scan occupancy
 grid recovers all remaining wall, ceiling, and outside-boundary remnants
 (12/12) while keeping wall-flush furniture, at the cost of thin
 wall-flush objects (a poster stand) --- geometry alone cannot separate a
-0.1\,m sheet standing at the wall from the wall itself.
+0.1\,m sheet standing at the wall from the wall itself. Structure
+removal has a second, opposite failure mode that the ensemble of
+Sec.~\ref{sec:exp-seg} exposes: it \emph{amputates} wall-flush objects
+(two multi-metre tables, a wall-mounted monitor bank) along with the
+wall. Both failure directions argue for treating removal as a varied
+condition to detect across, not a fixed preprocessing truth.
+
+\paragraph{Correlated verifier bias.}
+Cross-condition voting corrected no labels: when the verifier
+mislabels, it tends to mislabel the same way regardless of how the
+input was segmented (the recovered tables were ``conveyor belts'' under
+every structure condition; the actual conveyor was \texttt{clutter}
+under every one). Ensembling over \emph{inputs} cannot decorrelate a
+bias that lives in the \emph{model}; what the ensemble does yield is a
+calibrated instability signal (\texttt{labelStability}) that tells the
+owner where to look. Together with the time-variant ground truth of
+Sec.~\ref{sec:exp-verify}, this shapes our position: the owner is not a
+fallback annotator but the highest-trust evidence source in a
+permanently open loop, and the model's job is to make each owner
+minute maximally productive --- surfacing the unstable, preserving
+provenance for every overridden verdict, and propagating one correction
+through object, relation, place, scene, and mission layers at once.
 
 \paragraph{The coverage paradox.}
 Better scans can make density-based decomposition worse: at 99.6\% coverage,

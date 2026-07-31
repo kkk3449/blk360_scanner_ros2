@@ -111,9 +111,18 @@ Because every node carries an explicit model in the scan frame, the graph
 injects directly into a physics simulation. We reuse the digital-twin
 construction of our prior work~\cite{raaicon2026} and add the semantic layer:
 each verified object spawns a labeled proxy (extent box or segmented cloud)
-in NVIDIA Isaac Sim, with verification status and provenance exposed in the
-scene inspector. Unverified objects spawn as neutral gray placeholders---the
-gate is visible in the twin.
+in NVIDIA Isaac Sim, with verification status, provenance, height level,
+and label stability exposed in the scene inspector. Unverified objects
+spawn as neutral gray placeholders---the gate is visible in the twin.
+The knowledge graph is the \emph{single} semantic store: the management
+console and the mission mediator read the same file live, and the Isaac
+stage is re-derived from it (in the shared map frame) whenever the graph
+changes, so an owner edit propagates to the robot's next goal, the
+console, and the twin from one write. The discipline is
+self-auditing --- deriving the stage from the graph immediately
+\emph{visualized} eighteen stale earlier-epoch nodes as orphan boxes that
+per-view export paths had silently hidden, prompting the cleanup revision
+of Sec.~\ref{sec:exp-update}.
 
 \subsection{Manipulation Readiness}
 The implicit layer (movability, openability, key-object status) plus

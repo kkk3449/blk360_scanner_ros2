@@ -134,6 +134,50 @@ prompts) re-associates 4 of 43 absent nodes, tighter re-splitting
 that epoch's absences reflect genuine scene change, not segmentation
 artifacts (Sec.~\ref{sec:exp-update}).
 
+\paragraph{Diffuseness-gated re-splitting.}
+Two T3 clusters that survived every upstream filter are \emph{diffuse
+webs}: 95K and 13K points spread over 80 and 12\,m$^2$ at a 2D occupancy
+fill below 0.3, versus 0.5--0.85 for every real object in the scene ---
+a clean geometric signature, but one density clustering cannot act on,
+because the webs are connected at $\sim$1.8\,cm point spacing at any
+usable $\varepsilon$. A two-stage re-split resolves them by \emph{cause}
+instead of size: points hugging the exploration-grid wall line (inside
+the \emph{room polygon}, so wall-flush furniture survives the test that
+free-space masks would fail) are structure noise ($\sim$70\% of the
+94K-point residual); out-of-room bleed-through accounts for another
+7\%; the remainder is re-clustered by occupancy-core erosion and, for
+compounds, split at the support plane detected as the $z$-histogram
+peak 0.5--0.95\,m above floor. The owner's ground truth for the largest
+compound --- ``a robot arm on a desk, part of a mobile robot, wall
+noise'' --- is recovered exactly: the arm (consensus-verified), the
+desk (slab plus under-desk storage), and the partially scanned mobile
+robot, plus three columns and a plant. Applied to a $6.2$\,m
+wall-flush cluster that verification had confidently labeled
+\texttt{electrical cabinet} (0.83), the same machinery --- wall-band
+strip, support plane, then density-valley cuts along the wall in the
+panel band --- yields \emph{exactly} the owner's inventory: ten
+monitors (five columns of stacked pairs), the desk beneath them, and,
+from the off-wall remainder, a wheelchair robot and a single table leg.
+The gate turns ``too diffuse to be an object'' from a discard decision
+into a decomposition trigger.
+
+\paragraph{Structure-condition ensemble.}
+Structure removal is itself a segmentation parameter: it amputates
+wall-flush objects along with the wall. Running the geometric pass
+under three removal conditions (none / ceiling only / full) and fusing
+the results recovered two multi-metre tables that exist in \emph{no}
+single-condition segmentation of the production path --- they appear
+only when walls are left in place --- raising in-room recall by four
+real objects ($\sim$8\%). The fusion also quantifies label fragility:
+only 10 of 37 re-found objects keep the same label across conditions,
+and cross-condition \emph{voting} corrected nothing, because the
+verifier's biases are correlated across conditions (both recovered
+tables were unanimously mis-verified as conveyor belts in every
+condition, while the room's actual conveyor unit stayed
+\texttt{clutter} in every condition). The ensemble therefore ships as
+a recall tool plus a per-object \texttt{labelStability} attribute that
+prioritizes owner review --- not as a label fuser.
+
 \subsection{Verification: Fusion and Escalation}
 \label{sec:exp-verify}
 
@@ -271,6 +315,37 @@ keyboard-derived \texttt{workstation\_area} becomes
 owner feedback propagates through all three layers of the model: object,
 relation, and place.
 
+\paragraph{Owner feedback at scale: bidirectional, corrective, and
+time-variant.}
+Extending the audit loop through nine further KG revisions shows owner
+feedback operating in all four directions the model supports.
+\emph{Restoration}: an object the owner had refuted as absent was later
+declared present again (the room changed between audits); a
+color-seeded carve at the owner-given corner recovered a 319-point red
+cylinder that two-pass verification typed \texttt{fire extinguisher}
+(0.72) --- the original failure was segmentation (never proposed), not
+classification, and owner ground truth is itself \emph{time-variant},
+which is why feedback is recorded as highest-trust evidence with
+history rather than as immutable truth. \emph{Refutation}: a
+raw-condition ensemble find was refuted as wall paint --- the patches
+surround the room's wall-mounted TV, whose glossy black screen returns
+almost no lidar, so the ``object'' was the halo around a hole.
+\emph{Label correction}: both ensemble-recovered tables (unanimous
+``conveyor belt'') and a poster stand (tie-break ``fire extinguisher'',
+0.72) were corrected in place, each with the VLM's verdict preserved in
+provenance --- unanimity across passes \emph{and} across structure
+conditions still inherits one model's bias. \emph{Attribute
+correction}: wall-remnant clutter was marked immovable in the implicit
+layer. Adjudication itself gained three inexpensive refinements along
+the way: canonical synonym matching (``robot\_arm'' vs ``robot
+manipulator'' is agreement, not disagreement), a focused tie-break pass
+that re-asks with exactly the two disputed labels (resolving desk vs
+machine at 0.62), and a coarse three-level height attribute
+(low/mid/high relative to the 2D-lidar scan plane and ceiling) injected
+as a hard physical constraint --- the targeted successor to the
+pose-context defense of Sec.~\ref{sec:exp-ablation}, and now a
+queryable implicit attribute of every node.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig14_structure_filter.png}
@@ -401,7 +476,13 @@ continuously since T1), and the introduced floor fan was correctly
 \texttt{inserted} but typed \texttt{clutter} (error class (c) above), giving
 1/2 at type level. Identity persistence is demonstrated across all three
 epochs: the fire extinguisher, pump, industrial robot, and several chairs
-retain their minted IDs through both reorganizations. The place layer
+retain their minted IDs through both reorganizations. The live graph has
+since accumulated thirteen revisions through the same mechanism ---
+rescans, owner refutations/restorations/corrections, re-split
+decompositions, and finally a stale-node sweep in which eighteen
+earlier-epoch detections with no support in the current scan were marked
+absent; every transition, including the mistakes it corrects, is
+reconstructible from node histories. The place layer
 re-derives per-epoch names on the same SLIC regions
 (Sec.~\ref{sec:place}): exhibition-era \texttt{machine\_access\_area} and
 \texttt{operator\_control\_station} become clutter-dominated at T2 and
