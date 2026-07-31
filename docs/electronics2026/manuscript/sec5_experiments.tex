@@ -134,6 +134,41 @@ prompts) re-associates 4 of 43 absent nodes, tighter re-splitting
 that epoch's absences reflect genuine scene change, not segmentation
 artifacts (Sec.~\ref{sec:exp-update}).
 
+\paragraph{Backbone selection.}
+The DBSCAN\,+\,Uni3D backbone was chosen against learned alternatives on
+a wall-removed industrial scene (122.7K points), summarized in
+Table~\ref{tab:backbones}. The metrics are deliberate proxies (no point-level
+ground truth exists for this scene): point coverage, the fraction of
+objects the open-vocabulary classifier cannot name (a boundary-quality
+proxy), and label diversity. ScanNet-pretrained SPFormer hallucinates
+furniture on industrial content (67 of 88 instances ``chair'') at half
+the coverage; PTv3's closed-set semantic head labels 46\% of a scene
+\emph{whose walls were already removed} as \texttt{wall} --- a closed
+set cannot abstain; and PointCLIP~V2 collapses to a single class.
+The geometric backbone wins not by being smarter but by refusing to
+guess: its failure mode is unlabeled coverage, which the verification
+and owner layers are built to absorb. Point-SAM enters only as the
+conditional refiner of Sec.~\ref{sec:exp-seg}.
+
+\begin{table}[t]
+\centering
+\caption{Segmentation$\times$classification backbone comparison on a
+wall-removed industrial TLS scene (proxy metrics; no point-level GT).}
+\label{tab:backbones}
+\small
+\begin{tabular}{@{}lcccl@{}}
+\toprule
+Pipeline & Coverage & Unnameable & Classes & Dominant failure \\
+\midrule
+\textbf{DBSCAN + Uni3D} & \textbf{98.3\%} & \textbf{23.3\%} & 13 &
+unlabeled coverage \\
+SPFormer + Uni3D & 51.1\% & 45.9\% & 9 & furniture bias (chair 67/88) \\
+PTv3 (semantic) & --- & --- & 17/20 fire & 46\% ``wall'' after removal \\
+DBSCAN + PointCLIP~V2 & 98.3\% & --- & 1--7 & collapse (pipe 23/30) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{Diffuseness-gated re-splitting.}
 Two T3 clusters that survived every upstream filter are \emph{diffuse
 webs}: 95K and 13K points spread over 80 and 12\,m$^2$ at a 2D occupancy
@@ -519,6 +554,51 @@ specific-type objects. Oversized footprints of merged mega-clusters
 \label{fig:epochs}
 \end{figure}
 
+\subsection{End-to-End Re-validation against Accumulated Owner Ground Truth}
+\label{sec:exp-endtoend}
+
+After the corrective machinery of Secs.~\ref{sec:exp-seg}--\ref{sec:exp-update}
+stabilized, we re-ran the entire pipeline from the raw scan with no owner
+input and scored it against the live knowledge graph --- by then a
+46-object inventory embodying every owner restoration, refutation, and
+correction. Table~\ref{tab:layers} reports cumulative geometric recall as
+each automated layer is enabled. The verified path alone recovers 28\%;
+diffuseness-gated re-splitting nearly doubles it; the wall-compound gate
+(which self-triggers on the monitor wall and decomposes it into nine of
+the ten owner-confirmed units) and the structure-condition ensemble bring
+automated recall to 85\%. Type accuracy saturates far lower
+($\sim$31\% of recalled objects) --- the label bottleneck is the
+correlated verifier bias of Sec.~\ref{sec:exp-seg}, and closing it is
+precisely the owner layer's role. For calibration within the lineage's
+own reporting style, DK-SMF reports 78--81\% detection accuracy against
+predefined ground-truth objects in its RGB-D environments~\cite{joo2025dksmf};
+our 85\% is measured against an owner-audited inventory that includes
+partially scanned and wall-flush objects, though the sensing modality
+and ground-truth protocols differ. The re-run also reproduced the
+deterministic backbone's stability end to end: the same diffuse webs,
+the same compound decompositions, and a first-pass verification of the
+fire extinguisher that had originally required owner restoration.
+
+\begin{table}[t]
+\centering
+\caption{Cumulative automated recall of the full re-run against the
+owner-corrected 46-object graph (no owner input in the run itself).}
+\label{tab:layers}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Automated layers (cumulative) & GT recall & In-room precision \\
+\midrule
+Verified path (Sec.~\ref{sec:decomposition}--\ref{sec:verification}) &
+13/46 (28\%) & 37\% \\
++ diffuseness re-split & 26/46 (57\%) & 53\% \\
++ wall-compound gate & 36/46 (78\%) & 60\% \\
++ structure-condition ensemble & 37/46 (80\%) & 49\% \\
++ panel square-up & \textbf{39/46 (85\%)} & 51\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Ablation and Sensitivity}
 \label{sec:exp-ablation}
 
@@ -536,5 +616,36 @@ but applying it to every object \emph{reduced} escalated accuracy
 everything else, so it ships as a targeted defense only. \emph{Uni3D
 vocabulary}: generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
 (run-to-run variance $\sim$5 points), confirming the embedding-level domain
-gap that motivates verification. \emph{Segmentation parameters}: see
+gap that motivates verification. \emph{Verifier model}
+(Table~\ref{tab:vlmcmp}): running the identical Stage-B protocol with a
+smaller VLM tier inverts the expected cost story --- the weaker verifier
+splits its base votes more often (26 vs.\ 20 of 35 objects escalate),
+resolves fewer of them (9 vs.\ 15 unanimous verifications), and ends up
+\emph{more} expensive end-to-end (\$3.40 vs.\ \$3.00) for slightly lower
+type accuracy against the owner inventory. Because escalation spends in
+proportion to verifier uncertainty, model quality surfaces as total cost
+rather than only as accuracy; the framework's per-call price advantage
+of a small model is consumed by its own indecision.
+
+\begin{table}[t]
+\centering
+\caption{Verifier-model comparison: identical Stage-B late fusion +
+escalation on the same 35 in-room clusters, scored against the
+owner-corrected graph.}
+\label{tab:vlmcmp}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Verifier & Verified & Escalated-resolved & Unverified &
+Type-correct$^{1}$ & Cost \\
+\midrule
+Claude Sonnet & \textbf{15} & 6 & \textbf{14} & \textbf{6/13} &
+\textbf{\$3.00} \\
+Claude Haiku & 9 & 9 & 17 & 5/13 & \$3.40 \\
+\bottomrule
+\end{tabular}
+
+{\footnotesize $^{1}$ canonical-synonym type match on the clusters that
+geometrically match a ground-truth object.}
+\end{table} \emph{Segmentation parameters}: see
 Sec.~\ref{sec:exp-seg}.
