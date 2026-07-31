@@ -274,11 +274,12 @@ if(CUR==='obj'){h=`<div class=small style="margin:2px 0 8px;line-height:1.5">
    to <span class="badge o">verified_owner</span> (conf 1.0)
    &nbsp;·&nbsp; <b>movable</b>: toggle isMovable (implicit layer; arm-pickup
    eligibility)</div>`;
-  h+='<table><tr><th>name</th><th>type</th><th>status</th><th>conf</th><th>pose</th><th>movable</th><th>owner actions</th></tr>';
+  h+='<table><tr><th>name</th><th>type</th><th>status</th><th>conf</th><th>pose</th><th>level</th><th>movable</th><th>owner actions</th></tr>';
   for(const o of d.objects){const on=SELS.some(s=>s.kind==='obj'&&s.o.name===o.name);
+   const lv=o.level?`<span title="height level: low = crossed by the 2D-lidar scan plane, mid = elevated (desk/wall), high = ceiling">${o.level}</span>`:'';
    h+=`<tr style="cursor:pointer${on?';background:'+objColor(o.name)+'33':''}" onclick="pickObj('${o.name}')">
    <td>${o.name}</td><td>${o.type}</td><td>${stBadge(o.status)}</td>
-   <td>${o.confidence??''}</td><td>(${o.x},${o.y})</td><td>${o.isMovable?'✓':'✗'}</td>
+   <td>${o.confidence??''}</td><td>(${o.x},${o.y})</td><td>${lv}</td><td>${o.isMovable?'✓':'✗'}</td>
    <td><button title="Owner refutation: '${o.name}' does not exist in the room (phantom / structure noise). Marks it absent in the KG — the mediator will refuse it as a goal from the next command."
      onclick="event.stopPropagation();edit('${o.name}','refute')">refute</button>
    <button title="Correct the semantic label of '${o.name}'. The new type is stored as verified_owner with confidence 1.0 and survives later re-scans (owner feedback outranks the verifier)."
@@ -426,7 +427,8 @@ class UIServer(Node):
                          "length": round(dims.get("length", 0.5), 2),
                          "width": round(dims.get("width", 0.5), 2),
                          "theta": round(n["pose"].get("theta", 0.0), 3),
-                         "isMovable": n.get("implicit", {}).get("isMovable")})
+                         "isMovable": n.get("implicit", {}).get("isMovable"),
+                         "level": n.get("implicit", {}).get("heightLevel")})
         objs.sort(key=lambda o: (str(o["status"]), o["name"]))
         try:
             sc = json.load(open(f"{BLK}/t3_place_scoped_relations.json"))

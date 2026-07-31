@@ -123,20 +123,28 @@ class Mediator:
         """Free-space pose near the object, heading facing it."""
         x, y = n["pose"]["x"], n["pose"]["y"]
         d = n.get("dimensions", {})
-        half = 0.5 * math.hypot(d.get("length", 0.5), d.get("width", 0.5))
+        hl = max(0.05, d.get("length", 0.5) / 2)
+        hw = max(0.05, d.get("width", 0.5) / 2)
+        th = n["pose"].get("theta", 0.0)
         rob = self.robot()
         rad = (rob or {}).get("explicit", {}).get("limits", {}) \
             .get("nav_radius_m", 0.25)
-        base = standoff if standoff is not None else half + rad + 0.35
-        # Search outward over several standoff rings: for wall/corner objects
-        # (e.g. the corner fire extinguisher) the nominal ring has no cell
-        # that clears the robot's own radius, but a slightly larger one does.
-        # Prefer the smallest reachable standoff, then proximity to the
-        # robot's current pose. No free cell at any radius -> None (an honest
+        # Direction-dependent standoff (footprint ellipse edge along the
+        # approach direction, not the bbox diagonal): an elongated object
+        # like a conveyor line gets close approaches broadside instead of
+        # a diagonal-radius ring that stands metres off its long ends.
+        # Search outward over several extra offsets: for wall/corner objects
+        # the nominal ring has no cell clearing the robot radius but a
+        # slightly larger one does. No free cell anywhere -> None (an honest
         # refusal beats handing Nav2 the object centre, which it rejects).
         best = None
-        for ring, so in enumerate(np.arange(base, base + 1.51, 0.15)):
+        for extra in np.arange(0.0, 1.51, 0.15):
             for a in np.linspace(0, 2 * math.pi, 24, endpoint=False):
+                ca = math.cos(a - th)
+                sa = math.sin(a - th)
+                edge = hl * hw / math.hypot(hw * ca, hl * sa)
+                so = (standoff if standoff is not None
+                      else edge + rad + 0.35) + extra
                 gx, gy = x + so * math.cos(a), y + so * math.sin(a)
                 if self._is_free(gx, gy, rad):
                     score = 0.0
