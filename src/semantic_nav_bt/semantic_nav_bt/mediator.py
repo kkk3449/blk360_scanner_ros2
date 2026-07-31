@@ -56,7 +56,12 @@ class Mediator:
             w, h = map(int, line.split())
             f.readline()
             img = np.frombuffer(f.read(), dtype=np.uint8).reshape(h, w)
-        self._grid = (np.flipud(img) > 200, res, ox, oy)   # free mask
+        # KNOWN-free only. Nav2 maps use 254 free / 205 unknown / 0 occupied,
+        # and this map is mostly unknown (outside the scanned room). Counting
+        # unknown as free let goals land behind walls, where the planner then
+        # aborts — e.g. the corner fire extinguisher and place centroids near
+        # the room boundary.
+        self._grid = (np.flipud(img) > 250, res, ox, oy)    # free mask
 
     def _is_free(self, x, y, radius=0.25):
         if self._grid is None:
@@ -122,22 +127,29 @@ class Mediator:
         rob = self.robot()
         rad = (rob or {}).get("explicit", {}).get("limits", {}) \
             .get("nav_radius_m", 0.25)
-        standoff = standoff if standoff is not None else half + rad + 0.35
+        base = standoff if standoff is not None else half + rad + 0.35
+        # Search outward over several standoff rings: for wall/corner objects
+        # (e.g. the corner fire extinguisher) the nominal ring has no cell
+        # that clears the robot's own radius, but a slightly larger one does.
+        # Prefer the smallest reachable standoff, then proximity to the
+        # robot's current pose. No free cell at any radius -> None (an honest
+        # refusal beats handing Nav2 the object centre, which it rejects).
         best = None
-        for a in np.linspace(0, 2 * math.pi, 24, endpoint=False):
-            gx, gy = x + standoff * math.cos(a), y + standoff * math.sin(a)
-            if self._is_free(gx, gy, rad):
-                # prefer the direction closest to the robot's current pose
-                score = 0.0
-                if rob:
-                    rp = rob["explicit"]["pose"]
-                    score = -math.hypot(gx - rp["x"], gy - rp["y"])
-                if best is None or score > best[0]:
-                    best = (score, gx, gy)
+        for ring, so in enumerate(np.arange(base, base + 1.51, 0.15)):
+            for a in np.linspace(0, 2 * math.pi, 24, endpoint=False):
+                gx, gy = x + so * math.cos(a), y + so * math.sin(a)
+                if self._is_free(gx, gy, rad):
+                    score = 0.0
+                    if rob:
+                        rp = rob["explicit"]["pose"]
+                        score = -math.hypot(gx - rp["x"], gy - rp["y"])
+                    if best is None or score > best[0]:
+                        best = (score, gx, gy)
+            if best is not None:
+                break
         if best is None:
-            gx, gy = self._nearest_free(x, y, rad)
-        else:
-            _, gx, gy = best
+            return None
+        _, gx, gy = best
         yaw = math.atan2(y - gy, x - gx)
         return {"x": round(gx, 3), "y": round(gy, 3), "yaw": round(yaw, 3)}
 
@@ -175,6 +187,9 @@ class Mediator:
                 tier = "verified" if self.gated else "any"
                 return {"error": f"no {tier} object '{cmd.get('target')}'"}
             g = self._approach_pose(n)
+            if g is None:
+                return {"error": f"'{n['name']}' has no reachable approach "
+                                 f"pose for this robot footprint"}
             g["label"] = n["name"]
             g["kind"] = "object"
             if c == "pick":
