@@ -58,6 +58,20 @@ Node IDs are minted once and carried by two-pass matching (spatial, then
 type-constrained move detection); re-scans apply node-level
 \texttt{unchanged/updated/moved/inserted/absent} upserts with per-revision
 history, and unchanged objects re-verify for free by content-hash carry-over.
+\item \textbf{Corrective decomposition and condition-varied detection.}
+Diffuseness and wall-compound gates turn ``too messy to be an object''
+from a discard decision into an automatic re-splitting trigger (wall-band
+stripping, support-plane and panel-bank cuts), and a structure-condition
+ensemble re-detects under varied wall/ceiling removal, recovering
+wall-flush objects any single condition amputates while exposing label
+instability as a per-object attribute.
+\item \textbf{Owner-in-the-loop revisions over a single semantic store.}
+The room occupant's refutations, restorations, and corrections of labels,
+geometry, and attributes enter as highest-trust but time-variant evidence
+through the same revision mechanism as re-scans; the management console,
+the mission mediator, and an Isaac~Sim twin are all derived from the one
+revisioned graph, so a correction propagates to every consumer from a
+single write.
 \end{enumerate}
 
 We validate the framework on two industrial indoor scenes with

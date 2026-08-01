@@ -1,17 +1,27 @@
 \section{System Overview}
 \label{sec:overview}
 
-Figure~\ref{fig:architecture} shows the framework as five stages with two
-feedback loops. A registered TLS scan enters the \emph{deterministic
-geometric backbone} (green in the figure): preprocessing and structure
-removal, object decomposition with remnant filtering, and explicit modeling.
-Its output---a set of clusters with explicit geometric attributes and
-provisional labels---feeds the \emph{probabilistic semantic stages} (orange):
-multi-view VLM verification with an internal escalation loop, and
-confidence-gated integration into the knowledge graph. The second loop is
-the \emph{update loop}: a later scan of the same site re-enters the backbone,
-is matched against existing node identities, and applies a node-level upsert
-rather than a rebuild.
+Figure~\ref{fig:architecture} shows the framework as a staged pipeline with
+four loops. A registered TLS scan enters the \emph{deterministic geometric
+backbone} (blue in the figure): preprocessing with room-scoped structure
+removal, object decomposition with remnant filtering, automatic
+\emph{re-split gates} that turn diffuse webs and wall-flush compounds into
+decomposition triggers rather than discards, and explicit modeling. A
+parallel \emph{structure-condition ensemble} re-detects under varied
+removal conditions, contributing wall-flush candidates that any single
+condition amputates and a per-object label-stability signal. The backbone's
+output feeds the \emph{probabilistic semantic stages} (orange): multi-view
+VLM verification with a height-level physical prior and an internal
+escalation loop, then confidence-gated integration into the knowledge
+graph. The graph is the \emph{single semantic store}: the management
+console, the mission mediator, and the Isaac~Sim twin are all derived from
+the same revisioned file. Two further loops close over it: the
+\emph{update loop} (a later scan re-enters the backbone, is matched
+against existing node identities, and applies a node-level upsert rather
+than a rebuild) and the \emph{owner loop} (purple), in which the room
+occupant refutes, restores, and corrects labels, geometry, and attributes
+as highest-trust---but time-variant---evidence, each intervention landing
+as a provenance-carrying revision.
 
 The color separation in the architecture is a claim boundary, not a drawing
 convention. Everything in the backbone is seeded and parameter-fixed;
@@ -41,9 +51,14 @@ resolved by hand.
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.95\linewidth]{fig1_architecture.png}
-\caption{Framework architecture. Green stages form the deterministic
-geometric backbone; orange stages are probabilistic semantic inference under
-voting, escalation, and gating control. Two loops: automatic escalation
-(within verification) and incremental update (across scans).}
+\caption{Framework architecture. Blue stages form the deterministic
+geometric backbone (including the automatic re-split gates and the
+structure-condition ensemble); orange stages are probabilistic semantic
+inference under voting, escalation, and gating control; purple is the
+owner-in-the-loop revision path. The knowledge graph is the single
+semantic store from which the console, the mission mediator, and the
+simulation twin are derived. Four loops: escalation (within
+verification), re-splitting (within decomposition), incremental update
+(across scans), and owner feedback (across revisions).}
 \label{fig:architecture}
 \end{figure}
