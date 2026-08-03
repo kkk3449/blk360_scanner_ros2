@@ -28,6 +28,8 @@ class Mediator:
         self.kg_path = kg_path
         self._kg_mtime = os.path.getmtime(kg_path)
         self.kg = json.load(open(kg_path))
+        self.places_path = places_path
+        self._places_mtime = os.path.getmtime(places_path)
         d = json.load(open(places_path))
         self.places = d["semanticPlaces"]
         self.cell_m = d["cell_m"]
@@ -162,13 +164,23 @@ class Mediator:
         return {"x": round(gx, 3), "y": round(gy, 3), "yaw": round(yaw, 3)}
 
     def _maybe_reload(self):
-        """Pick up KG edits made by the management UI without a restart."""
+        """Pick up KG / place-layer edits made by the management UI without
+        a restart."""
         try:
             mt = os.path.getmtime(self.kg_path)
             if mt != self._kg_mtime:
                 self.kg = json.load(open(self.kg_path))
                 self._kg_mtime = mt
         except (OSError, json.JSONDecodeError):
+            pass
+        try:
+            mt = os.path.getmtime(self.places_path)
+            if mt != self._places_mtime:
+                d = json.load(open(self.places_path))
+                self.places = d["semanticPlaces"]
+                self.cell_m = d["cell_m"]
+                self._places_mtime = mt
+        except (OSError, json.JSONDecodeError, KeyError):
             pass
 
     def resolve(self, cmd):

@@ -100,6 +100,18 @@ th{background:#eef2f7;position:sticky;top:0}
     <span class=tab id=t_bt onclick="tab('bt')">Behavior Tree</span>
   </div>
   <div class=tbox id=tbl></div>
+  <div class=tbox id=jsonpanel style="display:none">
+   <b id=jsontitle></b>
+   <div class=small>raw DB record — edits write straight back to the json
+   store (objects get a history entry); mediator / Isaac watcher / this
+   console all pick it up from the file</div>
+   <textarea id=jsontext spellcheck=false
+     style="width:100%;height:280px;font-family:monospace;font-size:12px;
+     margin-top:6px"></textarea><br>
+   <button onclick="saveJson()">save to DB</button>
+   <button onclick="document.getElementById('jsonpanel').style.display='none'">close</button>
+   <span id=jsonmsg class=small></span>
+  </div>
 </div>
 </div>
 <script>
@@ -286,19 +298,23 @@ if(CUR==='obj'){h=`<div class=small style="margin:2px 0 8px;line-height:1.5">
    <button title="Correct the semantic label of '${o.name}'. The new type is stored as verified_owner with confidence 1.0 and survives later re-scans (owner feedback outranks the verifier)."
      onclick="event.stopPropagation();edit('${o.name}','set_type',{type:prompt('correct type for ${o.name}:','${o.type}')})">type</button>
    <button title="Toggle isMovable for '${o.name}' (implicit layer). Controls e.g. whether a pick mission is allowed on this object."
-     onclick="event.stopPropagation();edit('${o.name}','toggle_movable')">movable</button></td></tr>`;}
+     onclick="event.stopPropagation();edit('${o.name}','toggle_movable')">movable</button>
+   <button title="Open the raw DB record of '${o.name}' for direct JSON editing."
+     onclick="event.stopPropagation();openJson('obj','${o.name}')">json</button></td></tr>`;}
   h+='</table>';}
 if(CUR==='pla'){h=`<div class=small style="margin:2px 0 8px">click a row to shade the
    place's SLIC segmentation cells on the overhead view</div>`;
-  h+='<table><tr><th>region</th><th>name</th><th>members</th><th>verified</th><th>key object</th><th>centroid</th></tr>';
+  h+='<table><tr><th>region</th><th>name</th><th>members</th><th>verified</th><th>key object</th><th>centroid</th><th></th></tr>';
   for(const p of d.places){const s=SELS.find(v=>v.kind==='place'&&v.region===p.region);
    const bg=s?`;background:rgba(${s.cells.color[0]},${s.cells.color[1]},${s.cells.color[2]},.25)`:'';
    h+=`<tr style="cursor:pointer${bg}" onclick="pickPlace('${p.region}')">
    <td>${p.region}</td><td><b>${p.name}</b></td><td>${p.members}</td>
-   <td>${p.verified}</td><td>${p.key||''}</td><td>(${p.cx},${p.cy})</td></tr>`;}h+='</table>';}
+   <td>${p.verified}</td><td>${p.key||''}</td><td>(${p.cx},${p.cy})</td>
+   <td><button onclick="event.stopPropagation();openJson('place','${p.region}')">json</button></td></tr>`;}h+='</table>';}
 if(CUR==='bt'){h=d.bt?btSvg(d.bt):
   '<div class=small>no /bt_snapshot yet — is mission_bt running?</div>';}
-if(CUR==='rob'){for(const r of d.robots){h+=`<table><tr><th colspan=2>${r.name} (${r.symbolic.type}, ${r.symbolic.drive})</th></tr>`;
+if(CUR==='rob'){for(const r of d.robots){h+=`<table><tr><th colspan=2>${r.name} (${r.symbolic.type}, ${r.symbolic.drive})
+  <button style="float:right" onclick="openJson('robot','${r.name}')">json</button></th></tr>`;
   h+=`<tr><td>pose</td><td>(${r.explicit.pose.x}, ${r.explicit.pose.y})</td></tr>`;
   h+=`<tr><td>footprint</td><td>${r.explicit.footprint.length} × ${r.explicit.footprint.width} × ${r.explicit.footprint.height} m</td></tr>`;
   h+=`<tr><td>limits</td><td>${JSON.stringify(r.explicit.limits)}</td></tr>`;
@@ -306,6 +322,26 @@ if(CUR==='rob'){for(const r of d.robots){h+=`<table><tr><th colspan=2>${r.name} 
   h+=`<tr><td>implicit</td><td>${JSON.stringify(r.implicit)}</td></tr>`;
   h+=`<tr><td>place</td><td>${r.isInsideOf}</td></tr></table><br>`;}}
 document.getElementById('tbl').innerHTML=h;}
+let JEDIT=null;
+function openJson(kind,name){
+  fetch('/api/getjson',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({kind,name})}).then(r=>r.json()).then(d=>{
+    if(d.error){alert(d.error);return;}
+    JEDIT={kind,name};
+    document.getElementById('jsontitle').textContent=`${kind}: ${name}`;
+    document.getElementById('jsontext').value=JSON.stringify(d.data,null,1);
+    document.getElementById('jsonmsg').textContent='';
+    document.getElementById('jsonpanel').style.display='block';
+    document.getElementById('jsonpanel').scrollIntoView({behavior:'smooth'});});}
+function saveJson(){
+  if(!JEDIT)return;
+  let data;
+  try{data=JSON.parse(document.getElementById('jsontext').value);}
+  catch(e){document.getElementById('jsonmsg').textContent=' invalid JSON: '+e.message;return;}
+  fetch('/api/setjson',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({kind:JEDIT.kind,name:JEDIT.name,data})})
+   .then(r=>r.json()).then(d=>{
+    document.getElementById('jsonmsg').textContent=d.ok?' saved \u2713':(' '+(d.error||'failed'));});}
 function poll(){fetch('/api/state').then(r=>r.json()).then(d=>{STATE=d;
   document.getElementById('conn').textContent=' — live';
   const sp=document.getElementById('selPlace');
@@ -503,6 +539,83 @@ class UIServer(Node):
         json.dump(kg, open(self.kg_path, "w"), indent=1)
         return {"ok": True}
 
+    def get_entity_json(self, req):
+        """Raw DB record for the clicked entity (object / place / robot)."""
+        kind, name = req.get("kind"), req.get("name")
+        if kind == "obj":
+            kg = json.load(open(self.kg_path))
+            for n in kg["nodes"]:
+                if n["name"] == name:
+                    return {"kind": kind, "name": name, "data": n}
+            return {"error": f"no object '{name}'"}
+        if kind == "robot":
+            kg = json.load(open(self.kg_path))
+            for r in kg.get("robots", []):
+                if r.get("name") == name:
+                    return {"kind": kind, "name": name, "data": r}
+            return {"error": f"no robot '{name}'"}
+        if kind == "place":
+            pl = json.load(open(self.places_path))
+            for p in pl["semanticPlaces"]:
+                if p.get("name") == name:
+                    return {"kind": kind, "name": name, "data": p}
+            return {"error": f"no place '{name}'"}
+        return {"error": f"unknown kind '{kind}'"}
+
+    def set_entity_json(self, req):
+        """Owner JSON edit: replace the entity's record in the DB file.
+        Objects get a history entry; every consumer (mediator hot-reload,
+        Isaac watcher, this UI) picks the change up from the file."""
+        import shutil as _sh
+        import time as _t
+        kind, name, data = req.get("kind"), req.get("name"), req.get("data")
+        if not isinstance(data, dict):
+            return {"error": "data must be a JSON object"}
+        if kind == "obj":
+            need = [k for k in ("name", "type", "pose", "dimensions")
+                    if k not in data]
+            if need:
+                return {"error": f"object record missing {need}"}
+            kg = json.load(open(self.kg_path))
+            for i, n in enumerate(kg["nodes"]):
+                if n["name"] == name:
+                    hist = list(data.get("history",
+                                         n.get("history", [])))
+                    hist.append({"revision": kg.get("revision"),
+                                 "change": "owner_json_edit",
+                                 "time": _t.strftime("%Y-%m-%dT%H:%M:%S")})
+                    data["history"] = hist
+                    kg["nodes"][i] = data
+                    _sh.copy(self.kg_path, self.kg_path + ".uiedit.bak")
+                    json.dump(kg, open(self.kg_path, "w"), indent=1,
+                              ensure_ascii=False)
+                    return {"ok": True}
+            return {"error": f"no object '{name}'"}
+        if kind == "robot":
+            kg = json.load(open(self.kg_path))
+            for i, r in enumerate(kg.get("robots", [])):
+                if r.get("name") == name:
+                    kg["robots"][i] = data
+                    _sh.copy(self.kg_path, self.kg_path + ".uiedit.bak")
+                    json.dump(kg, open(self.kg_path, "w"), indent=1,
+                              ensure_ascii=False)
+                    return {"ok": True}
+            return {"error": f"no robot '{name}'"}
+        if kind == "place":
+            if "name" not in data or "centroid" not in data:
+                return {"error": "place record missing name/centroid"}
+            pl = json.load(open(self.places_path))
+            for i, p in enumerate(pl["semanticPlaces"]):
+                if p.get("name") == name:
+                    pl["semanticPlaces"][i] = data
+                    _sh.copy(self.places_path,
+                             self.places_path + ".uiedit.bak")
+                    json.dump(pl, open(self.places_path, "w"), indent=1,
+                              ensure_ascii=False)
+                    return {"ok": True}
+            return {"error": f"no place '{name}'"}
+        return {"error": f"unknown kind '{kind}'"}
+
     def set_campose(self, req):
         """Orbit the Gazebo overhead camera (right-drag in the UI): move the
         static overhead_cam model with gz set_pose. reset -> top-down."""
@@ -631,6 +744,10 @@ def make_handler(node):
                 self._send(200, json.dumps(node.edit_object(req)))
             elif self.path == "/api/campose":
                 self._send(200, json.dumps(node.set_campose(req)))
+            elif self.path == "/api/getjson":
+                self._send(200, json.dumps(node.get_entity_json(req)))
+            elif self.path == "/api/setjson":
+                self._send(200, json.dumps(node.set_entity_json(req)))
             else:
                 self._send(404, "{}")
     return H
