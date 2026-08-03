@@ -635,18 +635,25 @@ vocabulary}: generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
 (run-to-run variance $\sim$5 points), confirming the embedding-level domain
 gap that motivates verification. \emph{Verifier model}
 (Table~\ref{tab:vlmcmp}): running the identical Stage-B protocol across
-verifier tiers and vendors makes escalation an economic instrument ---
-spend tracks verifier uncertainty. Within one vendor, the smaller tier
-splits its base votes more often (26 vs.\ 20 of 35 objects escalate),
-resolves fewer of them, and ends up \emph{more} expensive end-to-end
-(\$3.40 vs.\ \$3.00) for slightly lower type accuracy: the per-call
-price advantage of a small model is consumed by its own indecision.
-A cross-vendor frontier model (GPT-5.6, non-reasoning mode for parity)
-extends the same monotone pattern --- the most decisive verifier
-(21 unanimous, only 14 escalations) issues 287 calls where the small
-tier needs 383, and posts the best type accuracy on the recalled set.
-Escalation volume is thus a label-free, online proxy for verifier
-quality on the deployment's own data.
+five verifiers (two vendors, three tiers, two generations; reasoning
+disabled for parity) makes escalation an economic instrument --- call
+volume tracks verifier decisiveness monotonically (247 to 383 calls as
+unanimous verifications fall from 26 to 9). Three findings. First,
+within a generation the smaller tier splits more votes, resolves fewer,
+and ends up \emph{more} expensive end-to-end (\$3.40 vs.\ \$3.00)
+for lower type accuracy: a small model's per-call price advantage is
+consumed by its own indecision. Second, all three current-generation
+frontier models tie on type accuracy against the owner inventory
+(7/13), but differ two-fold in the calls they need to get there ---
+the same-generation mid-tier (Sonnet~5) is the most decisive (26
+unanimous, 6 escalations), and the premium tier's extra deliberation
+(18 escalations) buys no additional accuracy here. Third, the ranking
+is generation-dominated, not vendor-dominated: both 2026-generation
+mid-tiers beat both older Claude tiers, and cross-vendor differences
+within the generation are smaller than the tier effects. Escalation
+volume is thus a label-free, online proxy for verifier decisiveness on
+the deployment's own data --- and a purchasing guide: pick the
+cheapest verifier whose escalation rate has saturated.
 
 \begin{table}[t]
 \centering
@@ -660,16 +667,19 @@ owner-corrected graph.}
 Verifier & Verified & Esc.-resolved & Unverified &
 Type-correct$^{1}$ & Calls & Cost$^{2}$ \\
 \midrule
-GPT-5.6 (luna) & \textbf{21} & 7 & \textbf{7} & \textbf{7/13} &
-\textbf{287} & $\sim$\$1 \\
-Claude Sonnet & 15 & 6 & 14 & 6/13 & 335 & \$3.00 \\
-Claude Haiku & 9 & 9 & 17 & 5/13 & 383 & \$3.40 \\
+Claude Sonnet 5 & \textbf{26} & 3 & \textbf{6} & \textbf{7/13} &
+\textbf{247} & $\sim$\$2.5 \\
+GPT-5.6 (luna) & 21 & 7 & 7 & \textbf{7/13} & 287 & $\sim$\$1 \\
+Claude Opus 5 & 17 & 8 & 10 & \textbf{7/13} & 319 & $\sim$\$16 \\
+Claude Sonnet 4.6 & 15 & 6 & 14 & 6/13 & 335 & \$3.00 \\
+Claude Haiku 4.5 & 9 & 9 & 17 & 5/13 & 383 & \$3.40 \\
 \bottomrule
 \end{tabular}
 
 {\footnotesize $^{1}$ canonical-synonym type match on the clusters that
-geometrically match a ground-truth object. $^{2}$ Claude rows at vendor list
-pricing; the GPT-5.6 figure is estimated from measured tokens
-(0.42M in / 19K out) at GPT-5-family rates.}
+geometrically match a ground-truth object. $^{2}$ 4.x-generation Claude rows at
+vendor list pricing; 2026-generation figures ($\sim$) are estimated
+from measured tokens at family list rates (Sonnet~5: 0.63M/40K;
+Opus~5: 0.79M/53K; GPT-5.6: 0.42M/19K in/out).}
 \end{table} \emph{Segmentation parameters}: see
 Sec.~\ref{sec:exp-seg}.
