@@ -634,15 +634,19 @@ everything else, so it ships as a targeted defense only. \emph{Uni3D
 vocabulary}: generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
 (run-to-run variance $\sim$5 points), confirming the embedding-level domain
 gap that motivates verification. \emph{Verifier model}
-(Table~\ref{tab:vlmcmp}): running the identical Stage-B protocol with a
-smaller VLM tier inverts the expected cost story --- the weaker verifier
+(Table~\ref{tab:vlmcmp}): running the identical Stage-B protocol across
+verifier tiers and vendors makes escalation an economic instrument ---
+spend tracks verifier uncertainty. Within one vendor, the smaller tier
 splits its base votes more often (26 vs.\ 20 of 35 objects escalate),
-resolves fewer of them (9 vs.\ 15 unanimous verifications), and ends up
-\emph{more} expensive end-to-end (\$3.40 vs.\ \$3.00) for slightly lower
-type accuracy against the owner inventory. Because escalation spends in
-proportion to verifier uncertainty, model quality surfaces as total cost
-rather than only as accuracy; the framework's per-call price advantage
-of a small model is consumed by its own indecision.
+resolves fewer of them, and ends up \emph{more} expensive end-to-end
+(\$3.40 vs.\ \$3.00) for slightly lower type accuracy: the per-call
+price advantage of a small model is consumed by its own indecision.
+A cross-vendor frontier model (GPT-5.6, non-reasoning mode for parity)
+extends the same monotone pattern --- the most decisive verifier
+(21 unanimous, only 14 escalations) issues 287 calls where the small
+tier needs 383, and posts the best type accuracy on the recalled set.
+Escalation volume is thus a label-free, online proxy for verifier
+quality on the deployment's own data.
 
 \begin{table}[t]
 \centering
@@ -651,18 +655,21 @@ escalation on the same 35 in-room clusters, scored against the
 owner-corrected graph.}
 \label{tab:vlmcmp}
 \small
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lcccccc@{}}
 \toprule
-Verifier & Verified & Escalated-resolved & Unverified &
-Type-correct$^{1}$ & Cost \\
+Verifier & Verified & Esc.-resolved & Unverified &
+Type-correct$^{1}$ & Calls & Cost$^{2}$ \\
 \midrule
-Claude Sonnet & \textbf{15} & 6 & \textbf{14} & \textbf{6/13} &
-\textbf{\$3.00} \\
-Claude Haiku & 9 & 9 & 17 & 5/13 & \$3.40 \\
+GPT-5.6 (luna) & \textbf{21} & 7 & \textbf{7} & \textbf{7/13} &
+\textbf{287} & $\sim$\$1 \\
+Claude Sonnet & 15 & 6 & 14 & 6/13 & 335 & \$3.00 \\
+Claude Haiku & 9 & 9 & 17 & 5/13 & 383 & \$3.40 \\
 \bottomrule
 \end{tabular}
 
 {\footnotesize $^{1}$ canonical-synonym type match on the clusters that
-geometrically match a ground-truth object.}
+geometrically match a ground-truth object. $^{2}$ Claude rows at vendor list
+pricing; the GPT-5.6 figure is estimated from measured tokens
+(0.42M in / 19K out) at GPT-5-family rates.}
 \end{table} \emph{Segmentation parameters}: see
 Sec.~\ref{sec:exp-seg}.
