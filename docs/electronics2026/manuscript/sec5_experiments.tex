@@ -266,7 +266,12 @@ $\sim$\$0.009/call; escalation adds 232 and 208 calls per scene). The tier
 structure
 justifies gating: unanimous and escalated tiers reach 88.9--100\% precision,
 while the unverified residue is 40--60\%---exactly the content the query
-interface must demote. A separate check evaluates the room-scoped T1 objects
+interface must demote. A repeat of the showroom run under identical
+settings bounds the verifier's run-to-run variance: base-4 accuracy
+reproduces exactly (77.8\%), escalated accuracy shifts by a single object
+(86.1\% vs.\ 88.9\%), the trigger rate by two points (60\% vs.\ 58\%), and
+unanimous and escalated precision hold at 100\% in both runs---a
+$\pm$3-point scale against which the model deltas below should be read. A separate check evaluates the room-scoped T1 objects
 in the update-study frame (Sec.~\ref{sec:exp-update}), where showroom GT is
 transferred to the re-decomposed clusters by bidirectional point overlap;
 on the resulting small confirmed set ($n{=}8$), verified-tier precision is
@@ -287,7 +292,9 @@ hall), unanimous verifications rise from 21 to 25 and from 25 to 34, and
 escalation calls drop from 232 to 200 and from 208 to 136. The freed
 decisiveness is not free accuracy, however: unanimous precision falls
 from 100\% to 91.7\% and from 94.4\% to 83.3\%, and escalated accuracy
-lands at 69.4\% and 81.2\% (vs.\ 88.9\% and 84.4\%). The dominant new
+lands at 69.4\% and 81.2\% (vs.\ 88.9\% and 84.4\%)---showroom deltas
+several times the $\pm$3-point run-to-run variance measured above, and
+directionally reproduced on the second scene. The dominant new
 failure is clutter absorption---real chairs, junction boxes, and a
 control panel unanimously verified as \texttt{clutter}---i.e., the newer
 model re-distributes error mass from indecision into confident

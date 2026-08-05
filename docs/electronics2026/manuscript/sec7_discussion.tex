@@ -10,7 +10,14 @@ set before room scoping and remnant filtering---all calls included). The increme
 design changes
 the cost model qualitatively: a repeat scan costs \$0 (hash carry-over) and
 a changed scene costs in proportion to its change (3.1\% of rebuild in our
-measurement). Verification is offline; no VLM call sits on a robot's control
+measurement). Wall-clock time is equally bounded, measured on this
+workstation: the full deterministic backbone---loading the 68.6M-point
+E57, 3\,cm downsampling, ten-plane removal, decomposition, and remnant
+filtering---completes in 29\,s (8.1\,GB peak memory), rendering the
+four-view sets takes 99\,s for 88 objects, and verification with
+escalation runs in 7.7\,min for a 50-object scene at six concurrent
+calls, so a scene semanticizes in well under ten minutes end to end.
+Verification is offline; no VLM call sits on a robot's control
 path.
 
 \paragraph{Residual unverified content.}
