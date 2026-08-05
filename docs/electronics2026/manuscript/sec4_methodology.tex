@@ -120,11 +120,15 @@ label a robot may act on must pass the verification stage below.
 
 Verification renders each object from four azimuths ($0^{\circ}$,
 $90^{\circ}$, $180^{\circ}$, $270^{\circ}$) and submits each view
-independently to a VLM (\texttt{claude-sonnet-4-6}) under a forced tool-use
+independently to a vision--language model under a forced tool-use
 schema: the model must return a type, a confidence, and a stated reason, with
 the object's measured dimensions and provisional label provided as context.
 Free-text answers are impossible by construction, and prompts, decoding
-parameters, and model version are recorded with every result.
+parameters, and model version are recorded with every result. The verifier
+model itself is a swappable component, not part of the design: the concrete
+model is an experimental control (Sec.~5.1), and Sec.~5.7 repeats the
+identical protocol across five commercial VLMs to characterize how the
+choice affects decisiveness, accuracy, and cost.
 
 Per-view votes are combined by confidence-weighted late fusion into a fused
 type and a \emph{vote share}. Three outcomes follow. If the votes are

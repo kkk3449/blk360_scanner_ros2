@@ -66,6 +66,15 @@ uses the metrics of Sec.~\ref{sec:matching}: matching accuracy,
 identity-switch rate, false-new, false-absent, and unchanged stability.
 
 \paragraph{Controls.}
+The verifier for the main campaign (Secs.~5.2--5.5) is fixed to a single
+model, \texttt{claude-sonnet-4-6} (the frontier mid-tier at campaign start):
+every verification, escalation, and owner interaction in the accumulated
+knowledge-graph lineage was produced under this one verifier, so results
+remain comparable across sections and revisions. The verifier choice itself
+is then evaluated in Sec.~\ref{sec:exp-ablation}, which repeats the
+identical Stage-B protocol across five commercial VLMs, and
+Sec.~\ref{sec:exp-verify} additionally reports the headline verification
+study re-run under the best-ranked model.
 All query conditions share the same LLM (\texttt{claude-sonnet-4-6}), system
 prompt, query set, decoding parameters, retry policy, and forced answer
 schema; conditions differ \emph{only} in the knowledge view they receive.
@@ -246,18 +255,18 @@ e.g., 21 unanimous $+$ 29 split $=$ 50.}
  & \multicolumn{2}{c}{Showroom ($n{=}36$)} & \multicolumn{2}{c}{Robot hall ($n{=}32$)} \\
  & base-4 & escalated & base-4 & escalated \\
 \midrule
-Accuracy & 75.0\% & \textbf{86.1\%} & 78.1\% & \textbf{84.4\%} \\
+Accuracy & 77.8\% & \textbf{88.9\%} & 78.1\% & \textbf{84.4\%} \\
 Recovered / regressed & \multicolumn{2}{c}{5 / 1} & \multicolumn{2}{c}{3 / 0} \\
 Escalation trigger & \multicolumn{2}{c}{58\% (29/50)} & \multicolumn{2}{c}{51\% (26/51)} \\
 \midrule
 Unanimous precision & \multicolumn{2}{c}{100\% (21/21)} & \multicolumn{2}{c}{94.4\% (of 25)} \\
 Escalated precision & \multicolumn{2}{c}{100\%} & \multicolumn{2}{c}{88.9\%} \\
-Unverified precision & \multicolumn{2}{c}{50\%} & \multicolumn{2}{c}{40\%} \\
+Unverified precision & \multicolumn{2}{c}{60\%} & \multicolumn{2}{c}{40\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Escalation lifts confirmed-GT accuracy from 75.0\% to 86.1\% on the showroom
+Escalation lifts confirmed-GT accuracy from 77.8\% to 88.9\% on the showroom
 and from 78.1\% to 84.4\% on the robot hall (lenient: 76.2\%
 $\rightarrow$ 83.3\%, $n{=}42$), recovering 5 and 3 split-vote objects while
 regressing 1 and 0 (Table~\ref{tab:verification};
@@ -265,7 +274,7 @@ Fig.~\ref{fig:esccost} shows the accuracy--cost trade-off at
 $\sim$\$0.009/call; escalation adds 232 and 208 calls per scene). The tier
 structure
 justifies gating: unanimous and escalated tiers reach 88.9--100\% precision,
-while the unverified residue is 40--50\%---exactly the content the query
+while the unverified residue is 40--60\%---exactly the content the query
 interface must demote. A separate check evaluates the room-scoped T1 objects
 in the update-study frame (Sec.~\ref{sec:exp-update}), where showroom GT is
 transferred to the re-decomposed clusters by bidirectional point overlap;
@@ -276,6 +285,28 @@ Verification yield tracks scan quality: the manual scan leaves 47\% of
 objects unverified versus 24\% for exploration scans, and re-processing the
 T3 scan from a single setup (1/6 coverage) drops the verified tier from
 75.6\% to 56.6\% on identical geometry. Coverage buys verifiability.
+
+\paragraph{Verifier upgrade check.}
+Because the ground truth is fixed and scoring is automatic, the entire
+study re-runs unchanged under a different verifier. Re-running both scenes
+under \texttt{claude-sonnet-5}---the model Sec.~\ref{sec:exp-ablation}
+ranks most decisive---confirms the decisiveness transfer: escalation
+triggers fall from 58\% to 50\% (showroom) and from 51\% to 33\% (robot
+hall), unanimous verifications rise from 21 to 25 and from 25 to 34, and
+escalation calls drop from 232 to 200 and from 208 to 136. The freed
+decisiveness is not free accuracy, however: unanimous precision falls
+from 100\% to 91.7\% and from 94.4\% to 83.3\%, and escalated accuracy
+lands at 69.4\% and 81.2\% (vs.\ 88.9\% and 84.4\%). The dominant new
+failure is clutter absorption---real chairs, junction boxes, and a
+control panel unanimously verified as \texttt{clutter}---i.e., the newer
+model re-distributes error mass from indecision into confident
+under-labeling on these 512-px render sets, while on the 1024-px renders
+of Sec.~\ref{sec:exp-ablation} it ties for the best type accuracy.
+Verifier upgrades therefore change \emph{where} errors live rather than
+uniformly removing them, which is precisely why the framework treats
+verification as tiered evidence behind a gate rather than as truth: the
+tier structure, the escalation economics, and the owner loop survive a
+verifier swap; the specific precision figures do not.
 
 \paragraph{Error taxonomy.}
 Four recurring error classes emerged (Fig.~\ref{fig:taxonomy}):
@@ -628,7 +659,7 @@ count-phrased trap leaked, 3/4)---still the single strongest argument that
 reliability must live in the data contract, not in instructions. \emph{Pose context}: injecting mounting-height context as a
 targeted defense removed all three phantom ceiling keyboards in its pilot,
 but applying it to every object \emph{reduced} escalated accuracy
-(86.1\%$\rightarrow$72.2\%) and escalated precision
+(88.9\%$\rightarrow$75.0\%) and escalated precision
 (100\%$\rightarrow$72.7\%)---a desk-height prior that helps ceilings hurts
 everything else, so it ships as a targeted defense only. \emph{Uni3D
 vocabulary}: generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
@@ -654,12 +685,17 @@ is generation-dominated, not vendor-dominated: both 2026-generation
 mid-tiers beat both older Claude tiers, and cross-vendor differences
 within the generation are smaller than the tier effects. Escalation
 volume is thus a label-free, online proxy for verifier decisiveness on
-the deployment's own data --- and a purchasing guide: pick the
-cheapest verifier whose escalation rate has saturated. The guide is
-robust where prices are not: a vendor repricing days before our runs
-moved one verifier's end-to-end cost five-fold
-(Table~\ref{tab:vlmcmp}, note~2), while the decisiveness ordering it
-would be applied to is measured on the deployment's own data.
+the deployment's own data --- and a purchasing guide for \emph{cost}:
+pick the cheapest verifier whose escalation rate has saturated. It is
+not a proxy for accuracy: the upgrade check of
+Sec.~\ref{sec:exp-verify} shows the most decisive model trading
+unanimous precision for its decisiveness on the two full GT scenes, so
+quality must still be priced by a small labeled probe set or by
+accumulated owner feedback. The cost guide is robust where prices are
+not: a vendor repricing days before our runs moved one verifier's
+end-to-end cost five-fold (Table~\ref{tab:vlmcmp}, note~2), while the
+decisiveness ordering it would be applied to is measured on the
+deployment's own data.
 
 \begin{table}[t]
 \centering
