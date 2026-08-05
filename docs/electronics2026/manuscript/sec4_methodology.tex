@@ -36,7 +36,8 @@ and ceilings---including split ceiling levels---are removed in practice within
 ten iterations on our scenes. RANSAC is seeded, making the extraction
 deterministic; the pre-removal cloud is retained as a \emph{ceiling reference}
 for the remnant filter of Sec.~\ref{sec:decomposition} and for incremental
-re-runs.
+re-runs. Fig.~\ref{fig:pipeline}a,b show a scan before and after
+structural-plane removal.
 
 \subsection{Geometric Object Decomposition and Structure-Remnant Filtering}
 \label{sec:decomposition}
@@ -52,7 +53,9 @@ it is not a novel segmentation algorithm but a \emph{reproducible
 decomposition designed for verification and incremental diffing}. Its value
 is that identical inputs yield identical clusters with stable ordering, which
 later stages exploit for result carry-over and change detection
-(Sec.~\ref{sec:matching}). The parameter sensitivity of this choice is
+(Sec.~\ref{sec:matching}). Fig.~\ref{fig:pipeline}c shows the resulting
+instances, and Fig.~\ref{fig:pipeline}d two of the TOSM records they
+eventually populate. The parameter sensitivity of this choice is
 quantified in Sec.~5.2.
 
 \paragraph{Structure-remnant filter.}
@@ -60,9 +63,9 @@ Real buildings violate the implicit assumption that structure is planar and
 objects are not. Our showroom scene has a three-level ceiling
 ($z=2.48/2.18/1.95$\,m): RANSAC removes each horizontal ceiling plane, but the
 \emph{vertical soffit bands} at the level transitions survive removal and
-surface as phantom objects---thin, wall-colored slabs that a downstream
-verifier confidently misreads (e.g., as wall-mounted keyboards or handrails,
-Sec.~5.3). We therefore filter any cluster that is (i) a thin vertical planar
+surface as phantom objects (Fig.~\ref{fig:pipeline}e)---thin, wall-colored
+slabs that a downstream verifier confidently misreads (e.g., as wall-mounted
+keyboards or handrails, Sec.~5.3). We therefore filter any cluster that is (i) a thin vertical planar
 band whose (ii) upward neighborhood in the \emph{pre-removal} cloud terminates
 in a dense horizontal layer---i.e., the band hangs from a real ceiling. The
 topmost-layer condition prevents false positives on window sills and wall
@@ -73,11 +76,25 @@ verification results remain valid. Horizontal and sloped ceiling patches are
 out of the filter's scope and are discussed as a residual limitation in
 Sec.~7.
 
-\begin{figure}[t]
+\begin{figure}[!tp]
 \centering
-\includegraphics[width=0.95\linewidth]{fig2_pipeline.png}
-\caption{Geometric backbone: preprocessing, plane removal, decomposition, and
-the structure-remnant filter (inset: ceiling-soffit phantom before/after).}
+\includegraphics[width=0.92\linewidth]{fig2_pipeline.png}
+\caption{Geometric backbone of TLS-SMF, illustrated on the test-room scene.
+(a)~Registered multi-station TLS scan after preprocessing.
+(b)~The same cloud after seeded-RANSAC removal of structural planes (floor,
+walls, ceiling).
+(c)~Deterministic decomposition of the residual cloud into object instances;
+colors denote cluster identity, and identical inputs reproduce identical
+clusters with stable ordering.
+(d)~Two of the resulting TOSM knowledge-graph records with their symbolic,
+explicit, and implicit attributes; \texttt{machine\_004} carries an
+owner-verified type correction (\emph{machine}\,$\rightarrow$\,\emph{Mobile
+Robot}).
+(e)~Structure-remnant filter, shown as a front elevation of the showroom
+scene: the vertical soffit bands at the three-level ceiling transitions
+(red) survive horizontal-plane removal and would otherwise surface as
+phantom objects; the filter removes them while leaving every retained
+cluster byte-identical.}
 \label{fig:pipeline}
 \end{figure}
 
