@@ -199,11 +199,14 @@ robot, plus three columns and a plant. Applied to a $6.2$\,m
 wall-flush cluster that verification had confidently labeled
 \texttt{electrical cabinet} (0.83), the same machinery --- wall-band
 strip, support plane, then density-valley cuts along the wall in the
-panel band --- yields \emph{exactly} the owner's inventory: ten
-monitors (five columns of stacked pairs), the desk beneath them, and,
-from the off-wall remainder, a wheelchair robot and a single table leg.
-The gate turns ``too diffuse to be an object'' from a discard decision
-into a decomposition trigger.
+panel band --- recovers the owner's inventory at unit granularity:
+nine of the ten owner-confirmed monitor units, the desk beneath them,
+and, from the off-wall remainder, a wheelchair robot and a single
+table leg. Unit boundaries are approximate --- the dark screens return
+few points, so the cuts follow density valleys in the surrounding wall
+band --- and the result is claimed as unit-level recall, not precise
+per-unit segmentation. The gate turns ``too diffuse to be an object''
+from a discard decision into a decomposition trigger.
 
 \paragraph{Structure-condition ensemble.}
 Structure removal is itself a segmentation parameter: it amputates
@@ -221,23 +224,6 @@ condition, while the room's actual conveyor unit stayed
 \texttt{clutter} in every condition). The ensemble therefore ships as
 a recall tool plus a per-object \texttt{labelStability} attribute that
 prioritizes owner review --- not as a label fuser.
-Figure~\ref{fig:wallcompound} shows the wall-compound machinery end to
-end on the room's monitor wall.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.95\linewidth]{fig17_wall_compound.png}
-\caption{Automatic wall-compound decomposition (no owner input).
-(a)~As detected: a single 6\,m cluster mixing wall paint, ten dark
-monitor screens, support posts, and the desk --- confidently verified as
-one ``electrical cabinet'' by the baseline pipeline. (b)~After the
-wall-compound gate: the mapped wall band is stripped, the support plane
-separates the desk, u-density valleys cut the panel bank into columns,
-a conditional z-cut splits stacked rows, and a square-up pass re-assigns
-boundary points --- yielding nine of the ten owner-confirmed monitor
-units plus posts, desk, and under-desk storage.}
-\label{fig:wallcompound}
-\end{figure}
 
 \subsection{Verification: Fusion and Escalation}
 \label{sec:exp-verify}
