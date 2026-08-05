@@ -2,21 +2,29 @@
 \label{sec:related}
 
 \subsection{3D Semantic Mapping and Scene Graphs}
-3D scene graphs organize metric reconstructions into object-level nodes with
+Object-level semantic mapping has progressed from object-oriented SLAM and
+dense semantic fusion~\cite{salas2013slampp,mccormac2017semanticfusion} to
+metric--semantic pipelines such as Kimera~\cite{rosinol2020kimera} and
+real-time hierarchical scene graphs~\cite{hughes2022hydra}. 3D scene
+graphs organize metric reconstructions into object-level nodes with
 semantic attributes and inter-object relations~\cite{armeni20193dsg}, and
 recent open-vocabulary variants attach language-queryable features to nodes
 and edges~\cite{koch2024open3dsg,gu2024conceptgraphs}, enabling LLM-driven
-mobile manipulation over the graph~\cite{honerkamp2024momallm}. These systems
+mobile manipulation over the graph~\cite{honerkamp2024momallm}; on the
+knowledge side, ontology-backed infrastructures such as
+KnowRob~\cite{tenorth2013knowrob} ground robot reasoning in curated
+knowledge bases. These systems
 target flexible \emph{construction}; verification of what enters the graph
 and maintenance after construction receive less attention. Within the TOSM
-(triplet ontological semantic model) lineage that this work extends, the
+(triplet ontological semantic model) lineage that this work
+extends~\cite{joo2020tosm,joo2022fsom}, the
 semantic modeling framework and its successor DK-SMF~\cite{joo2025dksmf}
 automate object \emph{and place} modeling from RGB-D exploration, combining
 zero-shot detection and VQA with domain-knowledge filtering and LLM-derived
 place semantics over SLIC-segmented regions. Our framework---TLS-SMF, named
 within the same lineage's convention of prefixing the differentiating
 axis---adopts the same target representation (TOSM object/place layers,
-VDA5050-style export) but differs on four axes, summarized in
+VDA5050-style export~\cite{vda5050}) but differs on four axes, summarized in
 Table~\ref{tab:dksmf}: a survey-grade
 TLS backbone instead of RGB-D streams; multi-view VLM \emph{verification
 with escalation} instead of domain-knowledge hallucination suppression;
@@ -44,7 +52,10 @@ Place semantics & SLIC + LLM over detections & SLIC + ring codes over verified o
 \subsection{Open-Vocabulary 3D Recognition and Its Limits}
 Point--text embedding models such as Uni3D~\cite{zhou2024uni3d} and
 PointCLIP~V2~\cite{zhu2023pointclipv2} transfer web-scale vision--language
-supervision to point clouds and perform well on curated indoor benchmarks.
+supervision~\cite{radford2021clip} to point clouds, and scene-level systems
+attach open-vocabulary features to 3D points and
+instances~\cite{peng2023openscene,takmaz2023openmask3d}; all perform well
+on curated indoor benchmarks.
 On industrial TLS content, however, we observe the transfer breaking down:
 in a 30-cluster pilot, PointCLIP~V2 collapsed to a single class for 23 of 30
 clusters (0\% top-1), and Uni3D's
@@ -55,14 +66,18 @@ curation. We therefore treat open-vocabulary output as a provisional prior
 to be verified, not a label source.
 
 \subsection{Instance Segmentation: Learned versus Geometric}
-Learned 3D instance segmentation (SPFormer~\cite{sun2023spformer},
+Learned 3D instance segmentation built on point-set
+backbones~\cite{qi2017pointnetpp}
+(Mask3D~\cite{schult2023mask3d}, SPFormer~\cite{sun2023spformer},
 PointTransformer~V3~\cite{wu2024ptv3}) and promptable point
 segmentation (Point-SAM~\cite{zhou2024pointsam}) dominate benchmark suites
 but inherit their training distributions; our transfer attempts to
 industrial TLS content failed without target-domain fine-tuning, for which
 no labels exist in our setting. We instead use a deliberately simple
-geometric decomposition---seeded plane removal plus fixed-parameter
-density clustering---and position it not as a novel algorithm but as a
+geometric decomposition---seeded plane
+removal~\cite{fischler1981ransac,schnabel2007efficient} plus
+fixed-parameter density clustering~\cite{ester1996dbscan}---and position
+it not as a novel algorithm but as a
 \emph{reproducible decomposition} whose determinism underwrites
 verification carry-over and incremental diffing
 (Sec.~\ref{sec:decomposition}). Point-SAM appears in our pipeline only as a
@@ -82,8 +97,8 @@ Sec.~\ref{sec:exp-verify} quantifies the delta over the 4-view baseline.
 
 \subsection{Knowledge-Grounded Querying and Hallucination Mitigation}
 Grounding LLM answers in retrieved structure reduces but does not eliminate
-unsupported claims~\cite{lewis2020rag}, and instruction-based guardrails are
-known to be brittle. Our knowledge-graph lineage~\cite{kim2025isis} observed
+unsupported claims~\cite{lewis2020rag,ji2023hallucination}, and
+instruction-based guardrails are known to be brittle. Our knowledge-graph lineage~\cite{kim2025isis} observed
 hallucinated environment facts when querying ungrounded LLMs about mapped
 spaces. We contribute a structural mitigation: rather than instructing the
 model to respect verification status, the query-time view demotes unverified
@@ -98,7 +113,9 @@ currency~\cite{fehr2017tsdf}, and object-permanence reasoning tracks
 instances through rearrangement in embodied settings~\cite{wald2019rescan}.
 What is rare is maintenance of a \emph{semantic knowledge graph} whose nodes
 carry verified labels and stable identities across scan epochs:
-scan-once-build-once remains the default in TLS-derived modeling. Our
+scan-once-build-once remains the default in TLS-derived modeling, whose
+dominant line reconstructs as-built BIM or parametric building models from
+static scans~\cite{tang2010asbuilt,ochmann2016parametric}. Our
 mint-once identity policy with two-pass matching and confidence-gated
 node-level upserts (Secs.~\ref{sec:matching}--\ref{sec:upsert}) targets this
 gap, and Sec.~\ref{sec:exp-update} evaluates it on synthetic scenarios and a
@@ -118,7 +135,7 @@ and~\ref{sec:exp-update}.
 \caption{Capability comparison of environment representations.}
 \label{tab:capability}
 \small
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
  & 2D map & 3D scan & 3D semantic KG (this work) \\
 \midrule

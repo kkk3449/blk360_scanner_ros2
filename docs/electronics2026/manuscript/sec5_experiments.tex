@@ -66,7 +66,7 @@ uses the metrics of Sec.~\ref{sec:matching}: matching accuracy,
 identity-switch rate, false-new, false-absent, and unchanged stability.
 
 \paragraph{Controls.}
-The verifier for the main campaign (Secs.~5.2--5.5) is fixed to a single
+The verifier for the main campaign (Secs.~\ref{sec:exp-seg}--\ref{sec:exp-update}) is fixed to a single
 model, \texttt{claude-sonnet-4-6} (the frontier mid-tier at campaign start):
 every verification, escalation, and owner interaction in the accumulated
 knowledge-graph lineage was produced under this one verifier, so results
@@ -134,11 +134,14 @@ label degrades as the vocabulary narrows to the deployment's true classes
 machine, an office chair, and a chair re-emerge from a single
 \texttt{clutter} blob, each re-verified independently.}
 \label{fig:baselines}
-\end{figure} The T3 epoch supplied a stress case: at 99.6\% coverage, inter-object
+\end{figure}
+
+The T3 epoch supplied a stress case: at 99.6\% coverage, inter-object
 gaps close and DBSCAN chains 120K points (41\% of the clean cloud) into one
 $10.4\times9.6$\,m mega-cluster that survives the giant-split. Refinement
-recovers little of the resulting diff inflation---Point-SAM ($K{=}7$
-prompts) re-associates 4 of 43 absent nodes, tighter re-splitting
+recovers little of the resulting diff inflation---of the epoch's 45 absent
+nodes, 43 retain a source cluster to re-associate against; Point-SAM
+($K{=}7$ prompts) re-associates 4 of these 43, tighter re-splitting
 ($\varepsilon{=}0.12$) 5 of 43---which is itself informative: $\sim$88\% of
 that epoch's absences reflect genuine scene change, not segmentation
 artifacts (Sec.~\ref{sec:exp-update}).
@@ -157,7 +160,7 @@ set cannot abstain; and PointCLIP~V2 collapses to a single class.
 The geometric backbone wins not by being smarter but by refusing to
 guess: its failure mode is unlabeled coverage, which the verification
 and owner layers are built to absorb. Point-SAM enters only as the
-conditional refiner of Sec.~\ref{sec:exp-seg}.
+conditional refiner above.
 
 \begin{table}[t]
 \centering
@@ -172,7 +175,7 @@ Pipeline & Coverage & Unnameable & Classes & Dominant failure \\
 \textbf{DBSCAN + Uni3D} & \textbf{98.3\%} & \textbf{23.3\%} & 13 &
 unlabeled coverage \\
 SPFormer + Uni3D & 51.1\% & 45.9\% & 9 & furniture bias (chair 67/88) \\
-PTv3 (semantic) & --- & --- & 17/20 fire & 46\% ``wall'' after removal \\
+PTv3 (semantic) & --- & --- & 17/20 emitted & 46\% ``wall'' after removal \\
 DBSCAN + PointCLIP~V2 & 98.3\% & --- & 1--7 & collapse (pipe 23/30) \\
 \bottomrule
 \end{tabular}
@@ -188,7 +191,7 @@ usable $\varepsilon$. A two-stage re-split resolves them by \emph{cause}
 instead of size: points hugging the exploration-grid wall line (inside
 the \emph{room polygon}, so wall-flush furniture survives the test that
 free-space masks would fail) are structure noise ($\sim$70\% of the
-94K-point residual); out-of-room bleed-through accounts for another
+$\sim$95K-point residual); out-of-room bleed-through accounts for another
 7\%; the remainder is re-clustered by occupancy-core erosion and, for
 compounds, split at the support plane detected as the $z$-histogram
 peak 0.5--0.95\,m above floor. The owner's ground truth for the largest
@@ -215,7 +218,9 @@ under three removal conditions (none / ceiling only / full) and fusing
 the results recovered two multi-metre tables that exist in \emph{no}
 single-condition segmentation of the production path --- they appear
 only when walls are left in place --- raising in-room recall by four
-real objects ($\sim$8\%). The fusion also quantifies label fragility:
+real objects ($\sim$8\%) as a standalone pass (its incremental gain in
+the cumulative stack of Table~\ref{tab:layers} is smaller because the
+re-split and wall-compound layers already recover part of the same set). The fusion also quantifies label fragility:
 only 10 of 37 re-found objects keep the same label across conditions,
 and cross-condition \emph{voting} corrected nothing, because the
 verifier's biases are correlated across conditions (both recovered
@@ -245,7 +250,7 @@ Accuracy & 77.8\% & \textbf{88.9\%} & 78.1\% & \textbf{84.4\%} \\
 Recovered / regressed & \multicolumn{2}{c}{5 / 1} & \multicolumn{2}{c}{3 / 0} \\
 Escalation trigger & \multicolumn{2}{c}{58\% (29/50)} & \multicolumn{2}{c}{51\% (26/51)} \\
 \midrule
-Unanimous precision & \multicolumn{2}{c}{100\% (21/21)} & \multicolumn{2}{c}{94.4\% (of 25)} \\
+Unanimous precision & \multicolumn{2}{c}{100\% (21/21)} & \multicolumn{2}{c}{94.4\% (17/18; 25 unan.)} \\
 Escalated precision & \multicolumn{2}{c}{100\%} & \multicolumn{2}{c}{88.9\%} \\
 Unverified precision & \multicolumn{2}{c}{60\%} & \multicolumn{2}{c}{40\%} \\
 \bottomrule
@@ -348,8 +353,9 @@ leg, a poster stand). Crucially, the wall-flush monitor bank survives:
 its wall-hug fraction is 99\% (the grid map draws it as wall), but its
 1.8\,m height and per-segment depth separate it from the 3.2\,m
 floor-to-ceiling wall band that plane removal missed. All seven verified
-structure phantoms --- including the staircase band and a fluorescent
-fixture verified as a keyboard at 3.3\,m --- are eliminated upstream.
+structure phantoms --- the six structure-noise cases above plus a
+fluorescent fixture verified as a keyboard at 3.3\,m (audited as a wrong
+label) --- are eliminated upstream.
 \emph{(ii) Recovery re-verification:} re-asking the verifier with
 \texttt{clutter} treated as \emph{unidentified} plus a candidate
 shortlist recovered 4 specific types at 4/5 precision with 12 honest
@@ -481,7 +487,8 @@ Robot hall & 50.0\% / 37.5\% / 4/4 & 56.2\% / 43.8\% / 0/4 &
 \end{tabular}
 \end{table}
 
-On the showroom (Table~\ref{tab:query}), grounding alone (ungated) lifts
+On the showroom (Table~\ref{tab:query}, Fig.~\ref{fig:query}), grounding
+alone (ungated) lifts
 accuracy from 52.1\% to 81.2\% but blocks no traps; removing unverified
 content (verified-only) blocks all four traps at a steep recall price (12
 abstentions, 58.3\%); the gated condition is the balance point---83.3\% with
@@ -525,7 +532,8 @@ rebuild cost, and 0\% for scenario A.
 The three epochs of Table~\ref{tab:scenes} form a real update sequence:
 T1 (manual, June) $\rightarrow$ T2 (exploration, early July) $\rightarrow$
 T3 (99.6\%-coverage exploration with a controlled-change protocol, late
-July). Cross-epoch registration is fully automatic (FPFH+RANSAC then ICP;
+July). Cross-epoch registration is fully automatic
+(FPFH~\cite{rusu2009fpfh}+RANSAC then ICP~\cite{besl1992icp};
 5.1\,cm RMSE for T1$\rightarrow$T2, 4.2\,cm for T3$\rightarrow$T2). The
 T1$\rightarrow$T2 diff records the room's exhibition-to-test-hall
 reorganization (updated 4 / moved 3 / inserted 48 / absent 31; among the
@@ -569,8 +577,7 @@ the matcher's decision. (A)~A repeat scan with no changes
 carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is
 classified \texttt{moved} with its node ID preserved. (C)~A removed object
 is marked \texttt{absent} (node kept and flagged) and a newly placed object
-is \texttt{inserted} under a new ID; only the insertion is re-verified
-(\$0.23). (D)~Partial occlusion: both cropped objects still match at 20\%,
+is \texttt{inserted} under a new ID; only the insertion is re-verified. (D)~Partial occlusion: both cropped objects still match at 20\%,
 but at 40\% matching fails into two false-absent plus two false-new
 pairs---the matcher's quantified breaking point.}
 \label{fig:update}
@@ -665,7 +672,7 @@ Second, all three current-generation
 frontier models tie on type accuracy against the owner inventory
 (7/13), but differ two-fold in the calls they need to get there ---
 the same-generation mid-tier (Sonnet~5) is the most decisive (26
-unanimous, 6 escalations), and the premium tier's extra deliberation
+unanimous, 9 escalations), and the premium tier's extra deliberation
 (18 escalations) buys no additional accuracy here. Third, the ranking
 is generation-dominated, not vendor-dominated: both 2026-generation
 mid-tiers beat both older Claude tiers, and cross-vendor differences
@@ -711,5 +718,6 @@ order) at vendor list rates of August 2026 (\$/Mtok in/out: 3/15,
 0.20/1.20, 5/25, 3/15, 1/5). The GPT-5.6 row reflects the 2026-07-30
 price reduction; at its launch rate (1/6) the same run costs \$0.54.
 Sonnet~5's introductory rate (2/10) gives \$1.66.}
-\end{table} \emph{Segmentation parameters}: see
-Sec.~\ref{sec:exp-seg}.
+\end{table}
+
+\emph{Segmentation parameters}: see Sec.~\ref{sec:exp-seg}.

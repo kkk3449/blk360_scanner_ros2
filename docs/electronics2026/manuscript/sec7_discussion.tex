@@ -5,7 +5,8 @@
 VLM verification is the only paid stage. Escalation is bounded by its
 trigger rate (51--58\% of objects), and per-call cost is $\sim$\$0.009;
 full verification averages $\sim$\$0.09 per object (\$3.63 for a 38-cluster
-run and \$7.37 for an 86-cluster run, all calls included). The incremental
+run and \$7.37 for the 86-cluster robot-hall det run---the full detection
+set before room scoping and remnant filtering---all calls included). The incremental
 design changes
 the cost model qualitatively: a repeat scan costs \$0 (hash carry-over) and
 a changed scene costs in proportion to its change (3.1\% of rebuild in our
@@ -18,15 +19,15 @@ manual scan; 43\% on the 1/6-coverage ablation)---scan quality is the
 dominant driver of verification yield. The framework's position is to expose
 this residue, not shrink it cosmetically: unverified nodes stay queryable
 with demoted types, and the gate is only as good as the verifier
-(Sec.~5.3's unanimous-but-wrong cases; the escalated-verified keyboard trap
+(Sec.~\ref{sec:exp-verify}'s unanimous-but-wrong cases; the escalated-verified keyboard trap
 that survives gating on the robot hall). Verifier-bounded gating is a
 property users must design around, and we report it as such.
 
 \paragraph{Small low-reflectance objects.}
 The clutter-absorption error class---disassembled robot, poster stand, and
-the controlled-change floor circulator all verified as
+the controlled-change floor fan all verified as
 \texttt{clutter}---shows a systematic blind spot: geometrically detected,
-semantically flattened. Change detection still works (the circulator was
+semantically flattened. Change detection still works (the fan was
 correctly inserted), but type-level recall for small dark appliances needs
 either close-range imagery or targeted re-rendering. The T3 owner audit
 (Sec.~\ref{sec:exp-verify}) adds a vocabulary dimension: when the
@@ -72,8 +73,9 @@ through object, relation, place, scene, and mission layers at once.
 Better scans can make density-based decomposition worse: at 99.6\% coverage,
 gaps between adjacent objects close and DBSCAN chains 41\% of the scene into
 one mega-cluster. Our measurements show this artifact accounts for only
-$\sim$12\% of the epoch's absent nodes (5/43 recoverable by tighter
-re-splitting; 4/43 by Point-SAM refinement)---the rest is genuine change---but
+$\sim$12\% of the epoch's absent nodes (of the 43 re-associable absents,
+5 recoverable by tighter re-splitting and 4 by Point-SAM
+refinement)---the rest is genuine change---but
 the effect argues for coverage-adaptive clustering or learned instance
 priors as the backbone's next iteration, applied under the same
 flagged-candidate discipline as our Point-SAM rule.

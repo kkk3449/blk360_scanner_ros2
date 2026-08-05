@@ -17,14 +17,14 @@ distributions degrade sharply on industrial content: in our experiments a
 state-of-the-art point--text embedding model misclassifies most equipment,
 and---counterintuitively---restricting its vocabulary to the classes actually
 present makes accuracy \emph{worse} (66.7\% $\rightarrow$ 33.3\%,
-Sec.~5.6), indicating an embedding-level domain gap rather than a class-list
+Sec.~\ref{sec:exp-ablation}), indicating an embedding-level domain gap rather than a class-list
 problem. Pipelines that propagate such labels downstream hand the robot
 confident fictions.
 
 Second, \emph{ungrounded language interfaces hallucinate}. Letting an LLM
 answer questions about a scene from its own priors, or from an unvalidated
 label dump, produces fluent but unsupported claims---20.8\% of atomic factual
-claims in our LLM-only benchmark condition (Sec.~5.4). For a robot, a
+claims in our LLM-only benchmark condition (Sec.~\ref{sec:exp-query}). For a robot, a
 hallucinated fire extinguisher is not a harmless chat artifact.
 
 Third, \emph{scene models are built once and abandoned}. Most semantic
@@ -32,7 +32,7 @@ mapping pipelines produce a single-epoch artifact with no principled update
 path: a re-scan either rebuilds everything---losing object identities that
 downstream planners and logs refer to---or is not integrated at all. Real
 sites drift continuously; in our own test room, roughly one third of object
-geometry changed within two weeks (Sec.~5.5).
+geometry changed within two weeks (Sec.~\ref{sec:exp-update}).
 
 This paper presents \textbf{TLS-SMF} (TLS-driven Semantic Modeling
 Framework), which addresses all three failures with one design principle: \emph{separate what can be made deterministic from what
@@ -81,8 +81,9 @@ four-condition knowledge-grounded query benchmark with hallucination traps,
 synthetic update scenarios, and a real three-epoch study of one room spanning
 a manual scan, an autonomous exploration scan, and a controlled-change
 re-scan at 99.6\% coverage. Beyond the headline gains---escalation
-+11.1/+6.3 points, gated querying +31 points over LLM-only with traps
-blocked, re-verification at 3.1\% of rebuild cost---the study surfaces
++11.1/+6.3 points, gated querying +31 points over LLM-only with 3 of 4
+traps blocked end-to-end (4/4 in the isolated gating ablation),
+re-verification at 3.1\% of rebuild cost---the study surfaces
 failure modes we believe are as valuable as the successes: phantom objects
 from ceiling soffits, unanimous-but-wrong verifications, clutter absorption
 of small low-reflectance objects, and a coverage paradox in which a

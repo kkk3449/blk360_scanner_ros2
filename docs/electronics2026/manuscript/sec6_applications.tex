@@ -17,15 +17,18 @@ model. A \emph{semantic mediator} resolves natural mission commands ---
 \texttt{return\_home} --- against the knowledge graph: places resolve to
 free-space points at region centroids, objects to approach poses computed
 from the target's footprint and the robot's radius, with the verification
-gate deciding eligibility. A hybrid deliberative/reactive behavior tree
-(Fig.~\ref{fig:bttree}) executes the resolved goals through Nav2, with a
+gate deciding eligibility. A hybrid deliberative/reactive behavior
+tree~\cite{colledanchise2018bt,iovino2022btsurvey}
+(Fig.~\ref{fig:bttree}) executes the resolved goals through
+Nav2~\cite{macenski2020marathon}, with a
 reactive layer that preempts the mission on low battery or an interrupt
 and returns the robot to its home pose. The management console
-(Sec.~\ref{sec:exp-query}) issues commands and edits the graph live; the
+(Sec.~\ref{sec:overview}) issues commands and edits the graph live; the
 mediator hot-reloads owner edits, so refuting a phantom in the UI changes
 robot behavior on the next command without a restart.
 
-Experiments run in a Gazebo world generated from the same exploration
+Experiments run in a Gazebo~\cite{koenig2004gazebo} world generated from
+the same exploration
 occupancy grid that anchors the place layer, so world, navigation map, and
 knowledge graph share one frame. The simulated vehicle is a digital proxy
 of the target platform itself: the AMMR's footprint
