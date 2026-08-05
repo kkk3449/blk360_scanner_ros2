@@ -26,7 +26,7 @@ manual scan; 43\% on the 1/6-coverage ablation)---scan quality is the
 dominant driver of verification yield. The framework's position is to expose
 this residue, not shrink it cosmetically: unverified nodes stay queryable
 with demoted types, and the gate is only as good as the verifier
-(Sec.~\ref{sec:exp-verify}'s unanimous-but-wrong cases; the escalated-verified keyboard trap
+(Sec.~\ref{sec:exp-verify}'s unanimous-but-wrong cases; the escalation-verified keyboard trap
 that survives gating on the robot hall). Verifier-bounded gating is a
 property users must design around, and we report it as such.
 
@@ -37,7 +37,7 @@ the controlled-change floor fan all verified as
 semantically flattened. Change detection still works (the fan was
 correctly inserted), but type-level recall for small dark appliances needs
 either close-range imagery or targeted re-rendering. The T3 owner audit
-(Sec.~\ref{sec:exp-verify}) adds a vocabulary dimension: when the
+(Sec.~\ref{sec:exp-owner}) adds a vocabulary dimension: when the
 deployment site contains object families absent from the classifier
 vocabulary (robots, in our testbed), absorption becomes the dominant
 error, and naively injecting site vocabulary as candidates trades
@@ -63,13 +63,12 @@ condition to detect across, not a fixed preprocessing truth.
 \paragraph{Correlated verifier bias.}
 Cross-condition voting corrected no labels: when the verifier
 mislabels, it tends to mislabel the same way regardless of how the
-input was segmented (the recovered tables were ``conveyor belts'' under
-every structure condition; the actual conveyor was \texttt{clutter}
-under every one). Ensembling over \emph{inputs} cannot decorrelate a
+input was segmented (the correlated conveyor-belt case of
+Sec.~\ref{sec:exp-seg}). Ensembling over \emph{inputs} cannot decorrelate a
 bias that lives in the \emph{model}; what the ensemble does yield is a
 calibrated instability signal (\texttt{labelStability}) that tells the
 owner where to look. Together with the time-variant ground truth of
-Sec.~\ref{sec:exp-verify}, this shapes our position: the owner is not a
+Sec.~\ref{sec:exp-owner}, this shapes our position: the owner is not a
 fallback annotator but the highest-trust evidence source in a
 permanently open loop, and the model's job is to make each owner
 minute maximally productive --- surfacing the unstable, preserving
@@ -90,7 +89,10 @@ flagged-candidate discipline as our Point-SAM rule.
 \paragraph{Scope.}
 Results come from one scanner, one building, and object-level change;
 structural change (walls, large fixtures) and cross-site generalization are
-untested. The three-epoch study mitigates but does not remove the two-scene
+untested. Manipulation is likewise out of scope: the implicit layer plus
+verified pose and extents provide the minimum contract a manipulation
+planner needs for coarse feasibility screening, but we state this as an
+interface property without experiments. The three-epoch study mitigates but does not remove the two-scene
 limitation. The place layer's regions are parameterized SLIC superpixels over the grid
 map: spatial cells rather than architecturally meaningful rooms, with the
 superpixel count fixed by hand; inferring wall- and doorway-aligned region

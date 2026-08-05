@@ -9,7 +9,13 @@ geometric object decomposition with structure-remnant filtering
 (\ref{sec:verification}), object identity matching (\ref{sec:matching}), and
 confidence-gated graph upsert (\ref{sec:upsert}), followed by the structurally
 gated query interface (\ref{sec:query}) and the object-grounded place layer
-(\ref{sec:place}). Stages \ref{sec:preprocess}--\ref{sec:explicit} form the
+(\ref{sec:place}). Two further mechanism families---the corrective
+re-split gates with the structure-condition ensemble, and the
+owner-evidence revision path---are introduced in
+Sec.~\ref{sec:experiments} alongside the failures that motivated them
+(Secs.~\ref{sec:exp-seg} and~\ref{sec:exp-owner}); for brevity we refer
+to the geometric stages through explicit modeling as \emph{Stage~A} and
+to VLM verification as \emph{Stage~B}. Stages \ref{sec:preprocess}--\ref{sec:explicit} form the
 \emph{deterministic geometric backbone}: every random draw is seeded, so a
 re-run on the same host reproduces every retained cluster byte-identically
 (Sec.~\ref{sec:exp-seg}). Stages \ref{sec:verification} onward are \emph{probabilistic
@@ -111,9 +117,8 @@ explicit attributes only---the provisional label below is stochastic and
 excluded from it. A provisional semantic label is then attached by Uni3D
 open-vocabulary classification over a 30-class industrial vocabulary. The
 provisional label is explicitly \emph{not trusted}: our own vocabulary
-ablation (Sec.~\ref{sec:exp-ablation}) shows that narrowing the vocabulary to the deployment
-domain \emph{reduces} accuracy (66.7\% $\rightarrow$ 33.3\%), indicating an
-embedding-level domain gap that cannot be fixed by class-list curation. The
+ablation shows that narrowing the vocabulary to the deployment
+domain \emph{reduces} accuracy (Sec.~\ref{sec:exp-ablation}). The
 provisional label serves only as VLM context and as a fallback name; every
 label a robot may act on must pass the verification stage below.
 
@@ -235,11 +240,8 @@ Fig.~\ref{fig:placemap} (pastel): dotted object$\rightarrow$place
 \texttt{isInsideOf} containment, intra-place \texttt{isNextTo} edges,
 vertical \texttt{isOn}/\texttt{isAboveOf} relations, dashed place
 \texttt{isAdjacentTo} edges between region centroids, and per-place key
-objects (named stars), shown after the owner-feedback revision
-(Sec.~\ref{sec:exp-verify}): refuted phantoms (a verified keyboard,
-staircase, and book that do not exist in the room) have been removed
-from the graph, the poster stand carries its owner-corrected label, and
-the recovered TV is the key object of its region.}
+objects (named stars). The map reflects the graph's current revision,
+including owner feedback (Sec.~\ref{sec:exp-owner}).}
 \label{fig:relmap}
 \end{figure}
 
@@ -271,6 +273,14 @@ Sec.~\ref{sec:exp-ablation}), while in the end-to-end benchmark one count-phrase
 leaks through the quarantine field itself (3/4, Sec.~\ref{sec:exp-query}). Traps whose
 label was wrongly \emph{verified} lie beyond any status-based gate---a
 bound we quantify in Sec.~\ref{sec:exp-query}.
+
+In interaction, the gate makes confidence part of the answer rather than
+metadata. Asked ``is there a keyboard in the room?'', the system answers
+from the gated view: a verified keyboard is asserted with its location,
+while an unverified one yields ``an object at $(x,y)$ was proposed as a
+keyboard by the classifier but did not pass verification''---an answer a
+robot can act on conservatively (route a person, lower approach speed)
+instead of a confident guess.
 
 \begin{figure}[t]
 \centering
@@ -321,9 +331,6 @@ regions~\cite{achanta2012slic} tile the room interior delimited by the
 nav-stack grid map's outer boundary and carry LLM-derived names computed
 from verified-object ring codes; unverified objects (blue markers) do not
 contribute, so the confidence gate propagates into place semantics. Shown
-after the owner-feedback revision (Sec.~\ref{sec:exp-verify}): with the
-phantoms refuted, the region once named after a phantom staircase renames
-itself \texttt{display\_briefing\_area} around the recovered TV and
-poster stand.}
+at the graph's owner-corrected revision (Sec.~\ref{sec:exp-owner}).}
 \label{fig:placemap}
 \end{figure}

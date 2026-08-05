@@ -56,14 +56,13 @@ supervision~\cite{radford2021clip} to point clouds, and scene-level systems
 attach open-vocabulary features to 3D points and
 instances~\cite{peng2023openscene,takmaz2023openmask3d}; all perform well
 on curated indoor benchmarks.
-On industrial TLS content, however, we observe the transfer breaking down:
-in a 30-cluster pilot, PointCLIP~V2 collapsed to a single class for 23 of 30
-clusters (0\% top-1), and Uni3D's
-accuracy \emph{drops} as the vocabulary is narrowed toward the true class
-list (66.7\% $\rightarrow$ 33.3\%, Sec.~\ref{sec:exp-ablation})---the
-embedding cannot separate the domain's classes regardless of prompt
-curation. We therefore treat open-vocabulary output as a provisional prior
-to be verified, not a label source.
+On industrial TLS content, however, we observe the transfer breaking
+down: PointCLIP~V2 collapses to a single class, and Uni3D's accuracy
+\emph{drops} as the vocabulary is narrowed toward the true class list
+(Sec.~\ref{sec:exp-ablation})---the embedding cannot separate the
+domain's classes regardless of prompt curation. We therefore treat
+open-vocabulary output as a provisional prior to be verified, not a
+label source.
 
 \subsection{Instance Segmentation: Learned versus Geometric}
 Learned 3D instance segmentation built on point-set

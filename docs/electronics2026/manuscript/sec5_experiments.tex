@@ -22,7 +22,8 @@ given in Table~\ref{tab:scenes}.
 
 \begin{table}[t]
 \centering
-\caption{Scene statistics (det sets, after structure-remnant filtering).
+\caption{Scene statistics (deterministic detection ``det'' sets, after
+structure-remnant filtering).
 T1 semantic processing starts from a manually wall-removed export (4.9M
 points) of the 46.3M-point raw scan.}
 \label{tab:scenes}
@@ -72,9 +73,8 @@ every verification, escalation, and owner interaction in the accumulated
 knowledge-graph lineage was produced under this one verifier, so results
 remain comparable across sections and revisions. The verifier choice itself
 is then evaluated in Sec.~\ref{sec:exp-ablation}, which repeats the
-identical Stage-B protocol across five commercial VLMs, and
-Sec.~\ref{sec:exp-verify} additionally reports the headline verification
-study re-run under the best-ranked model.
+identical Stage-B protocol across five commercial VLMs and re-runs the
+headline verification study under the best-ranked one.
 All query conditions share the same LLM (\texttt{claude-sonnet-4-6}), system
 prompt, query set, decoding parameters, retry policy, and forced answer
 schema; conditions differ \emph{only} in the knowledge view they receive.
@@ -136,6 +136,7 @@ machine, an office chair, and a chair re-emerge from a single
 \label{fig:baselines}
 \end{figure}
 
+\paragraph{Coverage stress case.}
 The T3 epoch supplied a stress case: at 99.6\% coverage, inter-object
 gaps close and DBSCAN chains 120K points (41\% of the clean cloud) into one
 $10.4\times9.6$\,m mega-cluster that survives the giant-split. Refinement
@@ -271,7 +272,8 @@ settings bounds the verifier's run-to-run variance: base-4 accuracy
 reproduces exactly (77.8\%), escalated accuracy shifts by a single object
 (86.1\% vs.\ 88.9\%), the trigger rate by two points (60\% vs.\ 58\%), and
 unanimous and escalated precision hold at 100\% in both runs---a
-$\pm$3-point scale against which the model deltas below should be read. A separate check evaluates the room-scoped T1 objects
+$\pm$3-point scale against which the verifier comparisons of
+Sec.~\ref{sec:exp-ablation} should be read. A separate check evaluates the room-scoped T1 objects
 in the update-study frame (Sec.~\ref{sec:exp-update}), where showroom GT is
 transferred to the re-decomposed clusters by bidirectional point overlap;
 on the resulting small confirmed set ($n{=}8$), verified-tier precision is
@@ -281,30 +283,6 @@ Verification yield tracks scan quality: the manual scan leaves 47\% of
 objects unverified versus 24\% for exploration scans, and re-processing the
 T3 scan from a single setup (1/6 coverage) drops the verified tier from
 75.6\% to 56.6\% on identical geometry. Coverage buys verifiability.
-
-\paragraph{Verifier upgrade check.}
-Because the ground truth is fixed and scoring is automatic, the entire
-study re-runs unchanged under a different verifier. Re-running both scenes
-under \texttt{claude-sonnet-5}---the model Sec.~\ref{sec:exp-ablation}
-ranks most decisive---confirms the decisiveness transfer: escalation
-triggers fall from 58\% to 50\% (showroom) and from 51\% to 33\% (robot
-hall), unanimous verifications rise from 21 to 25 and from 25 to 34, and
-escalation calls drop from 232 to 200 and from 208 to 136. The freed
-decisiveness is not free accuracy, however: unanimous precision falls
-from 100\% to 91.7\% and from 94.4\% to 83.3\%, and escalated accuracy
-lands at 69.4\% and 81.2\% (vs.\ 88.9\% and 84.4\%)---showroom deltas
-several times the $\pm$3-point run-to-run variance measured above, and
-directionally reproduced on the second scene. The dominant new
-failure is clutter absorption---real chairs, junction boxes, and a
-control panel unanimously verified as \texttt{clutter}---i.e., the newer
-model re-distributes error mass from indecision into confident
-under-labeling on these 512-px render sets, while on the 1024-px renders
-of Sec.~\ref{sec:exp-ablation} it ties for the best type accuracy.
-Verifier upgrades therefore change \emph{where} errors live rather than
-uniformly removing them, which is precisely why the framework treats
-verification as tiered evidence behind a gate rather than as truth: the
-tier structure, the escalation economics, and the owner loop survive a
-verifier swap; the specific precision figures do not.
 
 \paragraph{Error taxonomy.}
 Four recurring error classes emerged (Fig.~\ref{fig:taxonomy}):
@@ -338,7 +316,16 @@ failure mode.
 Classes (b) and (c) motivate reporting verification as \emph{tiered
 evidence} rather than truth, and drive the structural gating design.
 
-\paragraph{Owner ground-truth audit (T3).}
+\subsection{Owner Audit and Corrective Feedback (T3)}
+\label{sec:exp-owner}
+
+The preceding subsection measured what the pipeline believes; this one
+measures what the room's occupant knows, and how that knowledge feeds
+back into the graph. It exercises the revision and upsert machinery ahead
+of its formal evaluation (Sec.~\ref{sec:exp-update}); only the feedback
+mechanics matter here.
+
+\paragraph{Exhaustive audit and mitigations.}
 The room occupant exhaustively labeled all 41 T3 clusters, giving a
 second, fully independent ground truth beyond the showroom scoring sets.
 Of the 31 verified-tier clusters, 6 were correct, 13 were real objects
@@ -397,7 +384,7 @@ keyboard-derived \texttt{workstation\_area} becomes
 owner feedback propagates through all three layers of the model: object,
 relation, and place.
 
-\paragraph{Owner feedback at scale: bidirectional, corrective, and
+\paragraph{Feedback at scale: bidirectional, corrective, and
 time-variant.}
 Extending the audit loop through nine further KG revisions shows owner
 feedback operating in all four directions the model supports.
@@ -412,11 +399,10 @@ history rather than as immutable truth. \emph{Refutation}: a
 raw-condition ensemble find was refuted as wall paint --- the patches
 surround the room's wall-mounted TV, whose glossy black screen returns
 almost no lidar, so the ``object'' was the halo around a hole.
-\emph{Label correction}: both ensemble-recovered tables (unanimous
-``conveyor belt'') and a poster stand (tie-break ``fire extinguisher'',
-0.72) were corrected in place, each with the VLM's verdict preserved in
-provenance --- unanimity across passes \emph{and} across structure
-conditions still inherits one model's bias. \emph{Attribute
+\emph{Label correction}: the correlated-bias tables of
+Sec.~\ref{sec:exp-seg} and a poster stand (tie-break ``fire
+extinguisher'', 0.72) were corrected in place, each with the VLM's
+verdict preserved in provenance. \emph{Attribute
 correction}: wall-remnant clutter was marked immovable in the implicit
 layer. Adjudication itself gained three inexpensive refinements along
 the way: canonical synonym matching (``robot\_arm'' vs ``robot
@@ -469,7 +455,7 @@ structurally demoted, Sec.~\ref{sec:query}). Each scene carries four trap
 questions about objects that do not exist as labeled. On the showroom all
 four traps target \emph{unverified-label} phantoms (keyboard, ladder); on
 the robot hall two target an unverified-label phantom (refrigerator) and
-two an \emph{escalated-verified} phantom (keyboard)---the latter probing
+two an \emph{escalation-verified} phantom (keyboard)---the latter probing
 the gate's verifier-quality bound. A correct system must decline to assert
 the trap labels. Note that LLM-only can ``block'' traps trivially: with no
 map it tends to deny that specific objects exist at all (4/4 on the robot
@@ -504,7 +490,7 @@ distinct. On the showroom, one \emph{count}-phrased trap slipped through
 the quarantine itself: the model tallied a demoted node by reading its
 \texttt{failedCandidateType} field, even though it correctly denied the
 same object in yes/no phrasing. On the robot hall, the keyboard phantom is
-\emph{escalated-verified}, so it passes any status-based gate---gating is
+\emph{escalation-verified}, so it passes any status-based gate---gating is
 bounded by verifier quality; we report both as properties, not anomalies.
 The robot hall reproduces the ordering at lower absolute levels because its
 end-to-end label errors (banner$\rightarrow$refrigerator,
@@ -650,22 +636,31 @@ Verified path (Sec.~\ref{sec:decomposition}--\ref{sec:verification}) &
 \subsection{Ablation and Sensitivity}
 \label{sec:exp-ablation}
 
-\emph{Escalation on/off} is the base-4 column of
-Table~\ref{tab:verification}: +11.1/+6.3 points. \emph{Gating style}:
-instructing the model to respect verification status blocks 1/4 traps;
+\paragraph{Escalation on/off.} The base-4 column of
+Table~\ref{tab:verification}: +11.1/+6.3 points.
+
+\paragraph{Gating style.}
+Instructing the model to respect verification status blocks 1/4 traps;
 structural demotion blocks 4/4 under identical prompts in this isolated
-comparison (in the separate end-to-end run of Table~\ref{tab:query}, one
-count-phrased trap leaked, 3/4)---still the single strongest argument that
-reliability must live in the data contract, not in instructions. \emph{Pose context}: injecting mounting-height context as a
+comparison (vs.\ 3/4 end-to-end, Sec.~\ref{sec:exp-query})---still the
+single strongest argument that
+reliability must live in the data contract, not in instructions.
+
+\paragraph{Pose context.}
+Injecting mounting-height context as a
 targeted defense removed all three phantom ceiling keyboards in its pilot,
 but applying it to every object \emph{reduced} escalated accuracy
 (88.9\%$\rightarrow$75.0\%) and escalated precision
 (100\%$\rightarrow$72.7\%)---a desk-height prior that helps ceilings hurts
-everything else, so it ships as a targeted defense only. \emph{Uni3D
-vocabulary}: generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
+everything else, so it ships as a targeted defense only.
+
+\paragraph{Uni3D vocabulary.}
+Generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
 (run-to-run variance $\sim$5 points), confirming the embedding-level domain
-gap that motivates verification. \emph{Verifier model}
-(Table~\ref{tab:vlmcmp}): running the identical Stage-B protocol across
+gap that motivates verification.
+
+\paragraph{Verifier model.}
+Running the identical Stage-B protocol (Table~\ref{tab:vlmcmp}) across
 five verifiers (two vendors, three tiers, two generations; reasoning
 disabled for parity) makes escalation an economic instrument --- call
 volume tracks verifier decisiveness monotonically (247 to 383 calls as
@@ -687,8 +682,8 @@ within the generation are smaller than the tier effects. Escalation
 volume is thus a label-free, online proxy for verifier decisiveness on
 the deployment's own data --- and a purchasing guide for \emph{cost}:
 pick the cheapest verifier whose escalation rate has saturated. It is
-not a proxy for accuracy: the upgrade check of
-Sec.~\ref{sec:exp-verify} shows the most decisive model trading
+not a proxy for accuracy: the upgrade check below shows the most
+decisive model trading
 unanimous precision for its decisiveness on the two full GT scenes, so
 quality must still be priced by a small labeled probe set or by
 accumulated owner feedback. The cost guide is robust where prices are
@@ -727,4 +722,29 @@ price reduction; at its launch rate (1/6) the same run costs \$0.54.
 Sonnet~5's introductory rate (2/10) gives \$1.66.}
 \end{table}
 
-\emph{Segmentation parameters}: see Sec.~\ref{sec:exp-seg}.
+\paragraph{Verifier upgrade check.}
+Because the ground truth is fixed and scoring is automatic, the headline
+study of Sec.~\ref{sec:exp-verify} re-runs unchanged under a different
+verifier. Re-running both scenes under Claude Sonnet~5---the most
+decisive model above---confirms the decisiveness transfer: escalation
+triggers fall from 58\% to 50\% (showroom) and from 51\% to 33\% (robot
+hall), unanimous verifications rise from 21 to 25 and from 25 to 34, and
+escalation calls drop from 232 to 200 and from 208 to 136. The freed
+decisiveness is not free accuracy, however: unanimous precision falls
+from 100\% to 91.7\% and from 94.4\% to 83.3\%, and escalated accuracy
+lands at 69.4\% and 81.2\% (vs.\ 88.9\% and 84.4\%)---showroom deltas
+several times the $\pm$3-point run-to-run variance measured in
+Sec.~\ref{sec:exp-verify}, and directionally reproduced on the second
+scene. The dominant new
+failure is clutter absorption---real chairs, junction boxes, and a
+control panel unanimously verified as \texttt{clutter}---i.e., the newer
+model re-distributes error mass from indecision into confident
+under-labeling on these 512-px render sets, while on the 1024-px renders
+of Table~\ref{tab:vlmcmp} it ties for the best type accuracy.
+Verifier upgrades therefore change \emph{where} errors live rather than
+uniformly removing them, which is precisely why the framework treats
+verification as tiered evidence behind a gate rather than as truth: the
+tier structure, the escalation economics, and the owner loop survive a
+verifier swap; the specific precision figures do not.
+
+\paragraph{Segmentation parameters.} See Sec.~\ref{sec:exp-seg}.
