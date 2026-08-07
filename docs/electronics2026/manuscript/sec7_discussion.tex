@@ -40,9 +40,12 @@ either close-range imagery or targeted re-rendering. The cafeteria
 render-source ablation (Sec.~\ref{sec:exp-ablation}) tests exactly this
 mechanism and splits it: re-rendering from full-resolution points repairs
 every \emph{whole-object} error in that scene (keyboard phantoms, chairs,
-doors), while absorption of object \emph{fragments} survives untouched---so
-re-rendering is the right lever for this error class only when
-segmentation has delivered the object intact. The T3 owner audit
+doors), while absorption of object \emph{fragments} survives untouched.
+The showroom control bounds the lever from the other side---the same
+upgrade \emph{lowers} accuracy on the industrial scene by inviting
+over-specific labels---so targeted re-rendering is the right response
+only when segmentation has delivered the object intact \emph{and} the
+working-cloud render is what destroys its identity. The T3 owner audit
 (Sec.~\ref{sec:exp-owner}) adds a vocabulary dimension: when the
 deployment site contains object families absent from the classifier
 vocabulary (robots, in our testbed), absorption becomes the dominant
