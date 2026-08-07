@@ -630,7 +630,14 @@ partially scanned and wall-flush objects, though the sensing modality
 and ground-truth protocols differ. The re-run also reproduced the
 deterministic backbone's stability end to end: the same diffuse webs,
 the same compound decompositions, and a first-pass verification of the
-fire extinguisher that had originally required owner restoration.
+fire extinguisher that had originally required owner restoration. The
+precision column of Table~\ref{tab:layers} tracks what recall costs:
+each added layer admits more candidate clusters, and the ensemble's
+extra detection conditions temporarily dilute in-room precision (60\%
+$\rightarrow$ 49\%) before the square-up step recovers part of it---
+automated recall is bought with review burden, which is exactly the
+owner-minute economy that Sec.~\ref{sec:exp-owner} argues the model
+should optimize.
 
 \begin{table}[t]
 \centering
@@ -655,8 +662,11 @@ Verified path (Sec.~\ref{sec:decomposition}--\ref{sec:verification}) &
 \subsection{Ablation and Sensitivity}
 \label{sec:exp-ablation}
 
-\paragraph{Escalation on/off.} The base-4 column of
-Table~\ref{tab:verification}: +11.1/+6.3 points.
+\paragraph{Escalation on/off.}
+Disabling escalation reduces the pipeline to its base-4 fusion, already
+tabulated as the base-4 column of Table~\ref{tab:verification}: escalation
+contributes $+$11.1 points on the showroom and $+$6.3 on the robot hall,
+at the bounded call cost analyzed in Fig.~\ref{fig:esccost}.
 
 \paragraph{Gating style.}
 Instructing the model to respect verification status blocks 1/4 traps;
@@ -674,9 +684,11 @@ but applying it to every object \emph{reduced} escalated accuracy
 everything else, so it ships as a targeted defense only.
 
 \paragraph{Uni3D vocabulary.}
-Generic-30 66.7\% $>$ curated-20 48.7\% $>$ owner-18 33.3\%
-(run-to-run variance $\sim$5 points), confirming the embedding-level domain
-gap that motivates verification.
+Swapping the Stage-A classifier vocabulary ranks generic-30 (66.7\%) above
+curated-20 (48.7\%) and above the owner-derived 18-term set (33.3\%), with
+$\sim$5-point run-to-run variance---narrowing the prompt set toward the
+deployment vocabulary \emph{hurts} the embedding-level classifier,
+confirming the domain gap that motivates VLM verification downstream.
 
 \paragraph{Verifier model.}
 Running the identical Stage-B protocol (Table~\ref{tab:vlmcmp}) across
@@ -766,46 +778,94 @@ verification as tiered evidence behind a gate rather than as truth: the
 tier structure, the escalation economics, and the owner loop survive a
 verifier swap; the specific precision figures do not.
 
-\paragraph{Cross-floor stress scene and render-source ablation.}
-The cafeteria scene (Sec.~\ref{sec:setup}) probes the same protocol,
-same verifier, on a furnishing domain the campaign never saw: carpeted
-floor, fabric sofa booths, planter partitions. The backbone transfers
-mechanically (57M points $\rightarrow$ 28 clusters in 13.5\,s after an
-automatic yaw alignment), but verification does not: escalated accuracy
-reaches only 35\% against confirmed owner GT (46.7\% when
-fragment clusters are excluded from grading), and unanimous precision
-falls to 57.1\%---two unanimous keyboard phantoms on carpet-noise
-clusters, a chair and a table pedestal unanimously absorbed as
-\texttt{clutter}. The errors are structured, not diffuse: the scene's
-dominant object family (sofas) enters the pipeline pre-broken---split
-into six cushion fragments and two sofa-table merges---and every
-fragment is absorbed; carpet pile leaves seven residual floor-noise
-clusters above the RANSAC floor plane (a floor-material analogue of the
-ceiling remnants of Sec.~\ref{sec:exp-seg}); and the confidence gate
-quarantines 9 of 16 wrong labels as unverified while 4 unanimous errors
-pass. Re-rendering the identical 512-px view sets from full-resolution
-re-associated points (rather than the 3\,cm working cloud) isolates the
-render-quality term at unchanged protocol and cost ($\sim$\$2.5/scene):
-every whole-object error repairs---the keyboard phantoms vanish, both
-chairs recover (including the unanimous one), and both doors resolve
-correctly, one via escalation---lifting escalated accuracy to 40\%
-(53.3\% excluding fragments) and unanimous precision to 62.5\%; but no
-sofa fragment is recovered, and two planters regress. A final cell
-completes the model $\times$ render-source square: Sonnet~5 on the same
-full-resolution sets reaches 60\% (80\% excluding fragments, unanimous
-precision 80\%)---the decisive model of the upgrade check converts its
-decisiveness into accuracy once renders are informative, consistent
-with its 1024-px behavior in Table~\ref{tab:vlmcmp}---yet it recovers
-\emph{zero} of the seven sofa clusters and both planters stay
-mislabeled. The levers separate cleanly: segmentation bounds what any
-verifier can see, render quality bounds what a given verifier resolves,
-and model generation buys accuracy only on top of both---so
-fragmentation-induced absorption is reachable by none of them.
-Together with the
-upgrade check, the stress scene fixes the reading of
-Table~\ref{tab:verification}: tier precision is a scene- and
-domain-scoped measurement to be re-estimated per deployment---cheaply,
-via a small owner-confirmed probe set---not a property of the
-architecture.
+\begin{table}[!t]
+\centering
+\caption{Cafeteria stress scene: verification under verifier $\times$
+render source (identical 512-px, 8-azimuth protocol throughout).
+Accuracy is escalated accuracy on confirmed GT ($n{=}20$; the
+fragment-excluded column drops the six sofa-fragment and pedestal
+clusters, $n{=}15$); unanimous precision is over confirmed unanimous
+votes. In every cell, 0 of the 7 sofa clusters are recovered.}
+\label{tab:cafe}
+\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Verifier & Render source & Esc.\ acc. & (excl.\ fragments) &
+Unan.\ prec. & Trigger \\
+\midrule
+Sonnet 4-6 & 3\,cm voxel cloud & 35.0\% & 46.7\% & 57.1\% & 68\% \\
+Sonnet 4-6 & full-resolution & 40.0\% & 53.3\% & 62.5\% & 60\% \\
+Sonnet 5 & 3\,cm voxel cloud & 45.0\% & 60.0\% & 66.7\% & 40\% \\
+Sonnet 5 & full-resolution & \textbf{60.0\%} & \textbf{80.0\%} &
+\textbf{80.0\%} & 52\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\paragraph{Segmentation parameters.} See Sec.~\ref{sec:exp-seg}.
+\begin{figure}[!tp]
+\centering
+\includegraphics[width=\linewidth]{fig17_cafe_stress.png}
+\caption{Cafeteria stress scene. (a)~The 28 clusters after automatic
+yaw alignment and room crop; crosses mark the seven sofa
+fragments/merges (absorbed as \texttt{clutter} in every condition of
+Table~\ref{tab:cafe}), circles the seven carpet floor-noise clusters.
+(b)~One cluster, rendered from the 3\,cm working cloud (left) and from
+full-resolution re-associated points (right) under the identical
+512-px protocol: the chair (top) is recovered by the render-source
+change alone; the sofa fragment (bottom) is not. (c)~Escalated
+accuracy (confirmed GT) and unanimous precision across verifier
+$\times$ render source.}
+\label{fig:cafe}
+\end{figure}
+
+\paragraph{Cross-floor stress scene.}
+The cafeteria scene (Sec.~\ref{sec:setup}) probes the same protocol on
+a furnishing domain the campaign never saw: carpeted floor, fabric sofa
+booths, planter partitions (Fig.~\ref{fig:cafe}a). The backbone
+transfers mechanically---57M points to 28 clusters in 13.5\,s after an
+automatic wall-normal yaw alignment---but verification does not
+(Table~\ref{tab:cafe}, first row): escalated accuracy reaches only
+35\% against confirmed owner GT, and unanimous precision falls to
+57.1\%, with two unanimous keyboard phantoms on carpet-noise clusters
+and a chair and a table pedestal unanimously absorbed as
+\texttt{clutter}. The errors are structured, not diffuse. The scene's
+dominant object family---the sofas---enters the pipeline pre-broken,
+split into six cushion fragments and two sofa--table merges, and every
+one is absorbed (crosses in Fig.~\ref{fig:cafe}a); carpet pile leaves
+seven residual floor-noise clusters above the RANSAC floor plane
+(circles; the floor-material analogue of the ceiling remnants of
+Sec.~\ref{sec:exp-seg}); and the confidence gate quarantines 9 of the
+16 wrong labels as unverified while the 4 unanimous errors pass.
+
+\paragraph{Render source $\times$ verifier.}
+Two upgrades are then applied factorially (Table~\ref{tab:cafe},
+Fig.~\ref{fig:cafe}c): re-rendering the identical 512-px view sets
+from full-resolution re-associated points instead of the 3\,cm working
+cloud (isolating render quality at unchanged protocol and cost,
+$\sim$\$2.5/scene), and swapping the verifier for Sonnet~5. The two
+levers act on different error classes. The render-source change
+repairs \emph{whole-object} ambiguity for both verifiers: under
+Sonnet~4-6 the keyboard phantoms vanish, both chairs recover
+(including the unanimous miss; Fig.~\ref{fig:cafe}b, top), and both
+doors resolve correctly, one via escalation---while the voxel renders
+block the same chairs and doors under Sonnet~5 as well. The verifier
+upgrade adds accuracy on top of whichever source it is given
+(35$\rightarrow$45\% on voxel, 40$\rightarrow$60\% on full-resolution
+sets): on this scene the newer model is uniformly better---in contrast
+to its unanimous-precision loss on the industrial 512-px sets in the
+upgrade check above---so even the \emph{sign} of a model upgrade is
+domain-dependent. What neither lever reaches is fragmentation: the
+seven sofa clusters are absorbed in all four cells
+(Fig.~\ref{fig:cafe}b, bottom) and the planters stay mislabeled.
+Segmentation bounds what any verifier can see; render quality bounds
+what a given verifier resolves; the model generation buys accuracy
+only on top of both. Together with the upgrade check, the stress scene
+fixes the reading of Table~\ref{tab:verification}: tier precision is a
+scene- and domain-scoped measurement, to be re-estimated per
+deployment---cheaply, via a small owner-confirmed probe set---rather
+than a property of the architecture.
+
+\paragraph{Segmentation parameters.}
+The backbone's parameter sensitivity (36-combination sweep) and the
+conditional refinement rules are ablated where their context lives, in
+Sec.~\ref{sec:exp-seg}.
