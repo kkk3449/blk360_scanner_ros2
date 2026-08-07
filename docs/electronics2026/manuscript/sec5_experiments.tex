@@ -5,7 +5,8 @@
 \label{sec:setup}
 
 \paragraph{Scenes and epochs.}
-All data comes from BLK360 scans of two industrial indoor environments that
+All main-campaign data comes from BLK360 scans of two industrial indoor
+environments that
 are, in fact, one room observed across its working life---a property we
 exploit deliberately. The \emph{showroom} epoch (June 2026) captures the room
 in an exhibition configuration, scanned manually with the door open; its
@@ -781,11 +782,12 @@ verifier swap; the specific precision figures do not.
 \begin{table}[!t]
 \centering
 \caption{Cafeteria stress scene: verification under verifier $\times$
-render source (identical 512-px, 8-azimuth protocol throughout).
-Accuracy is escalated accuracy on confirmed GT ($n{=}20$; the
-fragment-excluded column drops the six sofa-fragment and pedestal
-clusters, $n{=}15$); unanimous precision is over confirmed unanimous
-votes. In every cell, 0 of the 7 sofa clusters are recovered.}
+render source (the identical 512-px multi-view protocol of
+Sec.~\ref{sec:verification} throughout). Accuracy is escalated accuracy
+on confirmed GT ($n{=}20$; the fragment-excluded column drops the five
+confirmed sofa-fragment clusters, $n{=}15$); unanimous precision is over
+confirmed unanimous votes. In every cell, 0 of the 7 sofa clusters are
+recovered.}
 \label{tab:cafe}
 \small
 \begin{tabular}{@{}llcccc@{}}
@@ -827,15 +829,17 @@ automatic wall-normal yaw alignment---but verification does not
 (Table~\ref{tab:cafe}, first row): escalated accuracy reaches only
 35\% against confirmed owner GT, and unanimous precision falls to
 57.1\%, with two unanimous keyboard phantoms on carpet-noise clusters
-and a chair and a table pedestal unanimously absorbed as
-\texttt{clutter}. The errors are structured, not diffuse. The scene's
+and a chair unanimously absorbed as \texttt{clutter} (a fourth
+unanimous miss, a table pedestal, falls on plausible-graded GT). The
+errors are structured, not diffuse. The scene's
 dominant object family---the sofas---enters the pipeline pre-broken,
-split into six cushion fragments and two sofa--table merges, and every
+split into five cushion fragments and two sofa--table merges, and every
 one is absorbed (crosses in Fig.~\ref{fig:cafe}a); carpet pile leaves
 seven residual floor-noise clusters above the RANSAC floor plane
 (circles; the floor-material analogue of the ceiling remnants of
 Sec.~\ref{sec:exp-seg}); and the confidence gate quarantines 9 of the
-16 wrong labels as unverified while the 4 unanimous errors pass.
+16 wrong labels over the 25 scored clusters as unverified while the
+unanimous errors pass.
 
 \paragraph{Render source $\times$ verifier.}
 Two upgrades are then applied factorially (Table~\ref{tab:cafe},

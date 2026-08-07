@@ -11,17 +11,31 @@ semantic attributes and inter-object relations~\cite{armeni20193dsg}, and
 recent open-vocabulary variants attach language-queryable features to nodes
 and edges~\cite{koch2024open3dsg,gu2024conceptgraphs}, enabling LLM-driven
 mobile manipulation over the graph~\cite{honerkamp2024momallm}; on the
-knowledge side, ontology-backed infrastructures such as
-KnowRob~\cite{tenorth2013knowrob} ground robot reasoning in curated
-knowledge bases. These systems
+knowledge side, semantic maps have been coupled to task planning since
+Galindo et al.~\cite{galindo2008task}, grounded in spatial
+databases~\cite{deeken2018semap}, and served from ontology-backed
+infrastructures such as KnowRob~\cite{tenorth2013knowrob} (see
+\cite{manzoor2021survey} for an application-oriented survey of
+ontology-based robot knowledge). These systems
 target flexible \emph{construction}; verification of what enters the graph
 and maintenance after construction receive less attention. Within the TOSM
-(triplet ontological semantic model) lineage that this work
-extends~\cite{joo2020tosm,joo2022fsom}, the
-semantic modeling framework and its successor DK-SMF~\cite{joo2025dksmf}
-automate object \emph{and place} modeling from RGB-D exploration, combining
+(triplet ontological semantic model) lineage that this work extends, the
+original semantic modeling framework~\cite{joo2020tosm} defined the
+explicit/implicit/symbolic triplet; TOSMNav~\cite{joo2022fsom} scaled it
+to a navigation framework in which an OWL/SWRL knowledge base feeds
+hierarchical PDDL planning---per-robot on-demand databases,
+kinematics-aware traversability rules that check a robot's footprint
+against a doorway's entrance size, and re-planning with map maintenance
+when execution fails---validated across multi-floor and outdoor sites
+with four robot types; and its successor DK-SMF~\cite{joo2025dksmf}
+automates object \emph{and place} modeling from RGB-D exploration, combining
 zero-shot detection and VQA with domain-knowledge filtering and LLM-derived
-place semantics over SLIC-segmented regions. Our framework---TLS-SMF, named
+place semantics over SLIC-segmented regions. The navigation side of the
+lineage \emph{assumes} a trustworthy semantic database; TLS-SMF supplies
+that database---a verified, incrementally maintained environment
+model---and
+its mission mediator (Sec.~\ref{sec:semnav}) is a deliberately lightweight
+instance of the consumption pattern TOSMNav develops in full. Our framework---TLS-SMF, named
 within the same lineage's convention of prefixing the differentiating
 axis---adopts the same target representation (TOSM object/place layers,
 VDA5050-style export~\cite{vda5050}) but differs on four axes, summarized in
@@ -110,6 +124,10 @@ Sec.~\ref{sec:exp-ablation}).
 Change detection in point clouds and lifelong mapping address geometric
 currency~\cite{fehr2017tsdf}, and object-permanence reasoning tracks
 instances through rearrangement in embodied settings~\cite{wald2019rescan}.
+In the TOSM lineage, TOSMNav~\cite{joo2022fsom} maintains its map
+online---updating object positions from detections as robots work, and
+pruning connectivity when a passage fails---which complements rather than
+covers our concern.
 What is rare is maintenance of a \emph{semantic knowledge graph} whose nodes
 carry verified labels and stable identities across scan epochs:
 scan-once-build-once remains the default in TLS-derived modeling, whose

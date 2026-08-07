@@ -16,8 +16,13 @@ model. A \emph{semantic mediator} resolves natural mission commands ---
 \texttt{goto\_place}, \texttt{goto\_object}, \texttt{patrol},
 \texttt{return\_home} --- against the knowledge graph: places resolve to
 free-space points at region centroids, objects to approach poses computed
-from the target's footprint and the robot's radius, with the verification
-gate deciding eligibility. A hybrid deliberative/reactive behavior
+from the target's footprint and the robot's radius---the kinematics-aware
+resolution style of TOSMNav~\cite{joo2022fsom}, which checks robot
+footprints against doorway entrance sizes in its planning rules---with
+the verification gate deciding eligibility. The mediator covers command
+resolution only; full hierarchical task planning over the same TOSM
+knowledge (PDDL/POPF in~\cite{joo2022fsom}) is the natural next consumer
+of the graph and is out of scope here. A hybrid deliberative/reactive behavior
 tree~\cite{colledanchise2018bt,iovino2022btsurvey}
 (Fig.~\ref{fig:bttree}) executes the resolved goals through
 Nav2~\cite{macenski2020marathon}, with a
