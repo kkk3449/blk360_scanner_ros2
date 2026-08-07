@@ -790,10 +790,18 @@ every whole-object error repairs---the keyboard phantoms vanish, both
 chairs recover (including the unanimous one), and both doors resolve
 correctly, one via escalation---lifting escalated accuracy to 40\%
 (53.3\% excluding fragments) and unanimous precision to 62.5\%; but no
-sofa fragment is recovered, and two planters regress. Render quality
-repairs \emph{whole-object} ambiguity; fragmentation-induced absorption
-is a segmentation problem that no verifier or render upgrade reaches
-(Sonnet~5 fares no better on such inputs, above). Together with the
+sofa fragment is recovered, and two planters regress. A final cell
+completes the model $\times$ render-source square: Sonnet~5 on the same
+full-resolution sets reaches 60\% (80\% excluding fragments, unanimous
+precision 80\%)---the decisive model of the upgrade check converts its
+decisiveness into accuracy once renders are informative, consistent
+with its 1024-px behavior in Table~\ref{tab:vlmcmp}---yet it recovers
+\emph{zero} of the seven sofa clusters and both planters stay
+mislabeled. The levers separate cleanly: segmentation bounds what any
+verifier can see, render quality bounds what a given verifier resolves,
+and model generation buys accuracy only on top of both---so
+fragmentation-induced absorption is reachable by none of them.
+Together with the
 upgrade check, the stress scene fixes the reading of
 Table~\ref{tab:verification}: tier precision is a scene- and
 domain-scoped measurement to be re-estimated per deployment---cheaply,
