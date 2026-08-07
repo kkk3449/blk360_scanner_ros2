@@ -5,19 +5,21 @@ We presented TLS-SMF, a framework that turns registered terrestrial laser scans 
 a queryable, confidence-aware, and maintainable semantic knowledge graph for
 indoor robots. A deterministic geometric backbone makes decomposition
 reproducible and diffs meaningful; multi-view VLM verification with automatic
-escalation attaches calibrated trust to every label while retaining what it
+escalation attaches empirically validated confidence tiers to every label
+while retaining what it
 cannot resolve as explicitly unverified; and mint-once identities with
 two-pass matching turn re-scans into node-level upserts whose cost scales
-with actual change. Across two industrial scenes, a real three-epoch
-study of one room, and a cross-floor stress scene that bounds domain
-transfer, the framework improved verification accuracy by up to 11
+with actual change. Across two operational configurations of one
+industrial room, a real three-epoch study of that room, and a
+cross-floor stress scene that bounds domain transfer, the framework improved verification accuracy by up to 11
 points through escalation, blocked hallucination traps by gating the data
 rather than instructing the model, preserved object identity across three
 scan epochs including a controlled physical change, and re-verified repeat
 scans at zero marginal VLM cost. Extending the loop beyond one-shot
 verification, automatic re-split gates and a structure-condition ensemble
-raised no-owner-input recall against an owner-audited 46-object inventory
-from 28\% to 85\% --- including a nine-of-ten decomposition of a monitor
+raised automated recall against an owner-audited 46-object
+inventory---owner-free at execution time, after owner-informed corrective
+development (Sec.~\ref{sec:exp-endtoend})---from 28\% to 85\% --- including a nine-of-ten decomposition of a monitor
 wall the baseline had verified as a single cabinet --- while the remaining
 type errors localized the owner's role precisely: verifier bias is
 correlated across models, conditions, and view sets, so label truth enters

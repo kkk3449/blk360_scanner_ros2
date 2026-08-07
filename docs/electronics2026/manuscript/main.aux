@@ -4,39 +4,58 @@
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\citation{salas2013slampp}
+\citation{mccormac2017semanticfusion}
+\citation{rosinol2020kimera}
+\citation{hughes2022hydra}
 \citation{armeni20193dsg}
 \citation{koch2024open3dsg}
 \citation{gu2024conceptgraphs}
 \citation{honerkamp2024momallm}
+\citation{tenorth2013knowrob}
+\citation{joo2020tosm}
+\citation{joo2022fsom}
 \citation{joo2025dksmf}
-\citation{joo2025dksmf}
-\citation{zhou2024uni3d}
-\citation{zhu2023pointclipv2}
+\citation{vda5050}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
 \newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}3D Semantic Mapping and Scene Graphs}{2}{subsection.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Open-Vocabulary 3D Recognition and Its Limits}{2}{subsection.2.2}\protected@file@percent }
+\citation{joo2025dksmf}
+\citation{zhou2024uni3d}
+\citation{zhu2023pointclipv2}
+\citation{radford2021clip}
+\citation{peng2023openscene}
+\citation{takmaz2023openmask3d}
+\citation{qi2017pointnetpp}
+\citation{schult2023mask3d}
 \citation{sun2023spformer}
 \citation{wu2024ptv3}
 \citation{zhou2024pointsam}
+\citation{fischler1981ransac}
+\citation{schnabel2007efficient}
+\citation{ester1996dbscan}
 \citation{kim2026ictc}
 \citation{lewis2020rag}
+\citation{ji2023hallucination}
 \citation{kim2025isis}
 \citation{fehr2017tsdf}
 \citation{wald2019rescan}
+\citation{tang2010asbuilt}
+\citation{ochmann2016parametric}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Positioning against DK-SMF~\cite  {joo2025dksmf}.}}{3}{table.1}\protected@file@percent }
 \newlabel{tab:dksmf}{{1}{3}{Positioning against DK-SMF~\cite {joo2025dksmf}}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Open-Vocabulary 3D Recognition and Its Limits}{3}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Instance Segmentation: Learned versus Geometric}{3}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Multi-View VLM Verification}{3}{subsection.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Knowledge-Grounded Querying and Hallucination Mitigation}{3}{subsection.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Incremental Semantic-Map Maintenance}{3}{subsection.2.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Map Representations for Robot Tasking}{3}{subsection.2.7}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Capability comparison of environment representations.}}{4}{table.2}\protected@file@percent }
 \newlabel{tab:capability}{{2}{4}{Capability comparison of environment representations}{table.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Framework architecture. Green stages form the deterministic geometric backbone; orange stages are probabilistic semantic inference under voting, escalation, and gating control. Two loops: automatic escalation (within verification) and incremental update (across scans).}}{4}{figure.1}\protected@file@percent }
-\newlabel{fig:architecture}{{1}{4}{Framework architecture. Green stages form the deterministic geometric backbone; orange stages are probabilistic semantic inference under voting, escalation, and gating control. Two loops: automatic escalation (within verification) and incremental update (across scans)}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Incremental Semantic-Map Maintenance}{4}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Map Representations for Robot Tasking}{4}{subsection.2.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}System Overview}{4}{section.3}\protected@file@percent }
 \newlabel{sec:overview}{{3}{4}{System Overview}{section.3}{}}
+\citation{fischler1981ransac}
+\citation{ester1996dbscan}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Methodology}{5}{section.4}\protected@file@percent }
 \newlabel{sec:methodology}{{4}{5}{Methodology}{section.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}TLS Preprocessing}{5}{subsection.4.1}\protected@file@percent }
@@ -44,125 +63,182 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Geometric Object Decomposition and Structure-Remnant Filtering}{5}{subsection.4.2}\protected@file@percent }
 \newlabel{sec:decomposition}{{4.2}{5}{Geometric Object Decomposition and Structure-Remnant Filtering}{subsection.4.2}{}}
 \@writefile{toc}{\contentsline {paragraph}{Structure-remnant filter.}{5}{section*.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Explicit Modeling and Provisional Classification}{5}{subsection.4.3}\protected@file@percent }
-\newlabel{sec:explicit}{{4.3}{5}{Explicit Modeling and Provisional Classification}{subsection.4.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Geometric backbone: preprocessing, plane removal, decomposition, and the structure-remnant filter (inset: ceiling-soffit phantom before/after).}}{6}{figure.2}\protected@file@percent }
-\newlabel{fig:pipeline}{{2}{6}{Geometric backbone: preprocessing, plane removal, decomposition, and the structure-remnant filter (inset: ceiling-soffit phantom before/after)}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Explicit Modeling and Provisional Classification}{6}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:explicit}{{4.3}{6}{Explicit Modeling and Provisional Classification}{subsection.4.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Multi-View VLM Verification with Automatic Escalation}{6}{subsection.4.4}\protected@file@percent }
 \newlabel{sec:verification}{{4.4}{6}{Multi-View VLM Verification with Automatic Escalation}{subsection.4.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Object Identity Matching}{6}{subsection.4.5}\protected@file@percent }
 \newlabel{sec:matching}{{4.5}{6}{Object Identity Matching}{subsection.4.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Multi-view verification and automatic escalation, with per-view votes, fused share, and the three terminal statuses.}}{7}{figure.3}\protected@file@percent }
-\newlabel{fig:escalation}{{3}{7}{Multi-view verification and automatic escalation, with per-view votes, fused share, and the three terminal statuses}{figure.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Confidence-Gated Graph Upsert}{7}{subsection.4.6}\protected@file@percent }
-\newlabel{sec:upsert}{{4.6}{7}{Confidence-Gated Graph Upsert}{subsection.4.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Query Interface with Structural Gating}{7}{subsection.4.7}\protected@file@percent }
-\newlabel{sec:query}{{4.7}{7}{Query Interface with Structural Gating}{subsection.4.7}{}}
 \citation{joo2025dksmf}
 \citation{achanta2012slic}
 \citation{bormann2016room}
 \citation{luperto2022robust}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Place-scoped TOSM relation map (T3) over the place layer of Fig.~\ref {fig:placemap} (pastel): dotted object$\rightarrow $place \texttt  {isInsideOf} containment, intra-place \texttt  {isNextTo} edges, vertical \texttt  {isOn}/\texttt  {isAboveOf} relations, dashed place \texttt  {isAdjacentTo} edges between region centroids, and per-place key objects (named stars), shown after the owner-feedback revision (Sec.~\ref {sec:exp-verify}): refuted phantoms (a verified keyboard, staircase, and book that do not exist in the room) have been removed from the graph, the poster stand carries its owner-corrected label, and the recovered TV is the key object of its region.}}{8}{figure.4}\protected@file@percent }
-\newlabel{fig:relmap}{{4}{8}{Place-scoped TOSM relation map (T3) over the place layer of Fig.~\ref {fig:placemap} (pastel): dotted object$\rightarrow $place \texttt {isInsideOf} containment, intra-place \texttt {isNextTo} edges, vertical \texttt {isOn}/\texttt {isAboveOf} relations, dashed place \texttt {isAdjacentTo} edges between region centroids, and per-place key objects (named stars), shown after the owner-feedback revision (Sec.~\ref {sec:exp-verify}): refuted phantoms (a verified keyboard, staircase, and book that do not exist in the room) have been removed from the graph, the poster stand carries its owner-corrected label, and the recovered TV is the key object of its region}{figure.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Object-Grounded Place Layer}{8}{subsection.4.8}\protected@file@percent }
-\newlabel{sec:place}{{4.8}{8}{Object-Grounded Place Layer}{subsection.4.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Confidence-Gated Graph Upsert}{7}{subsection.4.6}\protected@file@percent }
+\newlabel{sec:upsert}{{4.6}{7}{Confidence-Gated Graph Upsert}{subsection.4.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Query Interface with Structural Gating}{7}{subsection.4.7}\protected@file@percent }
+\newlabel{sec:query}{{4.7}{7}{Query Interface with Structural Gating}{subsection.4.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Object-Grounded Place Layer}{7}{subsection.4.8}\protected@file@percent }
+\newlabel{sec:place}{{4.8}{7}{Object-Grounded Place Layer}{subsection.4.8}{}}
 \citation{achanta2012slic}
 \citation{achanta2012slic}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan.}}{9}{figure.5}\protected@file@percent }
-\newlabel{fig:upsert}{{5}{9}{Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan}{figure.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces TOSM semantic-object records (symbolic / explicit / implicit layers). (a)~A verified record asserts its type. (b)~An unverified record is structurally gated at query time: the type is demoted to \texttt  {unknown} and the failed classifier guess is quarantined in \texttt  {failedCandidateType}.}}{9}{figure.6}\protected@file@percent }
-\newlabel{fig:cards}{{6}{9}{TOSM semantic-object records (symbolic / explicit / implicit layers). (a)~A verified record asserts its type. (b)~An unverified record is structurally gated at query time: the type is demoted to \texttt {unknown} and the failed classifier guess is quarantined in \texttt {failedCandidateType}}{figure.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{9}{section.5}\protected@file@percent }
-\newlabel{sec:experiments}{{5}{9}{Experiments}{section.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Setup}{9}{subsection.5.1}\protected@file@percent }
-\newlabel{sec:setup}{{5.1}{9}{Setup}{subsection.5.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{Scenes and epochs.}{9}{section*.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Object-grounded place layer at T3. SLIC superpixel regions~\cite  {achanta2012slic} tile the room interior delimited by the nav-stack grid map's outer boundary and carry LLM-derived names computed from verified-object ring codes; unverified objects (blue markers) do not contribute, so the confidence gate propagates into place semantics. Shown after the owner-feedback revision (Sec.~\ref {sec:exp-verify}): with the phantoms refuted, the region once named after a phantom staircase renames itself \texttt  {display\_briefing\_area} around the recovered TV and poster stand.}}{10}{figure.7}\protected@file@percent }
-\newlabel{fig:placemap}{{7}{10}{Object-grounded place layer at T3. SLIC superpixel regions~\cite {achanta2012slic} tile the room interior delimited by the nav-stack grid map's outer boundary and carry LLM-derived names computed from verified-object ring codes; unverified objects (blue markers) do not contribute, so the confidence gate propagates into place semantics. Shown after the owner-feedback revision (Sec.~\ref {sec:exp-verify}): with the phantoms refuted, the region once named after a phantom staircase renames itself \texttt {display\_briefing\_area} around the recovered TV and poster stand}{figure.7}{}}
-\@writefile{toc}{\contentsline {paragraph}{Ground truth.}{10}{section*.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Metrics.}{10}{section*.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Scene statistics (det sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan.}}{11}{table.3}\protected@file@percent }
-\newlabel{tab:scenes}{{3}{11}{Scene statistics (det sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan}{table.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Controls.}{11}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Segmentation: Repeatability, Filtering, and Sensitivity}{11}{subsection.5.2}\protected@file@percent }
-\newlabel{sec:exp-seg}{{5.2}{11}{Segmentation: Repeatability, Filtering, and Sensitivity}{subsection.5.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{Repeatability.}{11}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Remnant filter.}{11}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Parameter sensitivity.}{11}{section*.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Conditional Point-SAM refinement.}{11}{section*.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Verification: Fusion and Escalation}{11}{subsection.5.3}\protected@file@percent }
-\newlabel{sec:exp-verify}{{5.3}{11}{Verification: Fusion and Escalation}{subsection.5.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Learned components used as bounded tools. (a)~The Uni3D provisional label degrades as the vocabulary narrows to the deployment's true classes (Sec.~\ref {sec:exp-ablation})---why it is treated as untrusted context. (b,c)~Conditional Point-SAM refinement of a flagged merged cluster: a machine, an office chair, and a chair re-emerge from a single \texttt  {clutter} blob, each re-verified independently.}}{12}{figure.8}\protected@file@percent }
-\newlabel{fig:baselines}{{8}{12}{Learned components used as bounded tools. (a)~The Uni3D provisional label degrades as the vocabulary narrows to the deployment's true classes (Sec.~\ref {sec:exp-ablation})---why it is treated as untrusted context. (b,c)~Conditional Point-SAM refinement of a flagged merged cluster: a machine, an office chair, and a chair re-emerge from a single \texttt {clutter} blob, each re-verified independently}{figure.8}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Verification accuracy against confirmed GT, and per-tier precision. Accuracy rows are over confirmed GT ($n{=}36$/$32$); trigger rates and tier counts are over all GT-scored clusters (50 showroom / 51 robot hall), so, e.g., 21 unanimous $+$ 29 split $=$ 50.}}{12}{table.4}\protected@file@percent }
-\newlabel{tab:verification}{{4}{12}{Verification accuracy against confirmed GT, and per-tier precision. Accuracy rows are over confirmed GT ($n{=}36$/$32$); trigger rates and tier counts are over all GT-scored clusters (50 showroom / 51 robot hall), so, e.g., 21 unanimous $+$ 29 split $=$ 50}{table.4}{}}
-\@writefile{toc}{\contentsline {paragraph}{Error taxonomy.}{12}{section*.10}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Owner ground-truth audit (T3).}{13}{section*.11}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Knowledge-Grounded Query Evaluation}{13}{subsection.5.4}\protected@file@percent }
-\newlabel{sec:exp-query}{{5.4}{13}{Knowledge-Grounded Query Evaluation}{subsection.5.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Hybrid structure-noise filter on the T3 epoch. (a) All 41 detected clusters; the 15 flagged ones are colored by rule --- wall remnant/band (grid-map hug $\times $ thin vertical sheet, or long full-height band), ceiling fixture/noise, outside the room boundary. (b) The 26 survivors with recovery / owner-corrected labels. The wall-flush monitor bank (labeled \texttt  {tv}) and wall-mounted equipment survive; residual merge labels (\texttt  {electrical cabinet}, \texttt  {ducting}) are retained pipeline output, not corrections.}}{14}{figure.9}\protected@file@percent }
-\newlabel{fig:structfilter}{{9}{14}{Hybrid structure-noise filter on the T3 epoch. (a) All 41 detected clusters; the 15 flagged ones are colored by rule --- wall remnant/band (grid-map hug $\times $ thin vertical sheet, or long full-height band), ceiling fixture/noise, outside the room boundary. (b) The 26 survivors with recovery / owner-corrected labels. The wall-flush monitor bank (labeled \texttt {tv}) and wall-mounted equipment survive; residual merge labels (\texttt {electrical cabinet}, \texttt {ducting}) are retained pipeline output, not corrections}{figure.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Query benchmark, four conditions (accuracy / hallucination rate / traps blocked).}}{14}{table.5}\protected@file@percent }
-\newlabel{tab:query}{{5}{14}{Query benchmark, four conditions (accuracy / hallucination rate / traps blocked)}{table.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Incremental Update Evaluation}{14}{subsection.5.5}\protected@file@percent }
-\newlabel{sec:exp-update}{{5.5}{14}{Incremental Update Evaluation}{subsection.5.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{Synthetic scenarios.}{14}{section*.12}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Real three-epoch study.}{14}{section*.13}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Escalation accuracy--cost curves for both scenes.}}{15}{figure.10}\protected@file@percent }
-\newlabel{fig:esccost}{{10}{15}{Escalation accuracy--cost curves for both scenes}{figure.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Ablation and Sensitivity}{15}{subsection.5.6}\protected@file@percent }
-\newlabel{sec:exp-ablation}{{5.6}{15}{Ablation and Sensitivity}{subsection.5.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Scene statistics (deterministic detection ``det'' sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan.}}{8}{table.3}\protected@file@percent }
+\newlabel{tab:scenes}{{3}{8}{Scene statistics (deterministic detection ``det'' sets, after structure-remnant filtering). T1 semantic processing starts from a manually wall-removed export (4.9M points) of the 46.3M-point raw scan}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{8}{section.5}\protected@file@percent }
+\newlabel{sec:experiments}{{5}{8}{Experiments}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Setup}{8}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:setup}{{5.1}{8}{Setup}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Scenes and epochs.}{8}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Ground truth.}{8}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Metrics.}{8}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Controls.}{8}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Segmentation: Repeatability, Filtering, and Sensitivity}{9}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:exp-seg}{{5.2}{9}{Segmentation: Repeatability, Filtering, and Sensitivity}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Repeatability.}{9}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Remnant filter.}{9}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Parameter sensitivity.}{9}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Conditional Point-SAM refinement.}{9}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Coverage stress case.}{9}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Backbone selection.}{9}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Diffuseness-gated re-splitting.}{9}{section*.12}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Segmentation$\times $classification backbone comparison on a wall-removed industrial TLS scene (proxy metrics; no point-level GT).}}{10}{table.4}\protected@file@percent }
+\newlabel{tab:backbones}{{4}{10}{Segmentation$\times $classification backbone comparison on a wall-removed industrial TLS scene (proxy metrics; no point-level GT)}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Verification accuracy against confirmed GT, and per-tier precision. Accuracy rows are over confirmed GT ($n{=}36$/$32$); trigger rates and tier counts are over all GT-scored clusters (50 showroom / 51 robot hall), so, e.g., 21 unanimous $+$ 29 split $=$ 50.}}{10}{table.5}\protected@file@percent }
+\newlabel{tab:verification}{{5}{10}{Verification accuracy against confirmed GT, and per-tier precision. Accuracy rows are over confirmed GT ($n{=}36$/$32$); trigger rates and tier counts are over all GT-scored clusters (50 showroom / 51 robot hall), so, e.g., 21 unanimous $+$ 29 split $=$ 50}{table.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Structure-condition ensemble.}{10}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Verification: Fusion and Escalation}{10}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:exp-verify}{{5.3}{10}{Verification: Fusion and Escalation}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Error taxonomy.}{11}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Owner Audit and Corrective Feedback (T3)}{11}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:exp-owner}{{5.4}{11}{Owner Audit and Corrective Feedback (T3)}{subsection.5.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Exhaustive audit and mitigations.}{11}{section*.15}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Query benchmark, four conditions (accuracy / hallucination rate / traps blocked).}}{12}{table.6}\protected@file@percent }
+\newlabel{tab:query}{{6}{12}{Query benchmark, four conditions (accuracy / hallucination rate / traps blocked)}{table.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Feedback at scale: bidirectional, corrective, and time-variant.}{12}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Knowledge-Grounded Query Evaluation}{12}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:exp-query}{{5.5}{12}{Knowledge-Grounded Query Evaluation}{subsection.5.5}{}}
+\citation{rusu2009fpfh}
+\citation{besl1992icp}
+\citation{joo2025dksmf}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Incremental Update Evaluation}{13}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:exp-update}{{5.6}{13}{Incremental Update Evaluation}{subsection.5.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Synthetic scenarios.}{13}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Real three-epoch study.}{13}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}End-to-End Re-validation against Accumulated Owner Ground Truth}{13}{subsection.5.7}\protected@file@percent }
+\newlabel{sec:exp-endtoend}{{5.7}{13}{End-to-End Re-validation against Accumulated Owner Ground Truth}{subsection.5.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Cumulative automated recall of the full re-run against the owner-corrected 46-object graph (no owner input in the run itself).}}{14}{table.7}\protected@file@percent }
+\newlabel{tab:layers}{{7}{14}{Cumulative automated recall of the full re-run against the owner-corrected 46-object graph (no owner input in the run itself)}{table.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Ablation and Sensitivity}{14}{subsection.5.8}\protected@file@percent }
+\newlabel{sec:exp-ablation}{{5.8}{14}{Ablation and Sensitivity}{subsection.5.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Escalation on/off.}{14}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Gating style.}{14}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Pose context.}{14}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Uni3D vocabulary.}{14}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Verifier model.}{14}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Verifier upgrade check.}{14}{section*.24}\protected@file@percent }
+\citation{colledanchise2018bt}
+\citation{iovino2022btsurvey}
+\citation{macenski2020marathon}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Verifier-model comparison: identical Stage-B late fusion + escalation on the same 35 in-room clusters, scored against the owner-corrected graph.}}{15}{table.8}\protected@file@percent }
+\newlabel{tab:vlmcmp}{{8}{15}{Verifier-model comparison: identical Stage-B late fusion + escalation on the same 35 in-room clusters, scored against the owner-corrected graph}{table.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cross-floor stress scene and render-source ablation.}{15}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Segmentation parameters.}{15}{section*.26}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6}Application Demonstrations}{15}{section.6}\protected@file@percent }
 \newlabel{sec:applications}{{6}{15}{Application Demonstrations}{section.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity.}}{16}{figure.11}\protected@file@percent }
-\newlabel{fig:taxonomy}{{11}{16}{Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity}{figure.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Semantic Mission Execution in Simulation}{16}{subsection.6.1}\protected@file@percent }
-\newlabel{sec:semnav}{{6.1}{16}{Semantic Mission Execution in Simulation}{subsection.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Semantic Mission Execution in Simulation}{15}{subsection.6.1}\protected@file@percent }
+\newlabel{sec:semnav}{{6.1}{15}{Semantic Mission Execution in Simulation}{subsection.6.1}{}}
+\citation{koenig2004gazebo}
 \citation{raaicon2026}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Four-condition query benchmark with trap-question panel.}}{17}{figure.12}\protected@file@percent }
-\newlabel{fig:query}{{12}{17}{Four-condition query benchmark with trap-question panel}{figure.12}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Phantom-goal mission waste in simulation (AMMR proxy). The same three commands are resolved against the knowledge graph before and after structure filtering + owner feedback (both with the verification gate active). Wasted path includes the return leg.}}{17}{table.6}\protected@file@percent }
-\newlabel{tab:semnav}{{6}{17}{Phantom-goal mission waste in simulation (AMMR proxy). The same three commands are resolved against the knowledge graph before and after structure filtering + owner feedback (both with the verification gate active). Wasted path includes the return leg}{table.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Knowledge-Grounded Dialogue}{17}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Simulation Twin Injection}{17}{subsection.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Manipulation Readiness}{17}{subsection.6.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Controlled re-scan scenarios A--D (room-scoped robot hall, 55 objects), top-down view. Colored points are the segmented clusters, thin rotated rectangles their explicit-model footprints with node names, and the dark contour the test-room boundary; each edited object is annotated with the matcher's decision. (A)~A repeat scan with no changes carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is classified \texttt  {moved} with its node ID preserved. (C)~A removed object is marked \texttt  {absent} (node kept and flagged) and a newly placed object is \texttt  {inserted} under a new ID; only the insertion is re-verified (\$0.23). (D)~Partial occlusion: both cropped objects still match at 20\%, but at 40\% matching fails into two false-absent plus two false-new pairs---the matcher's quantified breaking point.}}{18}{figure.13}\protected@file@percent }
-\newlabel{fig:update}{{13}{18}{Controlled re-scan scenarios A--D (room-scoped robot hall, 55 objects), top-down view. Colored points are the segmented clusters, thin rotated rectangles their explicit-model footprints with node names, and the dark contour the test-room boundary; each edited object is annotated with the matcher's decision. (A)~A repeat scan with no changes carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is classified \texttt {moved} with its node ID preserved. (C)~A removed object is marked \texttt {absent} (node kept and flagged) and a newly placed object is \texttt {inserted} under a new ID; only the insertion is re-verified (\$0.23). (D)~Partial occlusion: both cropped objects still match at 20\%, but at 40\% matching fails into two false-absent plus two false-new pairs---the matcher's quantified breaking point}{figure.13}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{18}{section.7}\protected@file@percent }
-\newlabel{sec:discussion}{{7}{18}{Discussion}{section.7}{}}
-\@writefile{toc}{\contentsline {paragraph}{Cost and latency.}{18}{section*.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Residual unverified content.}{18}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Small low-reflectance objects.}{18}{section*.16}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Phantom-goal mission waste in simulation (AMMR proxy). The same three commands are resolved against the knowledge graph before and after structure filtering + owner feedback (both with the verification gate active). Wasted path includes the return leg.}}{16}{table.9}\protected@file@percent }
+\newlabel{tab:semnav}{{9}{16}{Phantom-goal mission waste in simulation (AMMR proxy). The same three commands are resolved against the knowledge graph before and after structure filtering + owner feedback (both with the verification gate active). Wasted path includes the return leg}{table.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Simulation Twin Injection}{16}{subsection.6.2}\protected@file@percent }
+\newlabel{sec:twin}{{6.2}{16}{Simulation Twin Injection}{subsection.6.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{16}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{16}{Discussion}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cost and latency.}{16}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Residual unverified content.}{17}{section*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Small low-reflectance objects.}{17}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Structure remnants.}{17}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Correlated verifier bias.}{17}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The coverage paradox.}{17}{section*.32}\protected@file@percent }
 \bibstyle{unsrt}
 \bibdata{refs}
-\bibcite{armeni20193dsg}{1}
-\bibcite{koch2024open3dsg}{2}
-\bibcite{gu2024conceptgraphs}{3}
-\@writefile{toc}{\contentsline {paragraph}{Structure remnants.}{19}{section*.17}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{The coverage paradox.}{19}{section*.18}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Scope.}{19}{section*.19}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{19}{section.8}\protected@file@percent }
-\newlabel{sec:conclusion}{{8}{19}{Conclusion}{section.8}{}}
-\bibcite{honerkamp2024momallm}{4}
-\bibcite{joo2025dksmf}{5}
-\bibcite{zhou2024uni3d}{6}
-\bibcite{zhu2023pointclipv2}{7}
-\bibcite{sun2023spformer}{8}
-\bibcite{wu2024ptv3}{9}
-\bibcite{zhou2024pointsam}{10}
-\bibcite{kim2026ictc}{11}
-\bibcite{lewis2020rag}{12}
-\bibcite{kim2025isis}{13}
-\bibcite{fehr2017tsdf}{14}
-\bibcite{wald2019rescan}{15}
-\bibcite{achanta2012slic}{16}
-\bibcite{bormann2016room}{17}
-\bibcite{luperto2022robust}{18}
-\bibcite{raaicon2026}{19}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Real multi-epoch update, latest transition (T2$\rightarrow $T3), top-down view. Colored points are the T3 segmented clusters inside the test-room boundary; yaw-rotated node footprints are colored by diff state (matched, moved with ID preserved, inserted, absent), with names on specific-type objects. Oversized footprints of merged mega-clusters (e.g., \texttt  {machine\_012}, Sec.~\ref {sec:exp-ablation}) are faded.}}{22}{figure.14}\protected@file@percent }
-\newlabel{fig:epochs}{{14}{22}{Real multi-epoch update, latest transition (T2$\rightarrow $T3), top-down view. Colored points are the T3 segmented clusters inside the test-room boundary; yaw-rotated node footprints are colored by diff state (matched, moved with ID preserved, inserted, absent), with names on specific-type objects. Oversized footprints of merged mega-clusters (e.g., \texttt {machine\_012}, Sec.~\ref {sec:exp-ablation}) are faded}{figure.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Hybrid deliberative/reactive mission behavior tree. The reactive layer re-evaluates battery and interrupt conditions every tick and can preempt navigation (canceling the active Nav2 goal); the deliberative branch resolves semantic commands through the TOSM mediator, which hot-reloads the knowledge graph when the management console edits it.}}{23}{figure.15}\protected@file@percent }
-\newlabel{fig:bttree}{{15}{23}{Hybrid deliberative/reactive mission behavior tree. The reactive layer re-evaluates battery and interrupt conditions every tick and can preempt navigation (canceling the active Nav2 goal); the deliberative branch resolves semantic commands through the TOSM mediator, which hot-reloads the knowledge graph when the management console edits it}{figure.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Semantic-goal navigation of the AMMR proxy in the Gazebo twin of the test room (world, map, and knowledge graph share the exploration-scan frame). Blue: a gated three-mission run (TV $\rightarrow $ seating area $\rightarrow $ home). Red dashed: against the pre-feedback graph the robot drives toward a verified-phantom keyboard --- a fluorescent lamp; crosses mark the three phantom goals with their failure modes (pointless drive, false arrival, unreachable). All three are refused once structure filtering and owner feedback are applied.}}{23}{figure.16}\protected@file@percent }
-\newlabel{fig:semnav}{{16}{23}{Semantic-goal navigation of the AMMR proxy in the Gazebo twin of the test room (world, map, and knowledge graph share the exploration-scan frame). Blue: a gated three-mission run (TV $\rightarrow $ seating area $\rightarrow $ home). Red dashed: against the pre-feedback graph the robot drives toward a verified-phantom keyboard --- a fluorescent lamp; crosses mark the three phantom goals with their failure modes (pointless drive, false arrival, unreachable). All three are refused once structure filtering and owner feedback are applied}{figure.16}{}}
-\gdef \@abspage@last{23}
+\bibcite{salas2013slampp}{1}
+\bibcite{mccormac2017semanticfusion}{2}
+\bibcite{rosinol2020kimera}{3}
+\bibcite{hughes2022hydra}{4}
+\bibcite{armeni20193dsg}{5}
+\bibcite{koch2024open3dsg}{6}
+\@writefile{toc}{\contentsline {paragraph}{Scope.}{18}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{18}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{18}{Conclusion}{section.8}{}}
+\bibcite{gu2024conceptgraphs}{7}
+\bibcite{honerkamp2024momallm}{8}
+\bibcite{tenorth2013knowrob}{9}
+\bibcite{joo2020tosm}{10}
+\bibcite{joo2022fsom}{11}
+\bibcite{joo2025dksmf}{12}
+\bibcite{vda5050}{13}
+\bibcite{zhou2024uni3d}{14}
+\bibcite{zhu2023pointclipv2}{15}
+\bibcite{radford2021clip}{16}
+\bibcite{peng2023openscene}{17}
+\bibcite{takmaz2023openmask3d}{18}
+\bibcite{qi2017pointnetpp}{19}
+\bibcite{schult2023mask3d}{20}
+\bibcite{sun2023spformer}{21}
+\bibcite{wu2024ptv3}{22}
+\bibcite{zhou2024pointsam}{23}
+\bibcite{fischler1981ransac}{24}
+\bibcite{schnabel2007efficient}{25}
+\bibcite{ester1996dbscan}{26}
+\bibcite{kim2026ictc}{27}
+\bibcite{lewis2020rag}{28}
+\bibcite{ji2023hallucination}{29}
+\bibcite{kim2025isis}{30}
+\bibcite{fehr2017tsdf}{31}
+\bibcite{wald2019rescan}{32}
+\bibcite{tang2010asbuilt}{33}
+\bibcite{ochmann2016parametric}{34}
+\bibcite{achanta2012slic}{35}
+\bibcite{bormann2016room}{36}
+\bibcite{luperto2022robust}{37}
+\bibcite{rusu2009fpfh}{38}
+\bibcite{besl1992icp}{39}
+\bibcite{colledanchise2018bt}{40}
+\bibcite{iovino2022btsurvey}{41}
+\bibcite{macenski2020marathon}{42}
+\bibcite{koenig2004gazebo}{43}
+\bibcite{raaicon2026}{44}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Framework architecture. Blue stages form the deterministic geometric backbone (including the automatic re-split gates and the structure-condition ensemble); orange stages are probabilistic semantic inference under voting, escalation, and gating control; purple is the owner-in-the-loop revision path. The knowledge graph is the single semantic store from which the console, the mission mediator, and the simulation twin are derived. Four loops: escalation (within verification), re-splitting (within decomposition), incremental update (across scans), and owner feedback (across revisions).}}{22}{figure.1}\protected@file@percent }
+\newlabel{fig:architecture}{{1}{22}{Framework architecture. Blue stages form the deterministic geometric backbone (including the automatic re-split gates and the structure-condition ensemble); orange stages are probabilistic semantic inference under voting, escalation, and gating control; purple is the owner-in-the-loop revision path. The knowledge graph is the single semantic store from which the console, the mission mediator, and the simulation twin are derived. Four loops: escalation (within verification), re-splitting (within decomposition), incremental update (across scans), and owner feedback (across revisions)}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Geometric backbone of TLS-SMF, illustrated on the test-room scene. (a)~Registered multi-station TLS scan after preprocessing. (b)~The same cloud after seeded-RANSAC removal of structural planes (floor, walls, ceiling). (c)~Deterministic decomposition of the residual cloud into object instances; colors denote cluster identity, and identical inputs reproduce identical clusters with stable ordering. (d)~Two of the resulting TOSM knowledge-graph records with their symbolic, explicit, and implicit attributes; \texttt  {machine\_004} carries an owner-verified type correction (\emph  {machine}\,$\rightarrow $\,\emph  {Mobile Robot}). (e)~Structure-remnant filter, shown as a front elevation of the showroom scene: the vertical soffit bands at the three-level ceiling transitions (red) survive horizontal-plane removal and would otherwise surface as phantom objects; the filter removes them while leaving every retained cluster byte-identical.}}{23}{figure.2}\protected@file@percent }
+\newlabel{fig:pipeline}{{2}{23}{Geometric backbone of TLS-SMF, illustrated on the test-room scene. (a)~Registered multi-station TLS scan after preprocessing. (b)~The same cloud after seeded-RANSAC removal of structural planes (floor, walls, ceiling). (c)~Deterministic decomposition of the residual cloud into object instances; colors denote cluster identity, and identical inputs reproduce identical clusters with stable ordering. (d)~Two of the resulting TOSM knowledge-graph records with their symbolic, explicit, and implicit attributes; \texttt {machine\_004} carries an owner-verified type correction (\emph {machine}\,$\rightarrow $\,\emph {Mobile Robot}). (e)~Structure-remnant filter, shown as a front elevation of the showroom scene: the vertical soffit bands at the three-level ceiling transitions (red) survive horizontal-plane removal and would otherwise surface as phantom objects; the filter removes them while leaving every retained cluster byte-identical}{figure.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Multi-view verification and automatic escalation, with per-view votes, fused share, and the three terminal statuses.}}{24}{figure.3}\protected@file@percent }
+\newlabel{fig:escalation}{{3}{24}{Multi-view verification and automatic escalation, with per-view votes, fused share, and the three terminal statuses}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Place-scoped TOSM relation map (T3) over the place layer of Fig.~\ref {fig:placemap} (pastel): dotted object$\rightarrow $place \texttt  {isInsideOf} containment, intra-place \texttt  {isNextTo} edges, vertical \texttt  {isOn}/\texttt  {isAboveOf} relations, dashed place \texttt  {isAdjacentTo} edges between region centroids, and per-place key objects (named stars). The map reflects the graph's current revision, including owner feedback (Sec.~\ref {sec:exp-owner}).}}{25}{figure.4}\protected@file@percent }
+\newlabel{fig:relmap}{{4}{25}{Place-scoped TOSM relation map (T3) over the place layer of Fig.~\ref {fig:placemap} (pastel): dotted object$\rightarrow $place \texttt {isInsideOf} containment, intra-place \texttt {isNextTo} edges, vertical \texttt {isOn}/\texttt {isAboveOf} relations, dashed place \texttt {isAdjacentTo} edges between region centroids, and per-place key objects (named stars). The map reflects the graph's current revision, including owner feedback (Sec.~\ref {sec:exp-owner})}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan.}}{26}{figure.5}\protected@file@percent }
+\newlabel{fig:upsert}{{5}{26}{Identity matching and confidence-gated upsert: mint-once IDs, two-pass matching, and the five node outcomes across a re-scan}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces TOSM semantic-object records (symbolic / explicit / implicit layers). (a)~A verified record asserts its type. (b)~An unverified record is structurally gated at query time: the type is demoted to \texttt  {unknown} and the failed classifier guess is quarantined in \texttt  {failedCandidateType}.}}{27}{figure.6}\protected@file@percent }
+\newlabel{fig:cards}{{6}{27}{TOSM semantic-object records (symbolic / explicit / implicit layers). (a)~A verified record asserts its type. (b)~An unverified record is structurally gated at query time: the type is demoted to \texttt {unknown} and the failed classifier guess is quarantined in \texttt {failedCandidateType}}{figure.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Object-grounded place layer at T3. SLIC superpixel regions~\cite  {achanta2012slic} tile the room interior delimited by the nav-stack grid map's outer boundary and carry LLM-derived names computed from verified-object ring codes; unverified objects (blue markers) do not contribute, so the confidence gate propagates into place semantics. Shown at the graph's owner-corrected revision (Sec.~\ref {sec:exp-owner}).}}{28}{figure.7}\protected@file@percent }
+\newlabel{fig:placemap}{{7}{28}{Object-grounded place layer at T3. SLIC superpixel regions~\cite {achanta2012slic} tile the room interior delimited by the nav-stack grid map's outer boundary and carry LLM-derived names computed from verified-object ring codes; unverified objects (blue markers) do not contribute, so the confidence gate propagates into place semantics. Shown at the graph's owner-corrected revision (Sec.~\ref {sec:exp-owner})}{figure.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Learned components used as bounded tools. (a)~The Uni3D provisional label degrades as the vocabulary narrows to the deployment's true classes (Sec.~\ref {sec:exp-ablation})---why it is treated as untrusted context. (b,c)~Conditional Point-SAM refinement of a flagged merged cluster: a machine, an office chair, and a chair re-emerge from a single \texttt  {clutter} blob, each re-verified independently.}}{29}{figure.8}\protected@file@percent }
+\newlabel{fig:baselines}{{8}{29}{Learned components used as bounded tools. (a)~The Uni3D provisional label degrades as the vocabulary narrows to the deployment's true classes (Sec.~\ref {sec:exp-ablation})---why it is treated as untrusted context. (b,c)~Conditional Point-SAM refinement of a flagged merged cluster: a machine, an office chair, and a chair re-emerge from a single \texttt {clutter} blob, each re-verified independently}{figure.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Hybrid structure-noise filter on the T3 epoch. (a) All 41 detected clusters; the 15 flagged ones are colored by rule --- wall remnant/band (grid-map hug $\times $ thin vertical sheet, or long full-height band), ceiling fixture/noise, outside the room boundary. (b) The 26 survivors with recovery / owner-corrected labels. The wall-flush monitor bank (labeled \texttt  {tv}) and wall-mounted equipment survive; residual merge labels (\texttt  {electrical cabinet}, \texttt  {ducting}) are retained pipeline output, not corrections.}}{30}{figure.9}\protected@file@percent }
+\newlabel{fig:structfilter}{{9}{30}{Hybrid structure-noise filter on the T3 epoch. (a) All 41 detected clusters; the 15 flagged ones are colored by rule --- wall remnant/band (grid-map hug $\times $ thin vertical sheet, or long full-height band), ceiling fixture/noise, outside the room boundary. (b) The 26 survivors with recovery / owner-corrected labels. The wall-flush monitor bank (labeled \texttt {tv}) and wall-mounted equipment survive; residual merge labels (\texttt {electrical cabinet}, \texttt {ducting}) are retained pipeline output, not corrections}{figure.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Escalation accuracy--cost curves for both scenes.}}{31}{figure.10}\protected@file@percent }
+\newlabel{fig:esccost}{{10}{31}{Escalation accuracy--cost curves for both scenes}{figure.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity.}}{32}{figure.11}\protected@file@percent }
+\newlabel{fig:taxonomy}{{11}{32}{Verification error taxonomy: remnant phantom, unanimous-but-wrong, clutter absorption, render ambiguity}{figure.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Four-condition query benchmark with trap-question panel.}}{33}{figure.12}\protected@file@percent }
+\newlabel{fig:query}{{12}{33}{Four-condition query benchmark with trap-question panel}{figure.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Controlled re-scan scenarios A--D (room-scoped robot hall, 55 objects), top-down view. Colored points are the segmented clusters, thin rotated rectangles their explicit-model footprints with node names, and the dark contour the test-room boundary; each edited object is annotated with the matcher's decision. (A)~A repeat scan with no changes carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is classified \texttt  {moved} with its node ID preserved. (C)~A removed object is marked \texttt  {absent} (node kept and flagged) and a newly placed object is \texttt  {inserted} under a new ID; only the insertion is re-verified. (D)~Partial occlusion: both cropped objects still match at 20\%, but at 40\% matching fails into two false-absent plus two false-new pairs---the matcher's quantified breaking point.}}{34}{figure.13}\protected@file@percent }
+\newlabel{fig:update}{{13}{34}{Controlled re-scan scenarios A--D (room-scoped robot hall, 55 objects), top-down view. Colored points are the segmented clusters, thin rotated rectangles their explicit-model footprints with node names, and the dark contour the test-room boundary; each edited object is annotated with the matcher's decision. (A)~A repeat scan with no changes carries all 55 verdicts at zero VLM cost. (B)~A 3.6\,m chair move is classified \texttt {moved} with its node ID preserved. (C)~A removed object is marked \texttt {absent} (node kept and flagged) and a newly placed object is \texttt {inserted} under a new ID; only the insertion is re-verified. (D)~Partial occlusion: both cropped objects still match at 20\%, but at 40\% matching fails into two false-absent plus two false-new pairs---the matcher's quantified breaking point}{figure.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Real multi-epoch update, latest transition (T2$\rightarrow $T3), top-down view. Colored points are the T3 segmented clusters inside the test-room boundary; yaw-rotated node footprints are colored by diff state (matched, moved with ID preserved, inserted, absent), with names on specific-type objects. Oversized footprints of merged mega-clusters (e.g., \texttt  {machine\_012}, Sec.~\ref {sec:exp-ablation}) are faded.}}{35}{figure.14}\protected@file@percent }
+\newlabel{fig:epochs}{{14}{35}{Real multi-epoch update, latest transition (T2$\rightarrow $T3), top-down view. Colored points are the T3 segmented clusters inside the test-room boundary; yaw-rotated node footprints are colored by diff state (matched, moved with ID preserved, inserted, absent), with names on specific-type objects. Oversized footprints of merged mega-clusters (e.g., \texttt {machine\_012}, Sec.~\ref {sec:exp-ablation}) are faded}{figure.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Hybrid deliberative/reactive mission behavior tree. The reactive layer re-evaluates battery and interrupt conditions every tick and can preempt navigation (canceling the active Nav2 goal); the deliberative branch resolves semantic commands through the TOSM mediator, which hot-reloads the knowledge graph when the management console edits it.}}{36}{figure.15}\protected@file@percent }
+\newlabel{fig:bttree}{{15}{36}{Hybrid deliberative/reactive mission behavior tree. The reactive layer re-evaluates battery and interrupt conditions every tick and can preempt navigation (canceling the active Nav2 goal); the deliberative branch resolves semantic commands through the TOSM mediator, which hot-reloads the knowledge graph when the management console edits it}{figure.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Semantic-goal navigation of the AMMR proxy in the Gazebo twin of the test room (world, map, and knowledge graph share the exploration-scan frame). Blue: a gated three-mission run (TV $\rightarrow $ seating area $\rightarrow $ home). Red dashed: against the pre-feedback graph the robot drives toward a verified-phantom keyboard --- a fluorescent lamp; crosses mark the three phantom goals with their failure modes (pointless drive, false arrival, unreachable). All three are refused once structure filtering and owner feedback are applied.}}{37}{figure.16}\protected@file@percent }
+\newlabel{fig:semnav}{{16}{37}{Semantic-goal navigation of the AMMR proxy in the Gazebo twin of the test room (world, map, and knowledge graph share the exploration-scan frame). Blue: a gated three-mission run (TV $\rightarrow $ seating area $\rightarrow $ home). Red dashed: against the pre-feedback graph the robot drives toward a verified-phantom keyboard --- a fluorescent lamp; crosses mark the three phantom goals with their failure modes (pointless drive, false arrival, unreachable). All three are refused once structure filtering and owner feedback are applied}{figure.16}{}}
+\gdef \@abspage@last{37}

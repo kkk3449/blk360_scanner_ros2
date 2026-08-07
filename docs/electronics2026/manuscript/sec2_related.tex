@@ -95,7 +95,7 @@ it not as a novel algorithm but as a
 verification carry-over and incremental diffing
 (Sec.~\ref{sec:decomposition}). Point-SAM appears in our pipeline only as a
 conditionally adopted refinement of flagged merged clusters, under a
-pre-registered adoption rule (Sec.~\ref{sec:exp-seg}).
+pre-specified adoption rule (Sec.~\ref{sec:exp-seg}).
 
 \subsection{Multi-View VLM Verification}
 Using VLMs to label rendered 3D content is increasingly common; our prior
@@ -124,12 +124,21 @@ Sec.~\ref{sec:exp-ablation}).
 Change detection in point clouds and lifelong mapping address geometric
 currency~\cite{fehr2017tsdf}, and object-permanence reasoning tracks
 instances through rearrangement in embodied settings~\cite{wald2019rescan}.
+Recent online open-vocabulary systems bring incrementality to
+instance-semantic maps---class-agnostic instance maps labeled zero-shot
+from selected views~\cite{deng2026ovimap}, online panoptic
+Gaussian-splatting maps~\cite{zhai2026onlinepg}, and functional scene
+graphs that attach interaction semantics to open-vocabulary
+elements~\cite{zhang2025funcgraph}---but what they maintain is a
+geometric or embedding-level instance representation, not verified
+semantic evidence.
 In the TOSM lineage, TOSMNav~\cite{joo2022fsom} maintains its map
 online---updating object positions from detections as robots work, and
 pruning connectivity when a passage fails---which complements rather than
 covers our concern.
-What is rare is maintenance of a \emph{semantic knowledge graph} whose nodes
-carry verified labels and stable identities across scan epochs:
+What is rare is maintenance of a \emph{semantic knowledge graph} whose
+nodes carry verified labels, revision provenance, and stable robot-facing
+identities across scan epochs:
 scan-once-build-once remains the default in TLS-derived modeling, whose
 dominant line reconstructs as-built BIM or parametric building models from
 static scans~\cite{tang2010asbuilt,ochmann2016parametric}. Our

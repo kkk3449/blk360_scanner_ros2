@@ -18,7 +18,8 @@ E57, 3\,cm downsampling, ten-plane removal, decomposition, and remnant
 filtering---completes in 29\,s (8.1\,GB peak memory), rendering the
 four-view sets takes 99\,s for 88 objects, and verification with
 escalation runs in 7.7\,min for a 50-object scene at six concurrent
-calls, so a scene semanticizes in well under ten minutes end to end.
+calls, so the complete semantic modeling of a scene finishes in well
+under ten minutes end to end.
 Verification is offline; no VLM call sits on a robot's control
 path.
 
@@ -29,7 +30,9 @@ dominant driver of verification yield. The framework's position is to expose
 this residue, not shrink it cosmetically: unverified nodes stay queryable
 with demoted types, and the gate is only as good as the verifier
 (Sec.~\ref{sec:exp-verify}'s unanimous-but-wrong cases; the escalation-verified keyboard trap
-that survives gating on the robot hall). Verifier-bounded gating is a
+that survives gating on the robot hall). Structural gating prevents
+unsupported use of \emph{unverified} labels but cannot compensate for
+false-positive verification; verifier-bounded gating is a
 property users must design around, and we report it as such.
 
 \paragraph{Small low-reflectance objects.}
@@ -81,7 +84,7 @@ mislabels, it tends to mislabel the same way regardless of how the
 input was segmented (the correlated conveyor-belt case of
 Sec.~\ref{sec:exp-seg}). Ensembling over \emph{inputs} cannot decorrelate a
 bias that lives in the \emph{model}; what the ensemble does yield is a
-calibrated instability signal (\texttt{labelStability}) that tells the
+empirical instability signal (\texttt{labelStability}) that tells the
 owner where to look. Together with the time-variant ground truth of
 Sec.~\ref{sec:exp-owner}, this shapes our position: the owner is not a
 fallback annotator but the highest-trust evidence source in a

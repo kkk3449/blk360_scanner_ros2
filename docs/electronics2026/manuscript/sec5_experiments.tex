@@ -107,7 +107,7 @@ headline verification study under the best-ranked one.
 All query conditions share the same LLM (\texttt{claude-sonnet-4-6}), system
 prompt, query set, decoding parameters, retry policy, and forced answer
 schema; conditions differ \emph{only} in the knowledge view they receive.
-The LLM-only condition receives the same scene's Stage-A object dump, so it
+The LLM-only condition---an \emph{unverified Stage-A LLM} baseline---receives the same scene's Stage-A object dump, so it
 is not information-starved---it is verification-starved.
 
 \subsection{Segmentation: Repeatability, Filtering, and Sensitivity}
@@ -144,7 +144,7 @@ operating-point decomposition, so the sweep measures stability around the
 operating point, not global optimality.
 
 \paragraph{Conditional Point-SAM refinement.}
-Under a pre-registered rule (adopt iff $\geq$50\% of merged-cluster failures
+Under a pre-specified rule (adopt iff $\geq$50\% of merged-cluster failures
 separate correctly \emph{and} label accuracy improves $\geq$5 points),
 Point-SAM separated 3/6 flagged merged clusters and sub-cluster labels
 reached 9/11 versus 5/11 for their parents (+36.4 points,
@@ -256,7 +256,7 @@ and cross-condition \emph{voting} corrected nothing, because the
 verifier's biases are correlated across conditions (both recovered
 tables were unanimously mis-verified as conveyor belts in every
 condition, while the room's actual conveyor unit stayed
-\texttt{clutter} in every condition). The ensemble therefore ships as
+\texttt{clutter} in every condition). The ensemble is therefore used as
 a recall tool plus a per-object \texttt{labelStability} attribute that
 prioritizes owner review --- not as a label fuser.
 
@@ -277,6 +277,7 @@ e.g., 21 unanimous $+$ 29 split $=$ 50.}
  & base-4 & escalated & base-4 & escalated \\
 \midrule
 Accuracy & 77.8\% & \textbf{88.9\%} & 78.1\% & \textbf{84.4\%} \\
+95\% Wilson CI & 61.9--88.3 & 74.7--95.6 & 61.2--89.0 & 68.2--93.1 \\
 Recovered / regressed & \multicolumn{2}{c}{5 / 1} & \multicolumn{2}{c}{3 / 0} \\
 Escalation trigger & \multicolumn{2}{c}{58\% (29/50)} & \multicolumn{2}{c}{51\% (26/51)} \\
 \midrule
@@ -290,7 +291,11 @@ Unverified precision & \multicolumn{2}{c}{60\%} & \multicolumn{2}{c}{40\%} \\
 Escalation lifts confirmed-GT accuracy from 77.8\% to 88.9\% on the showroom
 and from 78.1\% to 84.4\% on the robot hall (lenient: 76.2\%
 $\rightarrow$ 83.3\%, $n{=}42$), recovering 5 and 3 split-vote objects while
-regressing 1 and 0 (Table~\ref{tab:verification};
+regressing 1 and 0---a consistent observed improvement across both
+configurations, though at these sample sizes the paired contrast does not
+reach conventional significance (exact McNemar on recovered/regressed:
+$p{=}0.219$ and $p{=}0.25$), which the Wilson intervals of
+Table~\ref{tab:verification} make explicit (Table~\ref{tab:verification};
 Fig.~\ref{fig:esccost} shows the accuracy--cost trade-off at
 $\sim$\$0.009/call; escalation adds 232 and 208 calls per scene). The tier
 structure
@@ -623,14 +628,20 @@ specific-type objects. Oversized footprints of merged mega-clusters
 \label{fig:epochs}
 \end{figure}
 
-\subsection{End-to-End Re-validation against Accumulated Owner Ground Truth}
+\subsection{Retrospective End-to-End Replay against Accumulated Owner
+Ground Truth}
 \label{sec:exp-endtoend}
 
 After the corrective machinery of Secs.~\ref{sec:exp-seg}--\ref{sec:exp-update}
 stabilized, we re-ran the entire pipeline from the raw scan with no owner
-input and scored it against the live knowledge graph --- by then a
-46-object inventory embodying every owner restoration, refutation, and
-correction. Table~\ref{tab:layers} reports cumulative geometric recall as
+input at execution time and scored it against the live knowledge graph ---
+by then a 46-object inventory embodying every owner restoration,
+refutation, and correction. Because the corrective mechanisms were
+developed from failures observed in this same environment, this
+experiment is a \emph{retrospective end-to-end replay} on the
+development scene, not an independent generalization test; what it
+measures is how much of the owner-audited inventory the automated
+layers recover once owner-informed development has concluded. Table~\ref{tab:layers} reports cumulative geometric recall as
 each automated layer is enabled. The verified path alone recovers 28\%;
 diffuseness-gated re-splitting nearly doubles it; the wall-compound gate
 (which self-triggers on the monitor wall and decomposes it into nine of
@@ -652,7 +663,7 @@ each added layer admits more candidate clusters, and the ensemble's
 extra detection conditions temporarily dilute in-room precision (60\%
 $\rightarrow$ 49\%) before the square-up step recovers part of it---
 automated recall is bought with review burden, which is exactly the
-owner-minute economy that Sec.~\ref{sec:exp-owner} argues the model
+owner-review efficiency that Sec.~\ref{sec:exp-owner} argues the model
 should optimize.
 
 \begin{table}[t]
@@ -697,7 +708,7 @@ targeted defense removed all three phantom ceiling keyboards in its pilot,
 but applying it to every object \emph{reduced} escalated accuracy
 (88.9\%$\rightarrow$75.0\%) and escalated precision
 (100\%$\rightarrow$72.7\%)---a desk-height prior that helps ceilings hurts
-everything else, so it ships as a targeted defense only.
+everything else, so it is deployed as a targeted defense only.
 
 \paragraph{Uni3D vocabulary.}
 Swapping the Stage-A classifier vocabulary ranks generic-30 (66.7\%) above
@@ -727,7 +738,8 @@ is generation-dominated, not vendor-dominated: both 2026-generation
 mid-tiers beat both older Claude tiers, and cross-vendor differences
 within the generation are smaller than the tier effects. Escalation
 volume is thus a label-free, online proxy for verifier decisiveness on
-the deployment's own data --- and a purchasing guide for \emph{cost}:
+the deployment's own data --- and a practical criterion for
+deployment-time verifier selection under \emph{cost} constraints:
 pick the cheapest verifier whose escalation rate has saturated. It is
 not a proxy for accuracy: the upgrade check below shows the most
 decisive model trading

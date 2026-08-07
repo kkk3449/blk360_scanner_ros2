@@ -32,35 +32,29 @@ $^*$Corresponding author}
 \maketitle
 
 \begin{abstract}
-Indoor service and inspection robots need environment knowledge
-that is queryable, reliable, and maintainable as the site changes, yet
+Indoor service and inspection robots need environment knowledge that is
+queryable, reliable, and maintainable as the site changes, yet
 open-vocabulary 3D pipelines propagate unverified labels downstream and
 build-once scene models offer no maintenance path. We present TLS-SMF, a
-TLS-driven semantic modeling framework that converts registered terrestrial
-laser scans into a confidence-aware semantic knowledge graph and keeps it
-current across repeated scans. TLS-SMF combines a deterministic geometric
-backbone whose re-runs are byte-identical on the same host; multi-view
-vision--language-model verification with automatic escalation, which
-retains unresolved objects as explicitly unverified; and an
-identity-preserving incremental update that applies confidence-gated
-node-level upserts to mint-once node identities without rebuilding the
-graph. On two industrial indoor scenes, escalation lifts verification
+semantic modeling framework that converts registered terrestrial laser
+scans into a confidence-aware semantic knowledge graph and keeps it
+current across repeated scans. TLS-SMF combines (i) a deterministic
+geometric backbone whose re-runs are byte-identical on the same host,
+(ii) multi-view vision--language-model verification with automatic
+escalation that retains unresolved objects as explicitly unverified, and
+(iii) identity-preserving incremental updates that apply confidence-gated
+node-level upserts to mint-once node identities. Across two operational
+configurations of one industrial room, escalation lifts verification
 accuracy from 77.8\% to 88.9\% and from 78.1\% to 84.4\%, with
-94.4--100\% precision for unanimous votes against confirmed owner ground
-truth (a cross-floor stress scene shows this figure is domain-dependent);
-on the showroom scene,
-structurally gated querying answers 83.3\% of benchmark questions versus
-52.1\% for an ungrounded LLM while blocking 3 of 4 unverified-label
-hallucination traps; and selective re-verification prices a changed re-scan at 3.1\% of a
-full rebuild (0\% when unchanged). A real three-epoch study with a
-controlled-change re-scan detects 2/2 physical changes at geometry level
-while preserving object identity across all three epochs. Beyond one-shot
-verification, automatic re-split gates, a structure-condition
-ensemble, and an owner-in-the-loop revision path keep the graph
-corrigible in use---raising no-owner-input recall against the
-owner-audited inventory from 28\% to 85\% over a single revisioned store
-that also drives the management console, the mission mediator, and a
-simulation twin.
+94.4--100\% unanimous-vote precision against confirmed owner ground
+truth; on the showroom benchmark, structurally gated querying answers
+83.3\% of questions versus 52.1\% for an unverified Stage-A LLM baseline
+while blocking hallucination traps; selective re-verification reduces
+the VLM cost of a changed re-scan to 3.1\% of a full rebuild; and a real
+three-epoch study detects 2/2 controlled physical changes while
+preserving object identity throughout. A cross-floor cafeteria stress
+scene bounds domain transfer, and an owner-in-the-loop revision path
+keeps the single semantic store corrigible for robot-facing use.
 \end{abstract}
 
 \textbf{Keywords:} terrestrial laser scanning; semantic mapping; knowledge
