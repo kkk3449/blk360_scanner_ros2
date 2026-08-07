@@ -67,17 +67,26 @@ map itself.
 \begin{figure}[!tp]
 \centering
 \includegraphics[width=\linewidth]{fig19_semantic_map.png}
-\caption{The generated semantic map, visualized from the knowledge graph.
+\caption{The generated semantic map, visualized at the verification
+stage (before owner feedback), so the confidence gate and the errors
+that pass it are both visible.
 (a)~Robot hall: SLIC place-layer regions (pastel floor, named by
 the LLM ring-code scheme of Sec.~\ref{sec:place}) with the room-scoped
 object clusters rendered as their full-resolution segmented points,
 colored by verified class; gray clusters are \texttt{unverified} and
-demoted at query time. (b)~The cafeteria stress scene under the same
+demoted at query time. Gray italic callouts name the gate's withheld top
+votes---the hall's mobile manipulators surface as \emph{motor?}, and
+both cafeteria doors are correctly suspected but held below the resolve
+threshold---while the hall's machines and wall TV sit unnamed inside the
+gray and clutter mass, the absorption class of
+Sec.~\ref{sec:exp-verify}. (b)~The cafeteria stress scene under the same
 representation, its place layer derived by the identical SLIC recipe
 after synthesizing the occupancy grid from the scan's floor points (no
 SLAM run exists for this scene). Red crosses mark verified-keyboard
 clusters that are owner-refuted phantoms---no keyboard exists in either
-scene---and place naming is verifier-bounded accordingly: the cafeteria
+scene---and the olive ``electrical cabinet'' in (b) is in fact a
+planter partition, an owner-graded wrong label shown as the verifier
+produced it. Place naming is verifier-bounded accordingly: the cafeteria
 phantoms pull two region names toward workstation/console
 semantics, the same label-propagation mechanism as the
 \texttt{staircase\_landing} case of Sec.~\ref{sec:exp-verify}.}
