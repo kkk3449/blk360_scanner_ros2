@@ -57,7 +57,27 @@ operation and vendor multi-setup registration are manual; everything from E57
 to queryable graph---including escalation decisions and update
 classification---runs without human intervention, and objects the verifier
 cannot resolve remain explicitly \texttt{unverified} rather than being
-resolved by hand.
+resolved by hand. Fig.~\ref{fig:semmap} visualizes the resulting semantic
+map in the lineage's explicit-model style~\cite{joo2022fsom}, but with the
+segmented TLS points themselves rather than schematic boxes: place-layer
+regions form the floor, verified objects are colored by class, and
+unverified clusters render in gray---the confidence gate is visible in the
+map itself.
+
+\begin{figure}[!tp]
+\centering
+\includegraphics[width=\linewidth]{fig19_semantic_map.png}
+\caption{The generated semantic map, visualized from the knowledge graph.
+(a)~Robot hall: SLIC place-layer regions (pastel floor polygons, named by
+the LLM ring-code scheme of Sec.~\ref{sec:place}) with the room-scoped
+object clusters rendered as their full-resolution segmented points,
+colored by verified class; gray clusters are \texttt{unverified} and
+demoted at query time. (b)~The cafeteria stress scene under the same
+representation (no place layer; floor points shown for context)---the
+verified vending row (teal), planter partitions (olive), and chairs
+(blue) stand over the gated gray residue.}
+\label{fig:semmap}
+\end{figure}
 
 \begin{figure}[t]
 \centering
