@@ -36,7 +36,13 @@ the controlled-change floor fan all verified as
 \texttt{clutter}---shows a systematic blind spot: geometrically detected,
 semantically flattened. Change detection still works (the fan was
 correctly inserted), but type-level recall for small dark appliances needs
-either close-range imagery or targeted re-rendering. The T3 owner audit
+either close-range imagery or targeted re-rendering. The cafeteria
+render-source ablation (Sec.~\ref{sec:exp-ablation}) tests exactly this
+mechanism and splits it: re-rendering from full-resolution points repairs
+every \emph{whole-object} error in that scene (keyboard phantoms, chairs,
+doors), while absorption of object \emph{fragments} survives untouched---so
+re-rendering is the right lever for this error class only when
+segmentation has delivered the object intact. The T3 owner audit
 (Sec.~\ref{sec:exp-owner}) adds a vocabulary dimension: when the
 deployment site contains object families absent from the classifier
 vocabulary (robots, in our testbed), absorption becomes the dominant
@@ -58,7 +64,11 @@ removal has a second, opposite failure mode that the ensemble of
 Sec.~\ref{sec:exp-seg} exposes: it \emph{amputates} wall-flush objects
 (two multi-metre tables, a wall-mounted monitor bank) along with the
 wall. Both failure directions argue for treating removal as a varied
-condition to detect across, not a fixed preprocessing truth.
+condition to detect across, not a fixed preprocessing truth. The
+cafeteria adds a floor-material variant: carpet's rough, low-reflectance
+pile leaves residual patches above the RANSAC floor plane, and seven of
+that scene's 28 clusters are such floor noise---the smooth-plane
+assumption behind structure removal is itself a material assumption.
 
 \paragraph{Correlated verifier bias.}
 Cross-condition voting corrected no labels: when the verifier
@@ -89,7 +99,11 @@ flagged-candidate discipline as our Point-SAM rule.
 \paragraph{Scope.}
 Results come from one scanner, one building, and object-level change;
 structural change (walls, large fixtures) and cross-site generalization are
-untested. Manipulation is likewise out of scope: the implicit layer plus
+untested. The cafeteria stress scene extends coverage to a second floor
+and a soft-furnishing domain, but as a bound rather than a validation: it
+shows the headline precision figures do not transfer to
+out-of-vocabulary furnishing without segmentation-level and
+render-level adaptation (Sec.~\ref{sec:exp-ablation}). Manipulation is likewise out of scope: the implicit layer plus
 verified pose and extents provide the minimum contract a manipulation
 planner needs for coarse feasibility screening, but we state this as an
 interface property without experiments. The three-epoch study mitigates but does not remove the two-scene

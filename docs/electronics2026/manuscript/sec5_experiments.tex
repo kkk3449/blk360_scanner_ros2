@@ -18,7 +18,11 @@ Because the two primary epochs differ in layout, furnishing, and scan
 modality, they function as independent scenes for per-epoch evaluation
 (Secs.~\ref{sec:exp-seg}--\ref{sec:exp-query}) while enabling a real
 multi-epoch update study (Sec.~\ref{sec:exp-update}). Scene statistics are
-given in Table~\ref{tab:scenes}.
+given in Table~\ref{tab:scenes}. A separate scene---a carpeted cafeteria
+with sofa booths and vending machines on a different floor of the same
+building, scanned in August 2026 (57M points, 28 clusters)---is held out of
+the main campaign and used only as a cross-floor, out-of-vocabulary stress
+case in Sec.~\ref{sec:exp-ablation}.
 
 \begin{table}[t]
 \centering
@@ -54,7 +58,16 @@ verification study (Sec.~\ref{sec:exp-verify}) uses the original 57-cluster
 decomposition of the same scan, of which 50 clusters are GT-scored after
 excluding 7 structure artifacts---yielding confirmed 36 / plausible 12 /
 unknown 2. For the room-scoped robot hall (55 objects), GT covers 51
-clusters: confirmed 32 (lenient $n{=}42$) after owner corrections.
+clusters: confirmed 32 (lenient $n{=}42$) after owner corrections. The
+cafeteria stress scene follows the same practice: 25 of 28 clusters scored
+(3 structure artifacts excluded), confirmed 20 / plausible 5. Both audit
+passes share an anchoring channel---the render audit presents proposed
+labels that the owner then corrects---so confirmed grades are owner
+decisions over physically known rooms rather than blind annotations; the
+owner overturned model-favored labels in several cases (a
+``refrigerator'' re-graded as a banner, a verified keyboard refuted as a
+phantom, ``motors'' re-identified as mobile manipulators), which bounds
+but does not eliminate this bias.
 
 \paragraph{Metrics.}
 Classification accuracy is top-1 against GT under a documented
@@ -251,7 +264,7 @@ Accuracy & 77.8\% & \textbf{88.9\%} & 78.1\% & \textbf{84.4\%} \\
 Recovered / regressed & \multicolumn{2}{c}{5 / 1} & \multicolumn{2}{c}{3 / 0} \\
 Escalation trigger & \multicolumn{2}{c}{58\% (29/50)} & \multicolumn{2}{c}{51\% (26/51)} \\
 \midrule
-Unanimous precision & \multicolumn{2}{c}{100\% (21/21)} & \multicolumn{2}{c}{94.4\% (17/18; 25 unan.)} \\
+Unanimous precision & \multicolumn{2}{c}{100\% (19/19; 21 unan.)} & \multicolumn{2}{c}{94.4\% (17/18; 25 unan.)} \\
 Escalated precision & \multicolumn{2}{c}{100\%} & \multicolumn{2}{c}{88.9\%} \\
 Unverified precision & \multicolumn{2}{c}{60\%} & \multicolumn{2}{c}{40\%} \\
 \bottomrule
@@ -267,7 +280,13 @@ $\sim$\$0.009/call; escalation adds 232 and 208 calls per scene). The tier
 structure
 justifies gating: unanimous and escalated tiers reach 88.9--100\% precision,
 while the unverified residue is 40--60\%---exactly the content the query
-interface must demote. A repeat of the showroom run under identical
+interface must demote. These precision figures are scoped to confirmed
+GT: on the showroom, one unanimous vote falls on a \emph{plausible}-graded
+cluster and is wrong there (a suspected mobile robot absorbed as
+\texttt{clutter}), so the tier's precision over confirmed$+$plausible GT is
+20/21 rather than 19/19---the scoping convention is reported so that the
+headline is not read as a general property of unanimity (the stress scene
+of Sec.~\ref{sec:exp-ablation} degrades it substantially). A repeat of the showroom run under identical
 settings bounds the verifier's run-to-run variance: base-4 accuracy
 reproduces exactly (77.8\%), escalated accuracy shifts by a single object
 (86.1\% vs.\ 88.9\%), the trigger rate by two points (60\% vs.\ 58\%), and
@@ -746,5 +765,39 @@ uniformly removing them, which is precisely why the framework treats
 verification as tiered evidence behind a gate rather than as truth: the
 tier structure, the escalation economics, and the owner loop survive a
 verifier swap; the specific precision figures do not.
+
+\paragraph{Cross-floor stress scene and render-source ablation.}
+The cafeteria scene (Sec.~\ref{sec:setup}) probes the same protocol,
+same verifier, on a furnishing domain the campaign never saw: carpeted
+floor, fabric sofa booths, planter partitions. The backbone transfers
+mechanically (57M points $\rightarrow$ 28 clusters in 13.5\,s after an
+automatic yaw alignment), but verification does not: escalated accuracy
+reaches only 35\% against confirmed owner GT (46.7\% when
+fragment clusters are excluded from grading), and unanimous precision
+falls to 57.1\%---two unanimous keyboard phantoms on carpet-noise
+clusters, a chair and a table pedestal unanimously absorbed as
+\texttt{clutter}. The errors are structured, not diffuse: the scene's
+dominant object family (sofas) enters the pipeline pre-broken---split
+into six cushion fragments and two sofa-table merges---and every
+fragment is absorbed; carpet pile leaves seven residual floor-noise
+clusters above the RANSAC floor plane (a floor-material analogue of the
+ceiling remnants of Sec.~\ref{sec:exp-seg}); and the confidence gate
+quarantines 9 of 16 wrong labels as unverified while 4 unanimous errors
+pass. Re-rendering the identical 512-px view sets from full-resolution
+re-associated points (rather than the 3\,cm working cloud) isolates the
+render-quality term at unchanged protocol and cost ($\sim$\$2.5/scene):
+every whole-object error repairs---the keyboard phantoms vanish, both
+chairs recover (including the unanimous one), and both doors resolve
+correctly, one via escalation---lifting escalated accuracy to 40\%
+(53.3\% excluding fragments) and unanimous precision to 62.5\%; but no
+sofa fragment is recovered, and two planters regress. Render quality
+repairs \emph{whole-object} ambiguity; fragmentation-induced absorption
+is a segmentation problem that no verifier or render upgrade reaches
+(Sonnet~5 fares no better on such inputs, above). Together with the
+upgrade check, the stress scene fixes the reading of
+Table~\ref{tab:verification}: tier precision is a scene- and
+domain-scoped measurement to be re-estimated per deployment---cheaply,
+via a small owner-confirmed probe set---not a property of the
+architecture.
 
 \paragraph{Segmentation parameters.} See Sec.~\ref{sec:exp-seg}.
