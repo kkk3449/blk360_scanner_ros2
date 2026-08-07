@@ -854,14 +854,15 @@ upgrade adds accuracy on top of whichever source it is given
 sets): on this scene the newer model is uniformly better---in contrast
 to its unanimous-precision loss on the industrial 512-px sets in the
 upgrade check above---so even the \emph{sign} of a model upgrade is
-domain-dependent. The render-source lever carries the same caveat: a
-symmetric control that re-renders the \emph{showroom} from
-full-resolution points reverses the effect, dropping escalated
-accuracy from 88.9\% to 80.6\% (base 77.8\%$\rightarrow$69.4\%;
-unanimous precision holds at 100\%, trigger 58\%$\rightarrow$66\%).
-The added texture invites over-specific labels on industrial
-equipment---a junction box read as a pipe assembly, the wall TV as a
-ladder---where the coarser working-cloud render had left a correct
+domain-dependent. The render-source lever carries the same caveat: symmetric controls
+that re-render \emph{both industrial scenes} from full-resolution
+points reverse the effect---showroom escalated accuracy drops from
+88.9\% to 80.6\% (base 77.8\%$\rightarrow$69.4\%; unanimous precision
+holds at 100\%) and robot-hall from 84.4\% to 68.8\% (unanimous
+precision 94.4\%$\rightarrow$83.3\%). The added texture invites
+over-specific labels---a junction box read as a pipe assembly, the
+wall TV as a ladder, clutter piles as keyboards, boxes, and trash
+cans---where the coarser working-cloud render had left a correct
 verdict, so the main campaign's voxel-source protocol stands as the
 right default for the industrial scenes, and the cross-scene
 comparison (first row of Table~\ref{tab:cafe} against
