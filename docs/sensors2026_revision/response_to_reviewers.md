@@ -24,7 +24,7 @@ Line references below are to the revised (clean) manuscript. All changes are als
 
 > "We refer to this regime as *robotic stop-and-scan LiDAR mapping*: a mobile platform carries a light detection and ranging (LiDAR) sensor that must remain stationary during each acquisition, and the dense scans are aligned offline rather than registered incrementally in real time. A terrestrial laser scanner (TLS) is the canonical instance of such a sensor; the Leica BLK360 G1 used in our experiments ... The method developed in this paper is formulated for the general stop-and-scan LiDAR regime; the BLK360 G1 enters only as the experimental instrument (Section 5)." (Section 1)
 
-Terminology has been made consistent throughout: the method sections (3–4) now speak of the generic stop-and-scan sensor with range bound R and stationary acquisition cost; instrument-specific values appear only in the experimental sections (see also our response to Comment 5).
+Terminology has been made consistent throughout: the method sections (3–4) now speak of the generic stop-and-scan sensor with range bound R and stationary acquisition cost; instrument-specific values appear only in the experimental sections (see also our response to Comment 4).
 
 ### Major Comment 2 — Explicit research questions and a roadmap
 
@@ -46,11 +46,11 @@ with subquestions (RQ1) how per-pose coverage should be defined on the live map 
 - **Discussion**: the first limitation is now the 2D representation and vertical occlusion, with 3D visibility identified as the principal future-work direction.
 - **Conclusions**: "...the model performs 2D scan-station planning on the live occupancy map for subsequent 3D mapping"; future work includes the 3D extension.
 
-### Major Comment 5 — Method formulated independently of the BLK360
+### Major Comment 4 — Method formulated independently of the BLK360
 
 **Response.** Done. The method sections no longer reference the instrument: Section 4's cost motivation now reads "minutes per acquisition for the survey-grade scanner used in our experiments (Section 5)" instead of quoting BLK360 scan times; the coverage-model figure caption (Fig. 1) and the concept figure title now refer to a generic scan pose; the summary and sweep figures label "stationary scans" rather than "BLK360 scans". BLK360 duration, accuracy, and workflow details appear only in Section 5 (experimental setup) and the hardware sections, as experimental settings.
 
-### Major Comment 6 (first) — Broad claims, references, sensor grouping, abstract strength
+### Major Comment 5 — Broad claims, references, sensor grouping, abstract strength
 
 **Response.** Three changes:
 
@@ -58,7 +58,7 @@ with subquestions (RQ1) how per-pose coverage should be defined on the live map 
 2. *Sensor grouping*: the family is now described as "sensors that require stationary acquisition or a dwell time at each viewpoint", and we state explicitly: "These instruments differ widely in observation geometry, resolution, and uncertainty; the line-of-sight coverage model developed here applies to the optical, non-penetrating members of this family and explicitly not to penetrating modalities such as GPR (Section 7)."
 3. *Abstract claim*: softened and scoped — "The results indicate that, for the room-scale indoor environments studied, occlusion-aware visibility is a sounder basis than Euclidean proximity for stop-and-scan placement." The Conclusions carry the same scoping ("Within the room-scale indoor environments and the optical stop-and-scan sensor class studied here...").
 
-### Major Comment 6 (second) — Conference-paper overlap
+### Major Comment 6 — Conference-paper overlap
 
 **Response.** The Introduction now discloses the overlap explicitly and itemizes what is new:
 
@@ -122,6 +122,8 @@ The sentence noting the platform's absence from the conference version has been 
 
 **Response.** We removed repeated explanations of colorized point clouds (now defined once), the single-link/multi-link registration contrast (explained once in Section 6.7 and only referenced elsewhere), and the disk-vs-visibility difference (defined in Sections 1/3 and thereafter referenced); shortened captions no longer duplicate the surrounding text.
 
+*(The review text we received proceeds from Comment 17 directly to Comment 19; if a Comment 18 was intended, we would be glad to address it.)*
+
 ### Minor Comment 19 — Caption length
 
 **Response.** Captions of Figures 2, 3, 7, 8, 11, 13, 14, 15 and Tables 2, 3 have been shortened, with interpretation and methodological detail moved into the main text (Sections 5.1, 5.2, 6.2, 6.5–6.7).
@@ -140,7 +142,7 @@ The sentence noting the platform's absence from the conference version has been 
 
 ### Comment 2 — Reference [9] (conference paper) availability and overlap
 
-**Response.** The overlap is now disclosed item by item in the Introduction (see response to Reviewer 1, Comment 6-second: what the conference version contains, what is new here, and that no figure, table, or quantitative result is shared). The conference manuscript has been uploaded for the editors and reviewers as a supplementary file for review purposes, as requested.
+**Response.** The overlap is now disclosed item by item in the Introduction (see response to Reviewer 1, Major Comment 6: what the conference version contains, what is new here, and that no figure, table, or quantitative result is shared). The conference manuscript has been uploaded for the editors and reviewers as a supplementary file for review purposes, as requested.
 
 ### Comment 3 — Why thresholds 25 and 65 in Equation (1)?
 
@@ -156,7 +158,7 @@ The sentence noting the platform's absence from the conference version has been 
 
 ### Comment 6 — References mostly pre-2020
 
-**Response.** We added six recent works and now cite them where they bear on the argument: Zeng et al. 2020 (view-planning survey); Schmid et al. 2020 (sampling-based online informative path planning); Zhou et al. 2021 (FUEL, incremental frontier exploration); Dehbi et al. 2021 (optimal TLS scan planning with network-connectivity constraints, ISPRS JPRS); Knechtel et al. 2025 (joint standpoint + routing optimization for stop-and-go scanning with network redundancy, ISPRS JPRS); together with the already-cited 2020+ works (Placed et al. 2023; Lluvia et al. 2021; Park et al. 2024; Aryan et al. 2021; Halder & Afsari 2023; Quin et al. 2021; He et al. 2025; Macenski et al. 2020), 14 of the 39 references now date from 2020 or later, and the two ISPRS papers anchor the related-work discussion of current TLS scan-planning practice.
+**Response.** We added six recent works and now cite them where they bear on the argument: Zeng et al. 2020 (view-planning survey); Schmid et al. 2020 (sampling-based online informative path planning); Zhou et al. 2021 (FUEL, incremental frontier exploration); Dehbi et al. 2021 (optimal TLS scan planning with network-connectivity constraints, ISPRS JPRS); Knechtel et al. 2025 (joint standpoint + routing optimization for stop-and-go scanning with network redundancy, ISPRS JPRS); together with the already-cited 2020+ works (Placed et al. 2023; Lluvia et al. 2021; Park et al. 2024; Aryan et al. 2021; Halder & Afsari 2023; Quin et al. 2021; He et al. 2025; Macenski et al. 2020), 16 of the 39 reference entries are now dated 2020 or later; of these, 13 are peer-reviewed archival publications (2020--2025), the remainder being the scanner datasheet (2022), an open-source software reference (2026), and our own conference manuscript under review. The two ISPRS papers anchor the related-work discussion of current TLS scan-planning practice.
 
 ---
 
