@@ -187,7 +187,7 @@ def fig1_concept():
         draw_scans(ax, grid, res, org, [s], 6.0, model, labels=False)
         ax.set_title(ttl)
     axes[0].set_ylabel("y [m]")
-    fig.suptitle("Coverage model for one BLK360 scan pose (R = 6 m)", y=1.0)
+    fig.suptitle("Coverage model for one stop-and-scan pose (R = 6 m)", y=1.0)
     fig.tight_layout()
     p = f"{OUT}/fig1_concept.png"
     fig.savefig(p, bbox_inches="tight")
@@ -359,51 +359,57 @@ def fig6_completion():
 
 # --------------------------------------------------------------------- fig 7
 def fig7_summary():
-    # (rule, env, scans_mean, scans_sd, los_mean, los_sd) -- 3-way ablation.
-    # Uniform = no-skip upper reference; disk = baseline; visibility = ours.
-    groups = [
-        ("Uniform\n(single-room)", 28.0, 13.0, 91.9, 7.0),
-        ("Disk\n(single-room)", 2.0, 0.0, 77.0, 4.9),
-        ("Visibility\n(single-room)", 3.6, 0.9, 85.4, 6.2),
-        ("Uniform\n(multi-room)", 40.8, 11.8, 86.6, 9.9),
-        ("Disk\n(multi-room)", 2.3, 0.5, 77.0, 6.4),
-        ("Visibility\n(multi-room)", 3.6, 0.7, 84.0, 9.2),
-    ]
+    # Four-way ablation (revision): uniform no-skip reference, disk spacing
+    # rule, disk model + the SAME marginal-gain rule as ours, and ray-cast
+    # visibility. Numbers come from revision_ablation.json (revision_ablation_r1.py).
+    d = json.load(open(f"{OUT}/revision_ablation.json"))
+    order = [("uniform", "Uniform"), ("disk_space", "Disk,\nspacing"),
+             ("disk_gain", "Disk,\ngain rule"), ("visibility", "Visibility")]
+    groups = []
+    for envname, envlab in [("single", "single-room"), ("multi", "multi-room")]:
+        for pol, lab in order:
+            r = d[envname][pol]
+            groups.append((f"{lab}", r["scans_mean"], r["scans_sd"],
+                           r["los_mean"], r["los_sd"]))
     labels = [g[0] for g in groups]
-    x = np.arange(len(groups))
-    # uniform=amber (reference), disk=gray (baseline), visibility=blue (ours)
-    cu, cd, cv = "#fdae6b", "#bbbbbb", "#2c7fb8"
-    colors = [cu, cd, cv, cu, cd, cv]
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(14, 4.8))
+    x = np.array([0, 1, 2, 3, 4.7, 5.7, 6.7, 7.7])
+    # uniform=amber (reference), disk rules=grays, visibility=blue (ours)
+    cu, cd, cg, cv = "#fdae6b", "#bbbbbb", "#8c8ca8", "#2c7fb8"
+    colors = [cu, cd, cg, cv, cu, cd, cg, cv]
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(14, 5.0))
     a1.bar(x, [g[3] for g in groups], yerr=[g[4] for g in groups],
            color=colors, capsize=5, edgecolor="k", lw=0.6)
     a1.set_xticks(x)
-    a1.set_xticklabels(labels, fontsize=8.5)
-    a1.set_ylabel("LOS coverage [%]")
-    a1.set_title("(a) Line-of-sight coverage (controlled paired ablation)")
-    a1.set_ylim(0, 105)
+    a1.set_xticklabels(labels, fontsize=9.5)
+    a1.set_ylabel("LOS coverage [%]", fontsize=12)
+    a1.set_title("(a) Line-of-sight coverage", fontsize=13)
+    a1.set_ylim(0, 108)
     a1.grid(True, axis="y", alpha=0.3)
     for xi, g in zip(x, groups):
-        a1.text(xi, g[3] + g[4] + 1.5, f"{g[3]:.1f}", ha="center", fontsize=8.5)
+        a1.text(xi, g[3] + g[4] + 1.5, f"{g[3]:.1f}", ha="center", fontsize=9.5)
     # scan count: log scale so 2-3.6 and 28-41 are both legible
     a2.bar(x, [g[1] for g in groups], yerr=[g[2] for g in groups],
            color=colors, capsize=5, edgecolor="k", lw=0.6)
     a2.set_xticks(x)
-    a2.set_xticklabels(labels, fontsize=8.5)
-    a2.set_ylabel("BLK360 scans (log scale)")
-    a2.set_title("(b) Number of stationary scans")
+    a2.set_xticklabels(labels, fontsize=9.5)
+    a2.set_ylabel("Stationary scans (log scale)", fontsize=12)
+    a2.set_title("(b) Number of stationary scans", fontsize=13)
     a2.set_yscale("log")
-    a2.set_ylim(1, 80)
+    a2.set_ylim(1, 90)
     a2.grid(True, axis="y", which="both", alpha=0.3)
     for xi, g in zip(x, groups):
-        a2.text(xi, (g[1] + g[2]) * 1.08, f"{g[1]:.1f}", ha="center", fontsize=8.5)
+        a2.text(xi, (g[1] + g[2]) * 1.10, f"{g[1]:.1f}", ha="center", fontsize=9.5)
+    for ax in (a1, a2):
+        ax.text(1.5 / 8.7, -0.16, "Single-room", transform=ax.transAxes,
+                ha="center", fontsize=11, fontweight="bold")
+        ax.text(6.7 / 8.7, -0.16, "Multi-room", transform=ax.transAxes,
+                ha="center", fontsize=11, fontweight="bold")
     handles = [Patch(facecolor=cu, edgecolor="k", label="Uniform, no skip (reference)"),
-               Patch(facecolor=cd, edgecolor="k", label="Isotropic disk (baseline)"),
+               Patch(facecolor=cd, edgecolor="k", label="Disk, spacing rule (baseline)"),
+               Patch(facecolor=cg, edgecolor="k", label="Disk, marginal-gain rule"),
                Patch(facecolor=cv, edgecolor="k", label="Ray-cast visibility (ours)")]
-    a1.legend(handles=handles, fontsize=8, loc="lower right", framealpha=0.9)
-    fig.suptitle("Three-way skip-rule ablation on identical paths "
-                 "(N = 5 single-room, N = 10 multi-room trajectories)", y=1.02)
-    fig.tight_layout()
+    a1.legend(handles=handles, fontsize=9, loc="lower right", framealpha=0.9)
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
     p = f"{OUT}/fig7_summary.png"
     fig.savefig(p, bbox_inches="tight")
     plt.close(fig)
@@ -422,65 +428,66 @@ def fig8_param_sweep():
                            for i in range(1, 6)]),
     }
 
-    def mean_over(envname, tau, amin):
+    def stats_over(envname, tau, amin):
         grid, res, org, free, paths = envs[envname]
         sc, los = [], []
         for c in paths:
             n, l = replay_visibility(grid, res, org, free, c, 6.0, tau, amin)
             sc.append(n)
             los.append(l)
-        return float(np.mean(sc)), float(np.mean(los))
+        return (float(np.mean(sc)), float(np.std(sc, ddof=1)),
+                float(np.mean(los)), float(np.std(los, ddof=1)))
 
     taus = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.50]
     amins = [1, 2, 3, 4, 5, 6, 7, 10, 15]
     col = {"single": "#2c7fb8", "multi": "#d95f0e"}
+    lab = {"single": "single-room", "multi": "multi-room"}
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.5, 5.2))
+    sweep_log = {}
 
-    ax1b = ax1.twinx()
-    for name in ["single", "multi"]:
-        s = [mean_over(name, t, 5.0) for t in taus]
-        ax1.plot(taus, [x[1] for x in s], "-o", color=col[name],
-                 label=f"{name} — LOS")
-        ax1b.plot(taus, [x[0] for x in s], "--s", color=col[name],
-                  alpha=0.45, ms=4)
-    ax1.axvline(0.30, ls=":", color="0.4", lw=1.2)
-    ax1.text(0.31, 78.6, "τ = 0.30\n(operating point)", fontsize=8.5, color="0.3")
-    ax1.set_xlabel("τ  (min new-visible ratio)")
-    ax1.set_ylabel("LOS coverage [%]  (solid ●)")
-    ax1b.set_ylabel("BLK360 scans  (dashed ■)")
-    ax1.set_title("(a) τ sweep   (A_min = 5 m²)")
-    ax1.set_ylim(78, 92)
-    ax1b.set_ylim(2, 8)
-    ax1.grid(alpha=0.3)
-    ax1.legend(fontsize=9, loc="upper right")
+    def panel(ax, xs, getter, xlabel, vline, vtext, vtext_y, title, key):
+        axb = ax.twinx()
+        for name in ["single", "multi"]:
+            s = [getter(name, v) for v in xs]
+            sweep_log[f"{key}_{name}"] = list(zip(xs, s))
+            lm = np.array([x[2] for x in s])
+            lsd = np.array([x[3] for x in s])
+            sm = np.array([x[0] for x in s])
+            ssd = np.array([x[1] for x in s])
+            ax.errorbar(xs, lm, yerr=lsd, fmt="-o", color=col[name],
+                        capsize=4, lw=1.8, ms=6,
+                        label=f"{lab[name]} — LOS coverage (solid, left axis)")
+            axb.errorbar(xs, sm, yerr=ssd, fmt="--s", color=col[name],
+                         alpha=0.5, ms=4, capsize=3, lw=1.2,
+                         label=f"{lab[name]} — scan count (dashed, right axis)")
+        ax.axvline(vline, ls=":", color="0.4", lw=1.2)
+        ax.text(vline * 1.03, vtext_y, vtext, fontsize=10, color="0.25",
+                va="top")
+        ax.set_xlabel(xlabel, fontsize=12)
+        ax.set_ylabel("LOS coverage [%]", fontsize=12)
+        axb.set_ylabel("Stationary scans", fontsize=12)
+        ax.set_title(title, fontsize=13)
+        ax.set_ylim(64, 100)
+        axb.set_ylim(0, 10)
+        ax.grid(alpha=0.3)
+        h1, l1 = ax.get_legend_handles_labels()
+        h2, l2 = axb.get_legend_handles_labels()
+        ax.legend(h1 + h2, l1 + l2, fontsize=8.5,
+                  loc="lower right", framealpha=0.92)
 
-    ax2b = ax2.twinx()
-    for name in ["single", "multi"]:
-        s = [mean_over(name, 0.30, a) for a in amins]
-        ax2.plot(amins, [x[1] for x in s], "-o", color=col[name],
-                 label=f"{name} — LOS")
-        ax2b.plot(amins, [x[0] for x in s], "--s", color=col[name],
-                  alpha=0.45, ms=4)
-    ax2.axvline(5.0, ls=":", color="0.4", lw=1.2)
-    ax2.text(5.3, 90.3, "A_min = 5 m²\n(knee)", fontsize=8.5, color="0.3")
-    ax2.set_xlabel("A_min  (min new-visible area) [m²]")
-    ax2.set_ylabel("LOS coverage [%]  (solid ●)")
-    ax2b.set_ylabel("BLK360 scans  (dashed ■)")
-    ax2.set_title("(b) A_min sweep   (τ = 0.30)")
-    ax2.set_ylim(78, 92)
-    ax2b.set_ylim(2, 8)
-    ax2.grid(alpha=0.3)
-    ax2.legend(fontsize=9, loc="lower left")
+    panel(ax1, taus, lambda n, t: stats_over(n, t, 5.0),
+          "τ  (min new-visible ratio)", 0.30, "τ = 0.30\n(operating point)",
+          99.0, "(a) τ sweep   (A_min = 5 m²)", "tau")
+    panel(ax2, amins, lambda n, a: stats_over(n, 0.30, a),
+          "A_min  (min new-visible area) [m²]", 5.0, "A_min = 5 m²\n(knee)",
+          99.0, "(b) A_min sweep   (τ = 0.30)", "amin")
 
-    fig.suptitle("Parameter sweep (deterministic replay, N=5 single-room / "
-                 "N=10 multi-room paths): "
-                 "A_min sets the coverage–scans trade-off, τ is robust",
-                 y=1.03, fontsize=12)
     fig.tight_layout()
     p = f"{OUT}/fig8_param_sweep.png"
     fig.savefig(p, bbox_inches="tight")
     plt.close(fig)
-    print("wrote", p)
+    json.dump(sweep_log, open(f"{OUT}/param_sweep_stats.json", "w"), indent=2)
+    print("wrote", p, "and param_sweep_stats.json")
 
 
 if __name__ == "__main__":
