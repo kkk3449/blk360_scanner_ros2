@@ -183,7 +183,12 @@ survey-grade 3D maps of factories, warehouses, and other operational sites is
 growing. A dense and accurate point cloud is becoming an infrastructural
 asset: downstream robots localize against it, plan collision-free motion within
 it, and reason over it. This raises the practical question of how such maps can be acquired
-\emph{automatically} rather than through labor-intensive manual scanning.
+\emph{automatically} rather than through labor-intensive manual scanning. The
+motivation is threefold: a manual survey occupies a trained operator for hours
+of tripod placements; a robotized acquisition can run outside operating hours,
+interrupting neither production processes nor people on the floor; and an
+autonomous procedure makes periodic re-scans repeatable at low marginal
+cost.
 
 Automated three-dimensional (3D) mapping of indoor and industrial environments
 is increasingly carried out by mobile robots equipped with survey-grade
@@ -200,9 +205,12 @@ evaluation in this paper concern the geometric measurements only.) Two
 properties shape the mapping problem. First, the sensor must remain completely
 stationary during acquisition; any base motion introduces distortion and
 registration error. Second, the dense scans are not registered in real time but
-aligned offline. Conventional mobile mapping, which assumes continuous
-acquisition under motion and incremental online registration, therefore does not
-transfer directly to this stop-and-scan workflow. The method developed in this
+aligned offline. We emphasize that these two properties characterize the
+survey-grade stop-and-scan class, not 3D laser scanning in general: continuous
+mobile-mapping scanners acquire under motion and register incrementally online
+through simultaneous localization and mapping (SLAM), trading survey-grade
+accuracy for acquisition speed. SLAM-based continuous mobile mapping therefore
+does not transfer directly to the stop-and-scan workflow addressed here. The method developed in this
 paper is formulated for the general stop-and-scan LiDAR regime; the BLK360 G1
 enters only as the experimental instrument (Section~\ref{sec:setup}).
 
@@ -367,9 +375,12 @@ corresponds to a missing multi-minute scan and an unobserved part of the map.
 
 \subsection{Stationary and Stop-and-Scan Mapping}
 
-Survey-grade terrestrial scanning departs from the continuous-acquisition
+Survey-grade terrestrial scanning, as practiced with the tripod-class
+instruments considered here, departs from the continuous-acquisition
 assumption: each measurement requires a stationary dwell of minutes and
-registration is performed offline~\cite{stopandgo-review}. Prior automated TLS
+registration is performed offline~\cite{stopandgo-review}. (Scanners that
+relax these constraints exist, but at accuracies below the survey grade
+targeted here.) Prior automated TLS
 and stop-and-go mapping efforts focus largely on the system integration of
 driving a scanner between viewpoints and on offline registration of the
 collected scans~\cite{stopandgo-registration}, while scan-planning studies in
@@ -428,8 +439,8 @@ coverage metric (Section~\ref{sec:los}).
 \label{sec:notation}
 
 Let the environment be represented by a two-dimensional occupancy
-grid~\cite{elfes1989,thrun2005} $\mathcal{M}$ produced online by simultaneous
-localization and mapping (SLAM), following the \texttt{nav\_msgs/OccupancyGrid}
+grid~\cite{elfes1989,thrun2005} $\mathcal{M}$ produced online by SLAM,
+following the \texttt{nav\_msgs/OccupancyGrid}
 convention. The grid is an $H\times W$ array of square cells of side $\rho$,
 the grid resolution ($\rho=0.05$~m in all experiments); each cell $c$ is
 identified with its center point in the map frame, so that
@@ -765,6 +776,10 @@ stop-and-scan sequencer applies the
 placement policy of Section~\ref{sec:placement}, triggering a stationary scan
 whenever a candidate is accepted and gating successive scans so that the long
 scan-and-download cycle of the scanner never overlaps with the next acquisition.
+All navigation is subject to the platform's physical constraints: Nav2 plans on
+an inflated costmap, so every path and every scan candidate keeps the robot
+footprint (Figure~\ref{fig:redbot}b) clear of obstacles by the safety margin
+of Table~\ref{tab:params} (obstacle dilation radius).
 Figure~\ref{fig:arch} shows how these components connect: the frontier
 exploration layer proposes and orders navigation goals, and the sequencer
 arbitrates the stationary scans, with the ray-cast visibility model of
@@ -805,16 +820,17 @@ independent projects (Section~\ref{sec:realhw}). RedBOT04 is a four-wheeled skid
 under RS-485, with an Advantech i7 main controller and an STM32 Nucleo-F746ZG
 sub-controller; a YDLiDAR TG30 provides the 2D scan for Cartographer SLAM and Nav2
 navigation, and a Leica BLK360 G1 is mounted on the deck as the survey-grade
-stationary sensor (Figure~\ref{fig:redbot}).
+stationary sensor (Figure~\ref{fig:redbot}). The deck places the scanner's
+optical center roughly $0.5$~m above the floor---lower than a typical
+$1.5$--$1.8$~m tripod setup---a vantage whose consequences are discussed in
+Section~\ref{sec:discussion}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.72\linewidth]{figures/fig9_redbot04_platform.jpg}
-\caption{RedBOT04, the four-wheeled mobile scan platform used for the
-real-hardware experiments, carrying a Leica BLK360 G1 terrestrial laser scanner
-(black unit, center) as its survey-grade stationary sensor. The platform
-additionally carries a 2D LiDAR and an RGB-D camera for Cartographer SLAM and
-Nav2 navigation.}
+\includegraphics[width=\linewidth]{figures/fig9_redbot04_platform_annot.png}
+\caption{RedBOT04 mobile scan platform. (\textbf{a})~Annotated view with the
+deck-mounted Leica BLK360 G1; (\textbf{b})~top-view footprint schematic with
+the principal dimensions (cm).}
 \label{fig:redbot}
 \end{figure}
 
@@ -833,7 +849,9 @@ monitors and product panels runs along one side, and freestanding equipment
 cases and furniture create genuine self-occlusion. Floor markings indicate the
 survey reference layout. The room is representative of the factory and
 demonstration environments the platform targets, and it is shown in
-Figure~\ref{fig:testroom}.
+Figure~\ref{fig:testroom}. Its mapped free space spans approximately
+$16\times8.5$~m, about $105$~m\textsuperscript{2} of free floor area on the
+reference map.
 The figure of merit is LOS coverage (Section~\ref{sec:los}). Because
 each autonomous run maps a slightly different extent of free space, for any
 cross-run comparison we re-evaluate every run on a single common reference map
@@ -923,10 +941,12 @@ which are rarely much larger than $6$~m across.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\linewidth]{figures/fig2_singleroom_sota.png}
-\caption{Proposed visibility stop-and-scan on the single-room world ($R=6$~m):
-4~scans, $97.9\%$ LOS coverage. The map, robot path, and per-scan visibility
-polygons (scan order $\#1\dots\#4$) are overlaid on the Cartographer occupancy
-map.}
+\caption{Proposed visibility stop-and-scan on the single-room world
+($R=6$~m): 4~scans, $97.9\%$ LOS coverage. Each accepted scan pose (marker)
+and its visibility polygon share one color, indexed by scan order
+($\#1\dots\#4$); the grayscale background is the occupancy map (light gray
+free, black occupied, darker gray unknown) and the blue line is the robot
+path. The same color convention is used in all placement figures.}
 \label{fig:singleroom}
 \end{figure}
 
@@ -1215,6 +1235,9 @@ register at survey grade on real data. To answer it, we registered the BLK360
 scans of every completed run offline, each run as an independent project under
 identical settings, in Leica Cyclone REGISTER~360 PLUS (BLK Edition) using
 cloud-to-cloud alignment without artificial targets.
+Registration is a post-mission batch step; importing and aligning one run's
+network took on the order of minutes on a desktop workstation, small compared
+with the acquisition time of the scans themselves.
 Table~\ref{tab:registration} summarizes the per-run registration networks.
 
 All four visibility runs registered at survey grade. Their networks comprise
@@ -1341,7 +1364,13 @@ two-dimensional: visibility is evaluated on the occupancy grid at sensor
 height, so vertical occlusions---shelves, overhangs, elevated machinery, or
 surfaces stacked at different heights above the same floor cell---are not
 modeled, and LOS coverage certifies floor-space sight lines rather than full
-3D surface coverage (Section~\ref{sec:scope2d}). Extending the model to a
+3D surface coverage (Section~\ref{sec:scope2d}). The robotic deployment adds
+a related height effect: the deck-mounted scanner observes from roughly
+$0.5$~m above the floor, lower than a typical tripod setup, so low furniture
+and equipment cast longer horizontal shadows than in a manual survey of the
+same room. This makes occlusion-aware placement more important on a robotic
+platform, not less; but it also means the acquired clouds have a lower vantage
+than a conventional tripod survey would provide. Extending the model to a
 genuinely 3D visibility representation, for example on a voxel or octree map
 or over reconstructed surfaces, is the principal direction for future work.
 Second, even within its 2D scope, LOS coverage is a geometric proxy

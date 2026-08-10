@@ -17,9 +17,9 @@ OUT = os.path.join(HOME, "blk360_ros2_ws", "outputs_thesis", "journal")
 
 C_EXPL = "#e8f0f8"   # exploration (existing)
 C_EXPL_E = "#4a7fb5"
-C_VIS = "#cfe3f7"    # visibility core (this work)
+C_VIS = "#a9cdf2"    # visibility core (this work)
 C_VIS_E = "#1f5fa8"
-C_SEQ = "#faf0dd"    # sequencer
+C_SEQ = "#f7e8c8"    # sequencer
 C_SEQ_E = "#c8922a"
 C_OUTB = "#e4f0e2"   # output
 C_OUT_E = "#4e8a4a"
