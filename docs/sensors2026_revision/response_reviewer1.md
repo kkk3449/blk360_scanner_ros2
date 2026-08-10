@@ -55,7 +55,7 @@ with subquestions (RQ1) how per-pose coverage should be defined on the live map 
 
 > "The conference version contributes the stop-and-scan system integration (frontier exploration coupled to a scan sequencer) and an isotropic-disk scan trigger, demonstrated in simulation. New to this article are: the ray-cast visibility coverage model and the LOS coverage metric (Section 3); the dual-criterion marginal-gain placement rule and the coverage-completion phase (Section 4); the controlled paired ablation with its three baselines and the parameter sensitivity analysis (Section 6); and the entire hardware study ... No figure, table, or quantitative result is shared between the two manuscripts."
 
-The sentence noting the platform's absence from the conference version has been removed, as requested. The conference manuscript (under review at ICCAS 2026) has been provided to the editorial office for the editors and reviewers, and we have confirmed that this extension route is consistent with MDPI's editorial policy on extended conference papers (the extension is disclosed in the manuscript and the conference paper is cited as ref. [9]).
+The sentence noting the platform's absence from the conference version has been removed, as requested. Since the original submission, the conference paper has been **accepted for presentation at ICCAS 2026** (Regular Paper; decision of 31 July 2026). The revision updates its status accordingly in the reference [9], in the Introduction, and in the extended-version footnote on the first page (the `\conference` field, now activated). The accepted conference manuscript has been provided to the editorial office for the editors and reviewers, and we have confirmed that this extension route is consistent with MDPI's editorial policy on extended conference papers.
 
 ## Major Comment 7 — Equations (1)–(7) clarifications
 
@@ -81,7 +81,7 @@ The sentence noting the platform's absence from the conference version has been 
 
 ## Minor Comment 9 — Geometry vs. RGB
 
-**Response.** The Introduction now states once: "(The scanner also records panoramic RGB imagery that colorizes the point cloud; the planning and evaluation in this paper concern the geometric measurements only.)" Repeated "colorized point cloud" phrases have been removed; the word now appears exactly twice (this definitional sentence and the caption of the colorized rendering in Fig. 15, where color is genuinely shown).
+**Response.** The Introduction now states once: "(The scanner also records panoramic RGB imagery that colorizes the point cloud; the planning and evaluation in this paper concern the geometric measurements only.)" Repeated "colorized" phrases have been removed throughout; apart from that definitional sentence, the word now appears only in the caption of the colorized rendering in Fig. 15, where color is genuinely shown.
 
 ## Minor Comment 10 — Long sentences / English
 

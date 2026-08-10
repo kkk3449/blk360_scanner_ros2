@@ -109,9 +109,7 @@ $^{3}$ \quad CASELAB Co., Ltd., Anyang 14118, Republic of Korea}
 
 %\simplesumm{} % Simple summary
 
-% NOTE: restore \conference{...} once the ICCAS 2026 paper is accepted; the mdpi.cls
-% footnote prefix reads "published in", which is inaccurate while it is under review.
-%\conference{the 2026 International Conference on Control, Automation and Systems (ICCAS), which introduced an isotropic-disk stop-and-scan trigger. The present work replaces the disk model with an occlusion-aware ray-cast visibility model, adds a controlled ablation and a parameter sensitivity analysis, and reports a fully autonomous on-hardware disk-versus-visibility comparison on a mobile platform with per-run survey-grade offline registration of the acquired BLK360 scans.}
+\conference{the Proceedings of the 2026 International Conference on Control, Automation and Systems (ICCAS), Sapporo, Japan, 27--30 October 2026 (accepted for presentation), which introduced an isotropic-disk stop-and-scan trigger. The present work replaces the disk model with an occlusion-aware ray-cast visibility model, adds a controlled ablation and a parameter sensitivity analysis, and reports a fully autonomous on-hardware disk-versus-visibility comparison on a mobile platform with per-run survey-grade offline registration of the acquired scans}
 
 % Abstract (Do not insert blank lines, i.e. \\) 
 \abstract{Automated three-dimensional (3D) mapping with a survey-grade terrestrial laser scanner (TLS) is the canonical instance of robotic stop-and-scan light detection and ranging (LiDAR) mapping: the mobile platform must remain stationary for minutes per scan, so the environment must be covered with as few scans as possible. Where to stop hinges on a coverage model predicting what a scan pose will observe. The conventional isotropic-disk model counts every free cell within sensing range as covered---including cells behind walls---and therefore skips scans that genuine observation requires. We replace the disk with a ray-cast visibility region computed on the robot's live two-dimensional (2D) occupancy map, admitting only cells in direct line of sight; define a line-of-sight (LOS) coverage metric over mapped free space; and drive a marginal-gain scan/skip rule embedded in frontier exploration. The planner thus performs 2D scan-station placement for subsequent 3D mapping. In a controlled paired ablation in simulation, the visibility rule raises LOS coverage from about 77\% to 84--85\% for one to two additional scans, and it also outperforms a disk baseline governed by the identical marginal-gain rule, isolating the coverage model itself as the decisive factor. In a fully autonomous on-hardware comparison in an industrial test room, with each rule driving a mobile platform carrying a Leica BLK360 G1, the visibility rule raised LOS coverage from 77.6\% to 92.1\%; every visibility run's scans registered offline at survey grade (4--5~mm bundle error, 84--88\% overlap), whereas disk runs yielded at best a single-link network and once a single unregistrable scan. The results indicate that, for the room-scale indoor environments studied, occlusion-aware visibility is a sounder basis than Euclidean proximity for stop-and-scan placement.}
@@ -298,8 +296,8 @@ yield at best a single-link network and at worst a single unregistrable scan
 (Section~\ref{sec:realhw}).
 \end{itemize}
 
-This work extends a preliminary conference manuscript~\cite{iccas2026},
-currently under review at ICCAS 2026, and the overlap between the two is as
+This work extends a preliminary conference paper~\cite{iccas2026}, accepted
+for presentation at ICCAS 2026, and the overlap between the two is as
 follows. The conference version contributes the stop-and-scan system
 integration (frontier exploration coupled to a scan sequencer) and an
 isotropic-disk scan trigger, demonstrated in simulation. New to this article
@@ -798,7 +796,7 @@ stationary scans that are registered offline.}
 
 The target stationary sensor is a Leica BLK360 G1 terrestrial laser scanner. The
 software stack includes a driver that connects to a physical BLK360 G1 over WiFi
-and executes its colorized-scan workflow, and we verified that the device can be
+and executes its full-dome scan workflow, and we verified that the device can be
 triggered and read back through this path. The controlled coverage evaluation
 (Section~\ref{sec:results}) is conducted \emph{in simulation}: a
 TurtleBot3 Waffle is the mobile base in Gazebo~\cite{koenig2004}, and the physical
@@ -1583,7 +1581,7 @@ Arain, M.A.; Trincavelli, M.; Cirillo, M.; Schaffernicht, E.; Lilienthal, A.J. G
 Halder, S.; Afsari, K. Robots in Inspection and Monitoring of Buildings and Infrastructure: A Systematic Review. \textit{Appl. Sci.} \textbf{2023}, \textit{13}, 2304.
 
 \bibitem{iccas2026}
-Kim, S.; Choi, J.-H.; An, Y.-C.; Kuc, T.-Y. Coverage-Aware Stop-and-Scan Frontier Exploration for Automated Survey-Grade 3D Mapping. Submitted to the \textit{2026 International Conference on Control, Automation and Systems (ICCAS)}, Sapporo, Japan, 27--30 October 2026; under review.
+Kim, S.; Choi, J.-H.; An, Y.-C.; Kuc, T.-Y. Coverage-Aware Stop-and-Scan Frontier Exploration for Automated Survey-Grade 3D Mapping. In \textit{Proceedings of the 2026 International Conference on Control, Automation and Systems (ICCAS)}, Sapporo, Japan, 27--30 October 2026; accepted for presentation, in press.
 
 \bibitem{placed2023}
 Placed, J.A.; Strader, J.; Carrillo, H.; Atanasov, N.; Indelman, V.; Carlone, L.; Castellanos, J.A. A Survey on Active Simultaneous Localization and Mapping: State of the Art and New Frontiers. \textit{IEEE Trans. Robot.} \textbf{2023}, \textit{39}, 1686--1705.
