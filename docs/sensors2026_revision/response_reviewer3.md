@@ -58,7 +58,7 @@ We thank the reviewer for the careful annotation of the manuscript PDF. We ident
 
 ## Comment 10 (p. 10, Figure 2) — "This angle is difficult to understand the full scale and layout of the unit — it would useful to see an annotated set of shop drawings or a more axonometric view, with dimensions and/or scalar elements"
 
-**Response.** The platform figure has been replaced by a two-panel figure: (a) the photograph annotated with callouts for every component (Leica BLK360 G1, rigid scanner mount, YDLiDAR TG30 2D LiDAR, RGB-D camera, deck, chassis with battery/controllers/BLDC skid-steer drive); and (b) a dimensioned top-view schematic drawn from the platform's hardware specification: deck 71 × 49 cm at 31 cm height, wheelbase 28 cm, track 44 cm, wheels Ø21 × 6 cm, and the 2D LiDAR centered 7 cm forward of the robot center (marked with a crosshair), with the scanner positions and the scanner optical-center height (≈ 0.5 m) noted.
+**Response.** The platform figure has been replaced by a two-panel figure: (a) the photograph annotated with callouts for every component (Leica BLK360 G1, rigid scanner mount, YDLiDAR TG30 2D LiDAR, RGB-D camera, deck, chassis with battery/controllers/BLDC skid-steer drive); and (b) a dimensioned top-view schematic drawn from the platform's hardware specification: deck 71 × 49 cm at 31 cm height, wheelbase 28 cm, track 44 cm, wheels Ø21 × 6 cm, the 2D LiDAR 7 cm from the front deck edge, and the sensor positions marked, with the scanner optical-center height (≈ 0.5 m) noted.
 
 ## Comment 11 (p. 11, Figure 3) — "dimensions? characteristics?"
 
