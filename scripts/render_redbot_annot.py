@@ -85,9 +85,9 @@ def main():
     b.add_patch(FancyArrowPatch((64, 24.5), (71, 24.5), arrowstyle="<|-|>",
                                 mutation_scale=13, lw=1.6, color="#1f4e8c",
                                 zorder=5, shrinkA=0, shrinkB=0))
-    b.text(67.5, 20.8, "front", fontsize=10.5, ha="center", style="italic",
+    b.text(67.5, 19.4, "front", fontsize=10.5, ha="center", style="italic",
            color="#111111", zorder=5)
-    b.text(67.5, 17.2, "7", fontsize=10.5, ha="center", fontweight="bold",
+    b.text(67.5, 15.8, "7", fontsize=10.5, ha="center", fontweight="bold",
            color="#111111", zorder=5)
     # BLK360 near deck center
     b.add_patch(Circle((33, 24.5), 5.2, fc="#333333", ec="k", zorder=3))
