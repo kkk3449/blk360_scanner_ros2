@@ -4,7 +4,7 @@
 Reviewer 3 asked for an annotated view with dimensions/scalar elements.
 Dimensions from the RedBOT04 hardware spec (CNRLAB_260630_Redbot.pdf):
 deck 71 x 49 cm at 31 cm height; wheelbase 28 cm; track 44 cm; wheels
-D21 x 6 cm; 2D LiDAR 7 cm behind the front deck edge.
+D21 x 6 cm; 2D LiDAR centered 7 cm forward of the robot center.
 """
 import os
 
@@ -78,12 +78,28 @@ def main():
                                boxstyle="round,pad=0.02,rounding_size=7",
                                fc="#e8574d", ec="#7a1f18", lw=2.0,
                                alpha=0.85, zorder=2))
-    # 2D LiDAR 7 cm behind front edge, centered
-    b.add_patch(Circle((64, 24.5), 2.6, fc="#222222", ec="k", zorder=3))
-    b.text(64, 31.5, "2D LiDAR", fontsize=10.5, ha="center", zorder=4)
-    # BLK360 near deck center
-    b.add_patch(Circle((33, 24.5), 5.2, fc="#333333", ec="k", zorder=3))
-    b.text(33, 33.5, "BLK360", fontsize=10.5, ha="center", zorder=4)
+    # robot center (crosshair + dashed axes)
+    b.plot([35.5], [24.5], "+", color="#222222", ms=13, mew=2.2, zorder=5)
+    b.plot([2, 69], [24.5, 24.5], ls=(0, (4, 4)), lw=0.9, color="#666666",
+           zorder=2.5)
+    b.plot([35.5, 35.5], [2, 47], ls=(0, (4, 4)), lw=0.9, color="#666666",
+           zorder=2.5)
+    b.text(35.5, 19.2, "robot center", fontsize=9, ha="center",
+           color="#333333", zorder=5)
+    # 2D LiDAR: center 7 cm forward of the robot center
+    b.add_patch(Circle((42.5, 24.5), 3.2, fc="#f2c9c9", ec="k", zorder=3))
+    b.text(42.5, 24.5, "LiDAR", fontsize=8.5, ha="center", va="center",
+           rotation=90, zorder=4)
+    dim_arrow(b, (35.5, 31.5), (42.5, 31.5), "7", toff=(0, 3.2), fs=10.5,
+              color="#222222")
+    b.add_patch(FancyArrowPatch((56, 24.5), (76, 24.5), arrowstyle="-|>",
+                                mutation_scale=16, lw=2.2, color="#222222",
+                                zorder=4))
+    b.text(66, 28.6, "front", fontsize=11.5, ha="center", style="italic",
+           zorder=4)
+    # BLK360 on the rear half of the deck
+    b.add_patch(Circle((24, 24.5), 5.2, fc="#333333", ec="k", zorder=3))
+    b.text(24, 33.5, "BLK360", fontsize=10.5, ha="center", zorder=4)
     # dimensions
     dim_arrow(b, (0, -6), (71, -6), "71", toff=(0, -3.6))
     dim_arrow(b, (77, 0), (77, 49), "49", toff=(5.2, 0))
@@ -91,9 +107,7 @@ def main():
               toff=(0, -4.2), fs=10, color="#444444")
     dim_arrow(b, (cx - 14, cy - 22), (cx - 14, cy + 22), "44\n(track)",
               toff=(-7.5, 0), fs=10, color="#444444")
-    dim_arrow(b, (57, 49 + 4.5), (71, 49 + 4.5), "7", toff=(0, 3.4), fs=10,
-              color="#444444")
-    b.text(64, 60.5, "front", fontsize=10.5, ha="center", style="italic")
+
     b.text(35.5, -17.5,
            "deck height 31 cm; wheels Ø21 × 6 cm;\n"
            "scanner optical center ≈ 0.5 m above the floor",
