@@ -109,7 +109,11 @@ $^{3}$ \quad CASELAB Co., Ltd., Anyang 14118, Republic of Korea}
 
 %\simplesumm{} % Simple summary
 
-\conference{the Proceedings of the 2026 International Conference on Control, Automation and Systems (ICCAS), Sapporo, Japan, 27--30 October 2026 (accepted for presentation), which introduced an isotropic-disk stop-and-scan trigger. The present work replaces the disk model with an occlusion-aware ray-cast visibility model, adds a controlled ablation and a parameter sensitivity analysis, and reports a fully autonomous on-hardware disk-versus-visibility comparison on a mobile platform with per-run survey-grade offline registration of the acquired scans}
+% NOTE: \conference{} hard-codes the prefix "This paper is an extended version of our paper published in ...",
+% which is inaccurate while the ICCAS 2026 proceedings are not yet published. The extended-version note is
+% therefore set via \firstnote{} with correct wording; restore \conference{} at production once published.
+%\conference{the Proceedings of the 2026 International Conference on Control, Automation and Systems (ICCAS), Sapporo, Japan, 27--30 October 2026}
+\firstnote{This paper is an extended version of our paper accepted for presentation at the 2026 International Conference on Control, Automation and Systems (ICCAS), Sapporo, Japan, 27--30 October 2026, and to appear in the conference proceedings. The conference version introduced an isotropic-disk stop-and-scan trigger; the present work replaces the disk model with an occlusion-aware ray-cast visibility model, adds a controlled ablation and a parameter sensitivity analysis, and reports a fully autonomous on-hardware disk-versus-visibility comparison on a mobile platform with per-run survey-grade offline registration of the acquired scans.}
 
 % Abstract (Do not insert blank lines, i.e. \\) 
 \abstract{Automated three-dimensional (3D) mapping with a survey-grade terrestrial laser scanner (TLS) is the canonical instance of robotic stop-and-scan light detection and ranging (LiDAR) mapping: the mobile platform must remain stationary for minutes per scan, so the environment must be covered with as few scans as possible. Where to stop hinges on a coverage model predicting what a scan pose will observe. The conventional isotropic-disk model counts every free cell within sensing range as covered---including cells behind walls---and therefore skips scans that genuine observation requires. We replace the disk with a ray-cast visibility region computed on the robot's live two-dimensional (2D) occupancy map, admitting only cells in direct line of sight; define a line-of-sight (LOS) coverage metric over mapped free space; and drive a marginal-gain scan/skip rule embedded in frontier exploration. The planner thus performs 2D scan-station placement for subsequent 3D mapping. In a controlled paired ablation in simulation, the visibility rule raises LOS coverage from about 77\% to 84--85\% for one to two additional scans, and it also outperforms a disk baseline governed by the identical marginal-gain rule, isolating the coverage model itself as the decisive factor. In a fully autonomous on-hardware comparison in an industrial test room, with each rule driving a mobile platform carrying a Leica BLK360 G1, the visibility rule raised LOS coverage from 77.6\% to 92.1\%; every visibility run's scans registered offline at survey grade (4--5~mm bundle error, 84--88\% overlap), whereas disk runs yielded at best a single-link network and once a single unregistrable scan. The results indicate that, for the room-scale indoor environments studied, occlusion-aware visibility is a sounder basis than Euclidean proximity for stop-and-scan placement.}
@@ -418,9 +422,9 @@ two: \emph{online} exploration of an \emph{unknown} environment in which each
 acquisition carries a \emph{large stationary cost}, where the scan/skip decision
 must be made on the live map. In that regime the coverage model is the decisive
 component, and we argue that it must be occlusion-aware rather than
-proximity-based: an isotropic-disk or fixed-spacing rule, which is the de facto
-choice in stop-and-go practice, over-claims coverage behind walls and suppresses
-necessary scans. Replacing that rule with a ray-cast visibility model is the
+proximity-based: an isotropic-disk or fixed-spacing rule, a commonly used
+online treatment in stop-and-go practice, over-claims coverage behind walls and
+suppresses necessary scans. Replacing that rule with a ray-cast visibility model is the
 contribution of this paper.
 
 
@@ -614,15 +618,16 @@ Section~\ref{sec:coverage} defined what a scan pose observes; this section
 defines where the robot decides to stop and scan. Because each stationary scan
 carries a large fixed cost (minutes per acquisition for the survey-grade
 scanner used in our experiments; Section~\ref{sec:setup}), the placement
-policy must take as few scans as possible while still guaranteeing LOS coverage
-of the free space.
+policy must take as few scans as possible while maintaining high LOS coverage
+of the mapped free space.
 
 \subsection{Marginal Visibility Gain}
 
-As the robot travels, a scan candidate is raised every $d$ metres of
-straight-line displacement in the map frame from the most recent scan pose (net
-displacement, not path length, so dwelling or circling in place raises no
-candidate). Let $S=\{s_1,\dots,s_m\}$ be the scans accepted so far and
+As the robot travels, a scan candidate is raised every $d$ metres of net
+straight-line displacement in the map frame from the previous candidate pose
+(the evaluation reference, initialized to the start pose and advanced at every
+raised candidate whether or not it is accepted; net displacement rather than
+path length, so dwelling or circling in place raises no candidate). Let $S=\{s_1,\dots,s_m\}$ be the scans accepted so far and
 $C(S)=\bigcup_i B(s_i,R)$ their union coverage. The visibility regions of
 previously accepted scans are not frozen: at every decision, $C(S)$ is
 recomputed on the current occupancy map, so earlier regions expand or contract
@@ -776,8 +781,9 @@ whenever a candidate is accepted and gating successive scans so that the long
 scan-and-download cycle of the scanner never overlaps with the next acquisition.
 All navigation is subject to the platform's physical constraints: Nav2 plans on
 an inflated costmap, so every path and every scan candidate keeps the robot
-footprint (Figure~\ref{fig:redbot}b) clear of obstacles by the safety margin
-of Table~\ref{tab:params} (obstacle dilation radius).
+footprint (Figure~\ref{fig:redbot}b) clear of obstacles by the Nav2 costmap
+inflation margin (inflation radius $0.70$~m with a $0.22$~m robot radius in
+all reported runs).
 Figure~\ref{fig:arch} shows how these components connect: the frontier
 exploration layer proposes and orders navigation goals, and the sequencer
 arbitrates the stationary scans, with the ray-cast visibility model of
@@ -888,7 +894,7 @@ Degenerate cut               & 0.5~m\textsuperscript{2} & Minimum visibility-reg
 \midrule
 Scan-and-download time       & env.-tuned & Mock-scanner capture-plus-download duration matching the BLK360 G1 cycle. \\
 Bilateral-filter std.\ dev.  & env.-tuned & Spatial and range Gaussian kernel widths for decision-map construction. \\
-Obstacle dilation radius     & env.-tuned & Morphological dilation enforcing a safety clearance margin. \\
+Free-space dilation radius   & env.-tuned & Morphological dilation of mapped free space during decision-map construction, before frontier extraction. \\
 Minimum frontier size        & env.-tuned & Frontier clusters smaller than this are discarded as noise. \\
 Completion pocket area $A_{\mathrm{pocket}}$ & env.-tuned & Minimum uncovered-pocket area triggering a completion scan. \\
 \bottomrule
@@ -907,8 +913,8 @@ coverage attainable along a path; (ii)~the \emph{disk spacing} baseline, the
 proximity rule of stop-and-go practice; (iii)~the \emph{disk marginal-gain}
 baseline, which applies the identical accept/skip rule as our policy to the
 disk coverage model (Section~\ref{sec:placement}); and (iv)~the proposed
-\emph{ray-cast visibility} policy. The disk baselines represent the de facto
-online coverage treatment in stop-and-go practice
+\emph{ray-cast visibility} policy. The disk baselines represent a commonly
+used proximity-based online coverage treatment in stop-and-go practice
 (Section~\ref{sec:related}); published TLS scan-planning methods are not
 applicable as online baselines because they optimize viewpoints offline over a
 prior environment model~\cite{tls-scanplanning,dehbi2021,knechtel2025},
@@ -933,8 +939,8 @@ coverage against the scan-to-scan overlap that downstream point-cloud
 registration benefits from; it keeps every cell claimed as covered well inside
 the scanner's highest-accuracy band, since the BLK360 G1 specifies a 3D point
 accuracy of $6$~mm at $10$~m ($8$~mm at $20$~m)~\cite{leica-blk360}; and it
-matches the room-scale dimensions of the indoor environments targeted here,
-which are rarely much larger than $6$~m across.
+matches the local room/bay scale, and hence the occlusion scale, of the indoor
+environments targeted here.
 
 \begin{figure}[H]
 \centering
@@ -964,7 +970,13 @@ decision, from the stochasticity of autonomous exploration. On a fixed
 environment map and a fixed candidate sequence (a logged trajectory sampled every
 $2$~m of path length), we replay \emph{both} skip rules, so the disk and
 visibility policies see identical maps and identical candidate poses and differ
-only in which candidates they accept (Figure~\ref{fig:ablation}). This
+only in which candidates they accept (Figure~\ref{fig:ablation}). For the
+controlled replay only, each logged trajectory is resampled at fixed $2$~m
+path-length intervals to construct the common candidate sequence: path-length
+resampling of a logged trajectory yields a deterministic sequence shared by all
+policies, and the interval is chosen denser than the live $d=3$~m
+net-displacement trigger so that no policy is starved of decision opportunities
+relative to a live run. This
 deterministic, paired design removes the confound that, in live runs, which
 rooms get mapped is dominated by navigation through narrow doorways rather than
 by the skip rule.
@@ -1170,7 +1182,12 @@ pose to acquire a stationary full-dome scan.}
 Of the on-hardware exploration runs we retain the $N=4$ per policy (eight
 completed runs in total) that completed a room-spanning traverse; two additional
 early-terminated runs, in which frontier exploration stalled shortly after
-start, are discarded as failed trials rather than policy samples. Because each live run maps a slightly different extent of free space,
+start, are discarded as failed trials rather than policy samples. The exclusion
+criterion is independent of the skip rule: a run is discarded only when frontier
+exploration stalls before a room-spanning traverse begins, i.e., before the
+placement policy has faced any consequential scan/skip decision. Both discarded
+runs stalled in this stage and are therefore uninformative about either skip
+rule. Because each live run maps a slightly different extent of free space,
 we follow the common-reference protocol of Section~\ref{sec:setup}: every run is
 evaluated on the single most complete SLAM map among the runs, so all runs share
 one free-space denominator. Unlike the simulated ablation, hardware runs cannot
@@ -1242,10 +1259,9 @@ All four visibility runs registered at survey grade. Their networks comprise
 $3$--$6$ setups joined by $3$--$13$ pairwise links, the bundle adjustments
 converged at $4$--$5$~mm with overall overlaps of $84$--$88\%$, and every
 individual link fell within the software's highest quality band (maximum error
-$\le15$~mm; per-link overlaps $74$--$92\%$, errors $3$--$6$~mm). For a
-scanner whose single-setup 3D point accuracy is on the order of a few
-millimeters, a $4$--$5$~mm bundle error is at the level of the sensor noise
-floor, i.e., registration adds essentially no error beyond the device itself.
+$\le15$~mm; per-link overlaps $74$--$92\%$, errors $3$--$6$~mm). The
+$4$--$5$~mm bundle residuals are of the same order of magnitude as the
+scanner's stated single-setup 3D point accuracy of a few millimeters.
 The registered clouds reconstruct the room---display wall, equipment, and
 floor---as a single coherent model: Figure~\ref{fig:regcloud} shows
 interior views of the registered cloud of visibility run~3 along two diagonal
@@ -1445,9 +1461,7 @@ should stop and scan.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Patents}
-
-This section is not mandatory, but may be added if there are patents resulting from the work reported in this manuscript.
+% Patents section removed (no patents resulting from this work).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{6pt} 
@@ -1486,9 +1500,7 @@ This section is not mandatory, but may be added if there are patents resulting f
 
 \institutionalreview{Not applicable.}
 
-\informedconsent{Not applicable.
-
-Written informed consent for publication must be obtained from participating patients who can be identified (including by the patients themselves). Please state ``Written informed consent has been obtained from the patient(s) to publish this paper'' if applicable.}
+\informedconsent{Not applicable.}
 
 \dataavailability{The source code and simulation assets supporting this study are available from the corresponding author upon reasonable request and will be released publicly upon publication.} 
 
@@ -1581,7 +1593,7 @@ Arain, M.A.; Trincavelli, M.; Cirillo, M.; Schaffernicht, E.; Lilienthal, A.J. G
 Halder, S.; Afsari, K. Robots in Inspection and Monitoring of Buildings and Infrastructure: A Systematic Review. \textit{Appl. Sci.} \textbf{2023}, \textit{13}, 2304.
 
 \bibitem{iccas2026}
-Kim, S.; Choi, J.-H.; An, Y.-C.; Kuc, T.-Y. Coverage-Aware Stop-and-Scan Frontier Exploration for Automated Survey-Grade 3D Mapping. In \textit{Proceedings of the 2026 International Conference on Control, Automation and Systems (ICCAS)}, Sapporo, Japan, 27--30 October 2026; accepted for presentation, in press.
+Kim, S.; Kuc, T.-Y. Coverage-Aware Stop-and-Scan Frontier Exploration for Automated Survey-Grade 3D Mapping. In \textit{Proceedings of the 2026 International Conference on Control, Automation and Systems (ICCAS)}, Sapporo, Japan, 27--30 October 2026; accepted for presentation, in press.
 
 \bibitem{placed2023}
 Placed, J.A.; Strader, J.; Carrillo, H.; Atanasov, N.; Indelman, V.; Carlone, L.; Castellanos, J.A. A Survey on Active Simultaneous Localization and Mapping: State of the Art and New Frontiers. \textit{IEEE Trans. Robot.} \textbf{2023}, \textit{39}, 1686--1705.

@@ -3,118 +3,136 @@
 **Manuscript:** Occlusion-Aware Visibility Coverage for Robotic Stop-and-Scan 3D LiDAR Mapping
 (previously: *Occlusion-Aware Visibility Coverage for Stop-and-Scan 3D Mapping with a Terrestrial Laser Scanner*)
 
-We thank the reviewer for the careful and constructive review. Two changes cut across many of the comments: (i) a **new experiment** — a disk baseline governed by the *identical* marginal-gain rule as the proposed policy, replayed on the same fixed candidate paths (Sections 4.2, 6.2; Table 2; Figure 8) — and (ii) explicit **2D scoping** of the contribution (new Section 3.5, plus title, abstract, contributions, discussion, and conclusions). All changes are visible in the marked-up version.
+We thank the reviewer for the careful and constructive review and for the assessment that the work shows promise for publication in Sensors. Two changes cut across many of the comments: (i) a **new experiment** — a disk baseline governed by the *identical* marginal-gain rule as the proposed policy, replayed on the same fixed candidate paths (Sections 4.2 and 6.2; Table 2; Figure 8) — and (ii) explicit **2D scoping** of the contribution (new Section 3.5, plus title, abstract, contributions, discussion, and conclusions). In response to the evaluation form, a careful English revision pass has also been made over the entire manuscript (Comment 10). All changes are visible in the marked-up manuscript; page numbers below refer to the revised clean manuscript. We follow the numbering of the review report; as it contains two comments numbered 6, we answer them as 6a and 6b.
 
 ---
 
-## Major Comment 1 — Positioning: mobile robotics vs. surveying/geomatics terminology; title
+## Comment 1 (Major) — Positioning and title
 
-> *Please clarify whether the contribution is intended specifically for robotic platforms carrying survey-grade terrestrial laser scanners or for robotic stop-and-scan LiDAR mapping more generally. ... A possible revised title can be "Occlusion-Aware Visibility Coverage for Robotic Stop-and-Scan 3D LiDAR Mapping".*
+> *The manuscript is strongly positioned within mobile robotics, while the title and terminology are framed primarily around terrestrial laser scanning, which is commonly associated with surveying and geomatics. Please clarify whether the contribution is intended specifically for robotic platforms carrying survey-grade terrestrial laser scanners or for robotic stop-and-scan LiDAR mapping more generally. The terminology should then be applied consistently throughout the manuscript. A possible revised title can be “Occlusion-Aware Visibility Coverage for Robotic Stop-and-Scan 3D LiDAR Mapping”*
 
-**Response.** We agree, and we have adopted the reviewer's suggested title verbatim. The contribution is intended for robotic stop-and-scan LiDAR mapping in general; the survey-grade TLS (BLK360 G1) is the canonical instance of that sensor class and our experimental instrument. The revised Introduction now defines the regime explicitly:
+**Response 1.** Thank you for pointing this out. We agree with this comment. Therefore, we have adopted the suggested title verbatim. The contribution is intended for robotic stop-and-scan LiDAR mapping in general; the survey-grade TLS (BLK360 G1) is the canonical instance of that sensor class and our experimental instrument. The revised Introduction now defines the regime explicitly (Section 1, p. 2): “We refer to this regime as *robotic stop-and-scan LiDAR mapping*: a mobile platform carries a light detection and ranging (LiDAR) sensor that must remain stationary during each acquisition, and the dense scans are aligned offline rather than registered incrementally in real time. A terrestrial laser scanner (TLS) is the canonical instance of such a sensor … The method developed in this paper is formulated for the general stop-and-scan LiDAR regime; the BLK360 G1 enters only as the experimental instrument (Section 5).” Terminology has been made consistent throughout: the method sections (Sections 3–4) now speak of the generic stop-and-scan sensor with range bound R and stationary acquisition cost, and instrument-specific values appear only in the experimental sections (see also our response to Comment 5).
 
-> "We refer to this regime as *robotic stop-and-scan LiDAR mapping*: a mobile platform carries a light detection and ranging (LiDAR) sensor that must remain stationary during each acquisition, and the dense scans are aligned offline rather than registered incrementally in real time. A terrestrial laser scanner (TLS) is the canonical instance of such a sensor ... The method developed in this paper is formulated for the general stop-and-scan LiDAR regime; the BLK360 G1 enters only as the experimental instrument (Section 5)." (Section 1)
+## Comment 2 (Major) — Explicit research questions and a roadmap
 
-Terminology has been made consistent throughout: the method sections (3–4) now speak of the generic stop-and-scan sensor with range bound R and stationary acquisition cost; instrument-specific values appear only in the experimental sections (see also Major Comment 4).
+> *The research gap is reasonably described, particularly in Section 2.4, where the authors identify the intersection between online exploration of unknown environments and planning for expensive stationary sensing. However, the manuscript does not formulate explicit research questions. The objectives and hypotheses must currently be inferred from the contributions and experimental sections. Please state one principal research question, supported where appropriate by subquestions. The Introduction should also conclude with a short roadmap explaining the structure of the remaining sections.*
 
-## Major Comment 2 — Explicit research questions and a roadmap
+**Response 2.** We agree, and the Introduction now states one principal research question and three subquestions (Section 1, p. 3):
+“**RQ.** *In online robotic exploration of an unknown indoor environment with a stop-and-scan LiDAR sensor, does an occlusion-aware visibility coverage model produce better scan placement — higher genuinely observed coverage at a comparable number of stationary scans — than the conventional proximity-based disk model?*”
+with subquestions (RQ1) how per-pose coverage should be defined on the live map so it never claims occluded or unmapped space (Section 3); (RQ2) how much of the placement difference is attributable to the coverage model alone, once exploration stochasticity *and the acceptance rule* are controlled for (Sections 4 and 6); and (RQ3) whether the effect carries over to a physical platform and to the registered survey product (Sections 6.6 and 6.7). A structure roadmap paragraph now closes Section 1 (pp. 3–4).
 
-**Response.** The Introduction now states one principal research question and three subquestions, and closes with a roadmap:
+## Comment 3 (Major) — 2D visibility model vs. 3D point-cloud product
 
-> "**RQ.** *In online robotic exploration of an unknown indoor environment with a stop-and-scan LiDAR sensor, does an occlusion-aware visibility coverage model produce better scan placement — higher genuinely observed coverage at a comparable number of stationary scans — than the conventional proximity-based disk model?*"
+> *The proposed visibility model operates on a two-dimensional occupancy grid, whereas the resulting product and registration evaluation concern three-dimensional point clouds. The LOS metric therefore evaluates visible floor-space cells rather than the actual 3D surfaces observed by the scanner. It is unclear how the model accounts for vertical occlusions, shelves, elevated machinery, ceilings, overhanging structures, or surfaces that occupy the same horizontal position at different heights. High 2D LOS coverage does not necessarily imply comprehensive 3D surface coverage. The authors should either: extend the method toward a genuinely 3D visibility representation, such as a voxel-, octree-, or surface-based model; or explicitly define the contribution as 2D scan-station planning for subsequent 3D mapping, discuss this limitation, and identify full 3D visibility reasoning as future work. This distinction should be reflected consistently in the title, abstract, contributions, discussion, and conclusions.*
 
-with subquestions (RQ1) how per-pose coverage should be defined on the live map so it never claims occluded or unmapped space (Section 3); (RQ2) how much of the placement difference is attributable to the coverage model alone, once exploration stochasticity *and the acceptance rule* are controlled for (Sections 4, 6); and (RQ3) whether the effect carries over to a physical platform and to the registered survey product (Sections 6.6, 6.7). A structure roadmap paragraph now ends Section 1.
+**Response 3.** A fair and important point. We have taken the second option, and the 2D scope is now stated explicitly and consistently:
+- **New Section 3.5 “Scope: 2D Station Planning for 3D Mapping” (p. 8)** states that the model reasons on a horizontal slice at sensor height; that LOS coverage certifies floor-space sight lines, not 3D surface coverage; that vertical occlusions (shelves, overhangs, elevated machinery, height-stacked surfaces) are not represented; why the 2D scope is matched to the online setting (the occupancy grid is what SLAM provides in real time; the 2D polygon is cheap enough to evaluate at every candidate; a full-dome scanner observes much of the vertical structure from a pose with clear 2D LOS); and that a genuinely 3D visibility representation (voxel-, octree-, or surface-based) is future work.
+- **Abstract (p. 1)**: “…a ray-cast visibility region computed on the robot’s live two-dimensional (2D) occupancy map … The planner thus performs 2D scan-station placement for subsequent 3D mapping.”
+- **Contributions (p. 3)**: the first contribution is now “defined on the live 2D occupancy grid”.
+- **Discussion (Section 7, p. 24)**: the first limitation is now the 2D representation and vertical occlusion, with 3D visibility identified as the principal future-work direction.
+- **Conclusions (Section 8, p. 24)**: “…the model performs 2D scan-station planning on the live occupancy map for subsequent 3D mapping”; future work includes the 3D extension.
 
-## Major Comment 3 — 2D visibility model vs. 3D point-cloud product
+## Comment 5 (Major) — Method formulated independently of the instrument
 
-> *The authors should either extend the method toward a genuinely 3D visibility representation, or explicitly define the contribution as 2D scan-station planning for subsequent 3D mapping, discuss this limitation, and identify full 3D visibility reasoning as future work.*
+> *The method should be formulated independently of the specific instrument used in the experiments. The Leica BLK360 G1 is an experimental implementation rather than an inherent component of the proposed algorithm. The BLK360 scan duration and accuracy should be presented as experimental settings rather than general characteristics of the proposed method.*
 
-**Response.** We have taken the second option, and we now state it explicitly and consistently:
+**Response 5.** Agreed, and done. The method sections no longer reference the instrument: Section 4’s cost motivation now reads “minutes per acquisition for the survey-grade scanner used in our experiments (Section 5)” instead of quoting BLK360 scan times; the coverage-model figure caption (Figure 1, pp. 6–7) and the concept-figure title now refer to a generic scan pose; the summary and sweep figures label “stationary scans” rather than “BLK360 scans”. BLK360 duration, accuracy, and workflow details appear only in Section 5 (experimental setup, pp. 10–12) and in the hardware sections, as experimental settings.
 
-- **New Section 3.5 "Scope: 2D Station Planning for 3D Mapping"** states that the model reasons on a horizontal slice at sensor height; that LOS coverage certifies floor-space sight lines, not 3D surface coverage; that vertical occlusions (shelves, overhangs, elevated machinery, height-stacked surfaces) are not represented; why the 2D scope is matched to the online setting (the occupancy grid is what SLAM provides in real time; the 2D polygon is cheap enough to evaluate at every candidate; a full-dome scanner observes much of the vertical structure from a pose with clear 2D LOS); and that a genuinely 3D visibility representation (voxel-, octree-, or surface-based) is future work.
-- **Abstract**: "...a ray-cast visibility region computed on the robot's live two-dimensional (2D) occupancy map ... The planner thus performs 2D scan-station placement for subsequent 3D mapping."
-- **Contributions**: the first contribution is now "defined on the live 2D occupancy grid".
-- **Discussion**: the first limitation is now the 2D representation and vertical occlusion, with 3D visibility identified as the principal future-work direction.
-- **Conclusions**: "...the model performs 2D scan-station planning on the live occupancy map for subsequent 3D mapping"; future work includes the 3D extension.
+## Comment 6a (Major) — Broad claims, references, sensor grouping, abstract strength
 
-## Major Comment 4 — Method formulated independently of the BLK360
+> *Several broad claims require stronger references, particularly the statement that the coverage model using an isotropic disk is central to the scan-placement decision. Relevant literature on next-best-view planning, visibility analysis, view planning, and sensor placement should be cited. The manuscript groups structured-light scanners, thermal panorama systems, ground-penetrating radar, gas sensors, spectral sensors, and NDT probes as “high-precision stationary sensors.” These instruments vary in observation geometry, resolution, penetration, and uncertainty. They are better described as sensors needing stationary acquisition or dwell time. The current line-of-sight model is not directly applicable to penetrating sensors like GPR. In abstract, the statement that occlusion-aware visibility “is the appropriate basis” for stop-and-scan placement is too definitive given the limited environments, 2D representation, selected platform, and single scanner type.*
 
-**Response.** Done. The method sections no longer reference the instrument: Section 4's cost motivation now reads "minutes per acquisition for the survey-grade scanner used in our experiments (Section 5)" instead of quoting BLK360 scan times; the coverage-model figure caption (Fig. 1) and the concept figure title now refer to a generic scan pose; the summary and sweep figures label "stationary scans" rather than "BLK360 scans". BLK360 duration, accuracy, and workflow details appear only in Section 5 (experimental setup) and the hardware sections, as experimental settings.
+**Response 6a.** We have made all three changes:
+- *Disk-model convention claim*: now supported with citations where first made (Section 1, p. 2) — “a sensor-footprint approximation widely used to drive online decisions in frontier exploration and coverage practice [Yamauchi 1997; Umari & Mukhopadhyay 2017; Choset 2001; Galceran & Carreras 2013; Placed et al. 2023].” The related-work section additionally cites the NBV/view-planning literature (Scott 2003; Tarabanis 1995; Zeng et al. 2020) and the visibility-based scan-planning literature (Mozaffar & Varshosaz 2016; Prieto et al. 2017; Dehbi et al. 2021; Knechtel et al. 2025) (Sections 2.1–2.3, pp. 4–5).
+- *Sensor grouping*: the family is now described as “sensors that require stationary acquisition or a dwell time at each viewpoint” (p. 2), and we state explicitly: “These instruments differ widely in observation geometry, resolution, and uncertainty; the line-of-sight coverage model developed here applies to the optical, non-penetrating members of this family and explicitly not to penetrating modalities such as GPR (Section 7).”
+- *Abstract claim*: softened and scoped (p. 1) — “The results indicate that, for the room-scale indoor environments studied, occlusion-aware visibility is a sounder basis than Euclidean proximity for stop-and-scan placement.” The Conclusions carry the same scoping (“Within the room-scale indoor environments and the optical stop-and-scan sensor class studied here…”, p. 24).
 
-## Major Comment 5 — Broad claims, references, sensor grouping, abstract strength
+## Comment 6b (Major) — Conference-paper overlap and disclosure
 
-**Response.** Three changes:
+> *The manuscript states that it extends a conference paper that is currently under review. Please verify that this is consistent with the journal’s editorial policy and clearly disclose the overlap between the two submissions. The authors should identify which methods, experiments, figures, and results are new in the journal submission. The sentence stating that the mobile platform was absent from the conference version is unnecessary in the scientific narrative and should be removed.*
 
-1. *Disk-model convention claim*: now supported with citations where first made — "a sensor-footprint approximation widely used to drive online decisions in frontier exploration and coverage practice [Yamauchi 1997; Umari & Mukhopadhyay 2017; Choset 2001; Galceran & Carreras 2013; Placed et al. 2023]." The related-work section additionally cites the NBV/view-planning literature (Scott 2003; Tarabanis 1995; Zeng et al. 2020) and the visibility-based scan-planning literature (Mozaffar & Varshosaz 2016; Prieto et al. 2017; Dehbi et al. 2021; Knechtel et al. 2025).
-2. *Sensor grouping*: the family is now described as "sensors that require stationary acquisition or a dwell time at each viewpoint", and we state explicitly: "These instruments differ widely in observation geometry, resolution, and uncertainty; the line-of-sight coverage model developed here applies to the optical, non-penetrating members of this family and explicitly not to penetrating modalities such as GPR (Section 7)."
-3. *Abstract claim*: softened and scoped — "The results indicate that, for the room-scale indoor environments studied, occlusion-aware visibility is a sounder basis than Euclidean proximity for stop-and-scan placement." The Conclusions carry the same scoping ("Within the room-scale indoor environments and the optical stop-and-scan sensor class studied here...").
+**Response 6b.** The Introduction now discloses the overlap explicitly and itemizes what is new (Section 1, p. 3):
+“The conference version contributes the stop-and-scan system integration (frontier exploration coupled to a scan sequencer) and an isotropic-disk scan trigger, demonstrated in simulation. New to this article are: the ray-cast visibility coverage model and the LOS coverage metric (Section 3); the dual-criterion marginal-gain placement rule and the coverage-completion phase (Section 4); the controlled paired ablation with its three baselines and the parameter sensitivity analysis (Section 6); and the entire hardware study — the fully autonomous on-hardware disk-versus-visibility comparison and the per-run offline registration of the acquired scans (Sections 6.6 and 6.7). No figure, table, or quantitative result is shared between the two manuscripts.”
+The sentence noting the platform’s absence from the conference version has been removed, as requested. Since the original submission, the conference paper has been **accepted for presentation at ICCAS 2026** (Regular Paper; decision of 31 July 2026); its status has been updated in reference [9], in the Introduction, and in the extended-version footnote on the first page. The accepted conference manuscript has been provided to the editorial office for the editors and reviewers, and we have confirmed that this extension route is consistent with MDPI’s editorial policy on extended conference papers.
 
-## Major Comment 6 — Conference-paper overlap
+## Comment 7 (Major) — Equations (1)–(7) clarifications; disk baseline vs. Equations (6)–(7)
 
-**Response.** The Introduction now discloses the overlap explicitly and itemizes what is new:
+> *Equations (1)–(7) are generally understandable, but several definitions should be clarified: Define the grid-cell domain, cell-center coordinates, grid resolution, and ordering of the occupancy thresholds. Distinguish clearly between a grid cell and a candidate scan pose; the symbol (c) is probably used for both. Explain whether visibility regions associated with previous scan poses are frozen or recomputed when the online occupancy map changes. Describe Equation (6) as a normalized marginal gain and define it only for a nonempty visibility region. State the square-cell assumption required by Equation (7) and report the numerical grid resolution. The relationship between the disk baseline and Equations (6)–(7) also needs clarification. Skipping a candidate because its center lies within (R) of an existing scan is not mathematically equivalent to applying the marginal-gain rule B_disk. If the baseline uses a different acceptance rule, the comparison changes both the coverage model and the decision rule.*
 
-> "The conference version contributes the stop-and-scan system integration (frontier exploration coupled to a scan sequencer) and an isotropic-disk scan trigger, demonstrated in simulation. New to this article are: the ray-cast visibility coverage model and the LOS coverage metric (Section 3); the dual-criterion marginal-gain placement rule and the coverage-completion phase (Section 4); the controlled paired ablation with its three baselines and the parameter sensitivity analysis (Section 6); and the entire hardware study ... No figure, table, or quantitative result is shared between the two manuscripts."
+**Response 7.** All requested clarifications have been made in Sections 3–4:
+- **Grid domain/resolution/ordering** (Section 3.1, p. 6): “The grid is an H×W array of square cells of side ρ, the grid resolution (ρ = 0.05 m in all experiments); each cell c is identified with its center point in the map frame, so that ‖c − c′‖ denotes the Euclidean distance between cell centers. … thresholds ordered as 0 ≤ θ_free < θ_occ ≤ 100.”
+- **Cell vs. candidate pose** (Section 3.1, p. 6): the candidate pose is now denoted **p** throughout Section 4 and Algorithm 1 (“Throughout the paper, s_i denotes an accepted scan pose and p a candidate pose under evaluation, while c is reserved for grid cells”).
+- **Frozen or recomputed** (Section 4.1, p. 8): “The visibility regions of previously accepted scans are not frozen: at every decision, C(S) is recomputed on the current occupancy map, so earlier regions expand or contract as SLAM refines the map (the final reported coverage is evaluated once more on a single reference map; Section 5).” This matches the implementation.
+- **Equation (6)** (p. 8): now introduced as the “*normalized marginal gain*”, “defined only for a nonempty visibility region”, with the degenerate-region cut stated to reject candidates *before* the ratio is evaluated, “so the denominator of the normalized gain never vanishes.”
+- **Equation (7)** (pp. 8–9): “where cells are squares of side ρ (the grid resolution, ρ = 0.05 m), so each cell contributes area ρ² and a is in m².”
+- **Disk baseline vs. Equations (6)–(7)**: the reviewer is right, and this observation prompted the main new experiment of the revision. We now state explicitly that the spacing rule is *not* mathematically equivalent to the marginal-gain rule applied to B_disk (“a candidate closer than R to an existing scan can still contribute a crescent of new disk area”, Section 4.2, p. 9), and we resolve the resulting confound with a **new disk marginal-gain baseline**: the identical dual criterion of Equation (8) with B_disk substituted for B, replayed on the same fixed candidate paths (Sections 4.2 and 6.2; Table 2, p. 16; Figure 8, p. 19). Within that pair, the only difference is the coverage model. Results: single-room 77.7 ± 3.8% LOS at 2.6 ± 0.5 scans (essentially the spacing rule’s result); multi-room **59.1 ± 1.3% LOS** at 2.9 ± 0.3 scans — *worse* than the spacing rule, because the disk model’s own coverage bookkeeping saturates through partitions and stops scanning while whole rooms remain unobserved (mechanism explained in Section 6.2, pp. 15–16). This isolates the deficiency to the coverage model itself rather than the acceptance rule.
 
-The sentence noting the platform's absence from the conference version has been removed, as requested. Since the original submission, the conference paper has been **accepted for presentation at ICCAS 2026** (Regular Paper; decision of 31 July 2026). The revision updates its status accordingly in the reference [9], in the Introduction, and in the extended-version footnote on the first page (the `\conference` field, now activated). The accepted conference manuscript has been provided to the editorial office for the editors and reviewers, and we have confirmed that this extension route is consistent with MDPI's editorial policy on extended conference papers.
+## Comment 8 (Major) — Figure 11 (parameter sweep) presentation
 
-## Major Comment 7 — Equations (1)–(7) clarifications
+> *The general trends in Figure 11 are understandable, but the presentation and explanation need clarification. Please: identify the solid LOS-coverage curves and dashed scan-count curves clearly in the legend; avoid describing scan-count changes in “percentage points”; explain how (A_min=5 m2) was identified as the knee point; and include variability measures for the averaged results.*
 
-**Response.** All requested clarifications have been made in Sections 3–4:
+**Response 8.** The figure has been regenerated (now Figure 8, p. 19, after the renumbering of Comment 13) and the text rewritten:
+- The legend now identifies each curve explicitly: “single-room — LOS coverage (solid, left axis)”, “single-room — scan count (dashed, right axis)”, etc.
+- All curves now carry **error bars (per-path standard deviation over the N = 5 / N = 10 replay paths)**; the caption states “mean ± s.d.”
+- Scan-count changes are no longer described in “percentage points”: “…changes mean LOS coverage by at most about two points (single-room 86.4→84.3%; multi-room 85.2→84.0%) and mean scan count by less than one scan.”
+- The knee identification is now an explicit criterion: “it is the largest threshold whose mean LOS remains within about five points of the most aggressive setting (A_min = 1 m²) in both environments (85.4 vs. 90.7%; 84.0 vs. 85.7%) while already halving the scan count (3.6 vs. 7.2 scans in both environments). Beyond the knee the trade turns unfavorable: pushing to A_min = 15 m² saves only about one further scan (3.6→2.2 and 3.6→2.8) while coverage continues to erode (85.4→80.8% and 84.0→83.1%).”
 
-- **Grid domain/resolution/ordering**: "The grid is an H×W array of square cells of side ρ, the grid resolution (ρ = 0.05 m in all experiments); each cell c is identified with its center point in the map frame, so that ‖c − c′‖ denotes the Euclidean distance between cell centers. ... thresholds ordered as 0 ≤ θ_free < θ_occ ≤ 100." (Section 3.1)
-- **Cell vs. candidate pose**: the candidate pose is now denoted **p** throughout Section 4 and Algorithm 1 ("Throughout the paper, s_i denotes an accepted scan pose and p a candidate pose under evaluation, while c is reserved for grid cells", Section 3.1).
-- **Frozen or recomputed**: "The visibility regions of previously accepted scans are not frozen: at every decision, C(S) is recomputed on the current occupancy map, so earlier regions expand or contract as SLAM refines the map (the final reported coverage is evaluated once more on a single reference map; Section 5)." (Section 4.1) This matches the implementation.
-- **Equation (6)**: now introduced as the "*normalized marginal gain*", "defined only for a nonempty visibility region", with the degenerate-region cut stated to reject candidates *before* the ratio is evaluated, "so the denominator of the normalized gain never vanishes."
-- **Equation (7)**: "where cells are squares of side ρ (the grid resolution, ρ = 0.05 m), so each cell contributes area ρ² and a is in m²."
-- **Disk baseline vs. Equations (6)–(7)**: we now state explicitly that the spacing rule is *not* mathematically equivalent to the marginal-gain rule applied to B_disk ("a candidate closer than R to an existing scan can still contribute a crescent of new disk area"), and we resolve the resulting confound with a **new experiment**: a disk marginal-gain baseline applying the identical dual criterion with B_disk substituted for B, replayed on the same fixed paths (Sections 4.2, 6.2; Table 2; Figure 8). Within that pair, the only difference is the coverage model. Results: single-room 77.7 ± 3.8% LOS at 2.6 ± 0.5 scans (essentially the spacing rule's result); multi-room **59.1 ± 1.3% LOS** at 2.9 ± 0.3 scans — *worse* than the spacing rule, because the disk model's own coverage bookkeeping saturates through partitions and stops scanning while whole rooms remain unobserved. This isolates the deficiency to the coverage model itself rather than the acceptance rule.
+## Comment 9 (Minor) — Geometry vs. RGB
 
-## Major Comment 8 — Figure 11 (parameter sweep) presentation
+> *Please distinguish between the geometric measurements produced by the laser scanner and the RGB information supplied by the integrated camera. Unless color is used in visibility evaluation or registration, repeated references to “colorized point clouds” can be reduced.*
 
-**Response.** The figure has been regenerated and the text rewritten:
+**Response 9.** The Introduction now states once (p. 2): “(The scanner also records panoramic RGB imagery that colorizes the point cloud; the planning and evaluation in this paper concern the geometric measurements only.)” Repeated “colorized” phrases have been removed throughout; apart from that definitional sentence, the word now appears only in the caption of the colorized rendering in Figure 15, where color is genuinely shown.
 
-- The legend now identifies each curve explicitly: "single-room — LOS coverage (solid, left axis)", "single-room — scan count (dashed, right axis)", etc.
-- All curves now carry **error bars (per-path standard deviation over the N = 5 / N = 10 replay paths)**; the caption states "mean ± s.d."
-- Scan-count changes are no longer described in "percentage points": "...changes mean LOS coverage by at most about two points (single-room 86.4→84.3%; multi-room 85.2→84.0%) and mean scan count by less than one scan."
-- The knee identification is now an explicit criterion: "it is the largest threshold whose mean LOS remains within about five points of the most aggressive setting (A_min = 1 m²) in both environments (85.4 vs. 90.7%; 84.0 vs. 85.7%) while already halving the scan count (3.6 vs. 7.2 scans in both environments). Beyond the knee the trade turns unfavorable: pushing to A_min = 15 m² saves only about one further scan (3.6→2.2 and 3.6→2.8) while coverage continues to erode (85.4→80.8% and 84.0→83.1%)."
+## Comment 10 (Minor) — Long sentences / English
 
----
+> *The long sentence on page 1, lines 25–29 should be divided into shorter sentences. The English should be carefully revised throughout the manuscript, including the long captions and sentences.*
 
-## Minor Comment 9 — Geometry vs. RGB
+**Response 10.** The page-1 sentence has been split (“…is growing. A dense and accurate point cloud is becoming an infrastructural asset: downstream robots localize against it, plan collision-free motion within it, and reason over it.”). We have additionally shortened the longest captions (Figures 2, 3, 7, 8, 11, 13–15; Tables 2–3) and made a careful English pass over the manuscript, which also addresses the “Quality of English Language” item of the review form.
 
-**Response.** The Introduction now states once: "(The scanner also records panoramic RGB imagery that colorizes the point cloud; the planning and evaluation in this paper concern the geometric measurements only.)" Repeated "colorized" phrases have been removed throughout; apart from that definitional sentence, the word now appears only in the caption of the colorized rendering in Fig. 15, where color is genuinely shown.
+## Comment 11 (Minor) — Citation after author names
 
-## Minor Comment 10 — Long sentences / English
+> *When reference authors are named in the text, the citation should follow their names directly. For example: “Mozaffar and Varshosaz [6]…”*
 
-**Response.** The page-1 sentence has been split ("...is growing. A dense and accurate point cloud is becoming an infrastructural asset: downstream robots localize against it, plan collision-free motion within it, and reason over it."). We have additionally shortened the longest captions (Figs. 2, 3, 7, 8, 11, 13–15; Tables 2–3) and made an English pass over the manuscript.
+**Response 11.** Fixed (Section 2, p. 5): “Mozaffar and Varshosaz [6] optimize scanner placement to reduce occlusions, and Prieto et al. [5] drive a next-best-scan policy…”. The same convention is applied to the newly added named citations (Dehbi et al., Knechtel et al.).
 
-## Minor Comment 11 — Citation after author names
+## Comment 12 (Minor) — Abbreviations at first use
 
-**Response.** Fixed: "Mozaffar and Varshosaz [6] optimize scanner placement to reduce occlusions, and Prieto et al. [5] drive a next-best-scan policy...". The same convention is applied to the newly added named citations (Dehbi et al., Knechtel et al.).
+> *Define every abbreviation at first use, including TLS, SLAM, LOS, NBV, and MPPI, even if an abbreviation list is provided later.*
 
-## Minor Comment 12 — Abbreviations at first use
+**Response 12.** All abbreviations are now defined at first use: 3D, TLS, LiDAR, SLAM, GPR (Section 1); LOS (Section 1); NBV (Section 2.1); BIM (Section 2.3); MPPI (Section 5.1). The abbreviations list has been extended accordingly (LiDAR, GPR, BIM added; p. 25).
 
-**Response.** All abbreviations are now defined at first use: 3D, TLS, LiDAR, SLAM, GPR (Section 1); LOS (Section 1); NBV (Section 2.1); BIM (Section 2.3); MPPI (Section 5.1). The abbreviations list has been extended accordingly (LiDAR, GPR, BIM added).
+## Comment 13 (Minor) — Figure citation order
 
-## Minor Comment 13 — Figure citation order
+> *Figure 4 is cited before Figures 1–3 are introduced. Figures should be numbered and cited in the order of first appearance.*
 
-**Response.** Fixed. The coverage-model figure (previously Figure 4, cited in Section 3 before Figures 1–3 appeared) has been moved to Section 3.2, where it is first cited; it is now Figure 1, and all figures are numbered in order of first citation.
+**Response 13.** Fixed. The coverage-model figure (previously Figure 4, cited in Section 3 before Figures 1–3 appeared) has been moved to Section 3.2, where it is first cited; it is now Figure 1 (pp. 6–7), and all figures are numbered in order of first citation.
 
-## Minor Comment 14 — Figure 1 (architecture) label size
+## Comment 14 (Minor) — Figure 1 (architecture) label size
 
-**Response.** The architecture diagram has been redrawn: labels are now roughly twice as large at manuscript scale, the layout is a compact two-row pipeline, the redundant color legend was removed (the containers are labeled directly), and the caption has been shortened to two sentences with the component description kept in the Section 5.1 text.
+> *The labels in Figure 1 are too small at the normal manuscript scale. Please enlarge the text and simplify the diagram where possible. The caption should also be shortened, with detailed explanations moved into the main text.*
 
-## Minor Comment 15 — Test room described in caption only
+**Response 14.** The architecture diagram (now Figure 2, p. 11) has been redrawn: labels are roughly twice as large at manuscript scale, the layout is a compact two-row pipeline, the redundant color legend was removed (the containers are labeled directly), and the caption has been shortened to two sentences with the component description kept in the Section 5.1 text.
 
-**Response.** The test room is now introduced in the main text (Section 5.2: open exhibition/staging space, reflective floor, display wall of monitors and product panels, freestanding equipment cases and furniture creating self-occlusion, floor markings for the survey reference layout, and its approximate extent of 16 × 8.5 m / about 105 m² of mapped free floor area), and the figure caption has been reduced to a single sentence.
+## Comment 15 (Minor) — Test room described in caption only
 
-## Minor Comment 16 — Millimeter units
+> *The industrial test room and its relevant characteristics are described mainly in the Figure 3 caption. The environment should first be introduced in the main text, followed by a citation to the figure.*
 
-**Response.** All registration errors are now reported in millimeters: bundle errors 4–5 mm, per-link errors 3–6 mm, disk single-link 2 mm, quality band ≤ 15 mm. Table 3's column is now "Bundle error (mm)". Units are consistent throughout the text, tables, and abstract.
+**Response 15.** The test room is now introduced in the main text (Section 5.2, p. 12): open exhibition/staging space, reflective floor, display wall of monitors and product panels, freestanding equipment cases and furniture creating self-occlusion, floor markings for the survey reference layout, and its approximate extent of 16 × 8.5 m (about 105 m² of mapped free floor area). The figure caption has been reduced to a single sentence.
 
-## Minor Comment 17 — Repetition
+## Comment 16 (Minor) — Millimeter units
 
-**Response.** We removed repeated explanations of colorized point clouds (now defined once), the single-link/multi-link registration contrast (explained once in Section 6.7 and only referenced elsewhere), and the disk-vs-visibility difference (defined in Sections 1/3 and thereafter referenced); shortened captions no longer duplicate the surrounding text.
+> *Report millimeter-scale registration errors in millimeters rather than meters. For example: (0.004–0.005 m) should be written as 4–5 mm; (0.003–0.006 m) should be written as 3–6 mm. The units should be consistent throughout the manuscript.*
 
-## Minor Comment 19 — Caption length
+**Response 16.** All registration errors are now reported in millimeters (Sections 6.7, pp. 21–22): bundle errors 4–5 mm, per-link errors 3–6 mm, disk single-link 2 mm, quality band ≤ 15 mm. Table 3’s column is now “Bundle error (mm)”. Units are consistent throughout the text, tables, and abstract.
 
-**Response.** Captions of Figures 2, 3, 7, 8, 11, 13, 14, 15 and Tables 2, 3 have been shortened, with interpretation and methodological detail moved into the main text (Sections 5.1, 5.2, 6.2, 6.5–6.7).
+## Comment 17 (Minor) — Repetition
+
+> *Several explanations are repeated in the abstract, introduction, results, discussion, figure captions, and conclusions, particularly those concerning: colorized point clouds; survey-grade registration; single-link and multi-link registration networks; and the difference between disk and visibility coverage. The manuscript would benefit from removing this repetition.*
+
+**Response 17.** We removed repeated explanations of colorized point clouds (now defined once), the single-link/multi-link registration contrast (explained once in Section 6.7 and only referenced elsewhere), and the disk-vs-visibility difference (defined in Sections 1 and 3 and thereafter referenced); shortened captions no longer duplicate the surrounding text.
+
+## Comment 19 (Minor) — Caption length
+
+> *Many figure and table captions are unnecessarily long. Please shorten them and move interpretation or methodological detail into the main text.*
+
+**Response 19.** Captions of Figures 2, 3, 7, 8, 11, 13, 14, 15 and Tables 2, 3 have been shortened, with interpretation and methodological detail moved into the main text (Sections 5.1, 5.2, 6.2, 6.5–6.7).

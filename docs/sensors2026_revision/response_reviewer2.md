@@ -2,9 +2,15 @@
 
 **Manuscript:** Occlusion-Aware Visibility Coverage for Robotic Stop-and-Scan 3D LiDAR Mapping
 
-We thank the reviewer for the constructive review and for the positive overall assessment ("Overall, the paper is well presented"). The most substantial change prompted by this review is a **new experiment**: a disk baseline governed by the *identical* accept/skip rule as the proposed policy (see Comments 2 and 5 below). Each comment is quoted before its response; all changes are visible in the marked-up manuscript.
+We thank the reviewer for the constructive review. The most substantial change prompted by this review is a **new experiment**: a disk baseline governed by the *identical* accept/skip rule as the proposed policy (see Comments 2 and 5 below). Each comment is quoted before its response; all changes are visible in the marked-up manuscript.
 
 ---
+
+## Comment 1 — Overall assessment
+
+> *Overall, the paper is well presented...*
+
+**Response.** We thank the reviewer for the positive overall assessment and address each of the specific comments below in turn.
 
 ## Comment 2 — Sufficiency and representativeness of the isotropic-disk baseline
 
@@ -14,7 +20,7 @@ We thank the reviewer for the constructive review and for the positive overall a
 
 *Additional comparison.* The revision adds a fourth policy to the controlled ablation: a **disk marginal-gain baseline** that applies the identical accept/skip rule (Equation (8)) as the proposed policy, with the disk coverage model B_disk substituted for the visibility region B. The four compared policies are now: (i) uniform no-skip (the fixed-interval policy of stop-and-go practice; upper reference), (ii) disk spacing (proximity rule), (iii) disk marginal-gain (matched rule; **new**), and (iv) ray-cast visibility (ours). See Sections 4.2 and 6.2, Table 2, and Figure 8. Notably, the matched-rule disk baseline reaches only **59.1 ± 1.3% LOS** in the multi-room world — worse than even the spacing rule — because the disk model's through-wall over-claiming saturates its own coverage bookkeeping (mechanism explained in Section 6.2).
 
-*Justification of the baseline set.* Section 6's preamble now justifies this set explicitly: the disk/proximity treatment is the de facto online coverage model in stop-and-go practice (Section 2), while published TLS scan-planning methods — including the strongest recent ones, now cited (Dehbi et al., ISPRS J. Photogramm. Remote Sens. 2021; Knechtel et al., ISPRS J. Photogramm. Remote Sens. 2025) — optimize viewpoints *offline over a prior environment model* (floor plan, BIM, or coarse scan) and are therefore not applicable as baselines in the online unknown-environment regime studied here, where every decision must be made on the live SLAM map. NBV planners for continuous sensors likewise do not decide whether to pay a large fixed stationary cost. The uniform no-skip reference bounds the coverage attainable along each path, so the reported gains are located within a bracketed range rather than against a single baseline.
+*Justification of the baseline set.* Section 6's preamble now justifies this set explicitly: the disk/proximity treatment is a commonly used online coverage model in stop-and-go practice (Section 2), while published TLS scan-planning methods — including the strongest recent ones, now cited (Dehbi et al., ISPRS J. Photogramm. Remote Sens. 2021; Knechtel et al., ISPRS J. Photogramm. Remote Sens. 2025) — optimize viewpoints *offline over a prior environment model* (floor plan, BIM, or coarse scan) and are therefore not applicable as baselines in the online unknown-environment regime studied here, where every decision must be made on the live SLAM map. NBV planners for continuous sensors likewise do not decide whether to pay a large fixed stationary cost. The uniform no-skip reference bounds the coverage attainable along each path, so the reported gains are located within a bracketed range rather than against a single baseline.
 
 ## Comment 2 (continuation) — Availability of the conference manuscript (reference [9])
 
@@ -48,7 +54,7 @@ The conference manuscript has been uploaded to the submission system for the edi
 
 The former claim ("the only difference between rows is the coverage model") has been removed. The outcome sharpens the paper's conclusion: under the identical acceptance rule, the coverage models are separated by 24.9 points of LOS in the multi-room world (59.1% vs. 84.0%), attributing the deficiency to the disk coverage model itself rather than to the acceptance rule attached to it.
 
-## Closing comment — References mostly pre-2020
+## Comment 6 — References mostly pre-2020
 
 > *The references should be updated as the majority of the references were published before 2020. Please update the references to better reflect the current state of the art.*
 

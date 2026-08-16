@@ -40,7 +40,7 @@ We thank the reviewer for the careful annotation of the manuscript PDF. We ident
 
 *(on "…the act of 'observing' is effectively free along the path.")*
 
-**Response.** The physical restrictions on the robot's paths are now stated in Section 5.1: "All navigation is subject to the platform's physical constraints: Nav2 plans on an inflated costmap, so every path and every scan candidate keeps the robot footprint (Figure 2b) clear of obstacles by the safety margin of Table 1 (obstacle dilation radius)." The platform's dimensions themselves are now given in the new annotated platform figure (see Comment 10): deck 71 × 49 cm at 31 cm height, wheelbase 28 cm, track 44 cm.
+**Response.** The physical restrictions on the robot's paths are now stated in Section 5.1 with the actual safety-margin values: "All navigation is subject to the platform's physical constraints: Nav2 plans on an inflated costmap, so every path and every scan candidate keeps the robot footprint (Figure 3b) clear of obstacles by the Nav2 costmap inflation margin (inflation radius 0.70 m with a 0.22 m robot radius in all reported runs)." The platform's dimensions themselves are now given in the new annotated platform figure (see Comment 10): deck 71 × 49 cm at 31 cm height, wheelbase 28 cm, track 44 cm.
 
 ## Comment 7 (p. 3) — "but the origin point is lower than a typical field of view; what are the challenges/drawbacks for this?"
 
