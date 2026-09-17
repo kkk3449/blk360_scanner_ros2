@@ -62,6 +62,41 @@ Removed planes & 10 & 10 & 10 \\
 \end{tabular}
 \end{table}
 
+\begin{table}[t]
+\centering
+\caption{Evaluation-set lineage: how every cluster set used in
+Sec.~\ref{sec:experiments} derives from its scan. All counts are
+recomputed from the archived stage outputs in the data package;
+$\dagger$ marks the one count grounded only in the experiment log.
+``conf.''\,=\,GT-confirmed.}
+\label{tab:sampleflow}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Lineage & Stage flow (cluster counts) \\
+\midrule
+Showroom 57-set (Sec.~\ref{sec:exp-verify}) & 30 pre-split
+$\rightarrow$ 57 split $\rightarrow$ 50 after soffit filter
+$\rightarrow$ 50 GT-scored (36 conf.) \\
+Showroom det set & 45 raw $\rightarrow$ 38 after soffit filter
+$\rightarrow$ 38 room-scoped \\
+Robot hall det & 88 raw $\rightarrow$ 81 filtered $\rightarrow$ 55
+room-scoped $\rightarrow$ 51 GT-scored (32 conf.) \\
+T3 det1 & 79 merged $\rightarrow$ 41 room-scoped (= owner audit set)
+$\rightarrow$ 26 filter survivors \\
+T3 det2 (precut) & 66 $\rightarrow$ 35 room-scoped $\rightarrow$ 27 to
+VLM (8 wall sheets excluded) \\
+T3 det3/det4 & 33 consolidated $\rightarrow$ 46$^{\dagger}$ adjudicated \\
+Cross-epoch KG (present) & rev7$\rightarrow$14:
+47, 49, 51, 63, 64, 64, 46, \textbf{46} (current) \\
+det5 frozen re-run (Sec.~\ref{sec:exp-endtoend}) & 66 $\rightarrow$ 35
+in-room, scored vs.\ the 46-object graph \\
+Cafeteria 8F & 28 $\rightarrow$ 25 GT-scored (20 conf.) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{Ground truth.}
 Ground truth was established in two passes: a render-based audit of every
 cluster, followed by confirmation from the room's owner. Labels are graded
@@ -73,7 +108,10 @@ Table~\ref{tab:scenes} counts the 38-object reproducible det set, while the
 verification study (Sec.~\ref{sec:exp-verify}) uses the original 57-cluster
 decomposition of the same scan, of which 50 clusters are GT-scored after
 excluding 7 structure artifacts---yielding confirmed 36 / plausible 12 /
-unknown 2. For the room-scoped robot hall (55 objects), GT covers 51
+unknown 2. Table~\ref{tab:sampleflow} connects every evaluation set used
+in this section---the 38-object det set, the 50-scored showroom subset,
+and the T3 41-, 35-, and 46-object sets---to its derivation stage, so no
+denominator has to be inferred from prose. For the room-scoped robot hall (55 objects), GT covers 51
 clusters: confirmed 32 (lenient $n{=}42$) after owner corrections. The
 cafeteria stress scene follows the same practice: 25 of 28 clusters scored
 (3 structure artifacts excluded), confirmed 20 / plausible 5. Both audit
@@ -83,7 +121,40 @@ decisions over physically known rooms rather than blind annotations; the
 owner overturned model-favored labels in several cases (a
 ``refrigerator'' re-graded as a banner, a verified keyboard refuted as a
 phantom, ``motors'' re-identified as mobile manipulators), which bounds
-but does not eliminate this bias.
+but does not eliminate this bias. To measure it directly, a second
+annotator---a co-author familiar with the facility who had seen neither
+the T3 pipeline output nor the owner audit---labeled all 41 T3 clusters
+\emph{blind}, from full-resolution multi-view render sheets carrying only
+neutral shuffled IDs, in free vocabulary with a 1--5 confidence. On the
+33 clusters both annotators labeled, the blind labels agree with the
+owner's on 31 (93.9\%; the two disagreements are low-confidence blind
+labels, 2--3/5); the blind annotator abstained on 5 clusters and both
+were uncertain on 2. The most informative split for anchoring is by whether the owner had
+\emph{overridden} the model: on the 31 clusters where the owner
+overturned the pipeline label, the blind annotator independently
+reproduced the override on 25 of the 26 it scored (abstaining on 5),
+versus 6 of 7 where the owner had accepted the model label. The 25/26 reproduction of the owner's overrides argues against those
+corrections being driven primarily by model anchoring; the accepted
+subset is small (6/7), so residual anchoring cannot be excluded, and we
+therefore describe the owner ground truth as anchoring-bounded rather
+than anchoring-free. A third annotation, added for this revision, comes
+from an external annotator with no connection to the work and no
+familiarity with the facility, who labeled the same 41 sheets blind
+under the same protocol. Without site knowledge, agreement with the
+owner drops to 21 of the 33 clusters scored (63.6\%; 5 abstentions, 2
+both-uncertain), but it is strongly confidence-dependent: 16 of 19
+labels given at confidence 4--5 agree (84\%), against 5 of 14 at
+confidence $\leq$3, and 11 of the 12 disagreements fall on the two
+categories the paper singles out as render-ambiguous --- absorbed or
+merged industrial objects (six, e.g.\ the conveyor belt read as a work
+table) and ceiling or wall remnants read as floor-level objects (five).
+We read the external
+result as the honest bound on render-only annotation: distinctive
+furniture and robots are labeled consistently by anyone, while the
+categories that required on-site knowledge in the owner audit are
+exactly those an unfamiliar annotator cannot resolve from renders. The
+blind kits, all three answer sheets,
+and scoring are in the data package.
 
 \paragraph{Metrics.}
 Classification accuracy is top-1 against GT under a documented
@@ -97,7 +168,8 @@ identity-switch rate, false-new, false-absent, and unchanged stability.
 
 \paragraph{Controls.}
 The verifier for the main campaign (Secs.~\ref{sec:exp-seg}--\ref{sec:exp-update}) is fixed to a single
-model, \texttt{claude-sonnet-4-6} (the frontier mid-tier at campaign start):
+model, \texttt{claude-\hspace{0pt}sonnet-\hspace{0pt}4-6} (the frontier
+mid-tier at campaign start):
 every verification, escalation, and owner interaction in the accumulated
 knowledge-graph lineage was produced under this one verifier, so results
 remain comparable across sections and revisions. The verifier choice itself
@@ -109,6 +181,35 @@ prompt, query set, decoding parameters, retry policy, and forced answer
 schema; conditions differ \emph{only} in the knowledge view they receive.
 The LLM-only condition---an \emph{unverified Stage-A LLM} baseline---receives the same scene's Stage-A object dump, so it
 is not information-starved---it is verification-starved.
+Threshold provenance is stated in two parts. Constants in the base
+pipeline (Secs.~\ref{sec:preprocess}--\ref{sec:upsert}) were fixed on
+T1/T2 and applied unchanged to T3 and the cafeteria. The corrective-layer
+thresholds of Sec.~\ref{sec:corrective} were developed on the test-room
+lineage---including failures revealed by the T3 owner audit
+(Sec.~\ref{sec:exp-owner})---and were then frozen before evaluation on
+the cafeteria stress scene; accordingly, T3 is treated as a retrospective
+development-scene replay of those layers rather than a held-out
+evaluation (Sec.~\ref{sec:exp-endtoend}). Nothing is trained, so the
+split that matters is the development room (T1/T2/T3) versus the
+held-out cafeteria, and Sec.~\ref{sec:exp-endtoend} states which claims
+survive on which side of it.
+
+\paragraph{Generative AI use.}
+Generative models enter this study in two strictly separated roles,
+disclosed here per the journal's GenAI policy. As \emph{experimental
+components under test}: commercial VLM/LLM services perform Stage-B
+multi-view verification (\texttt{claude-sonnet-4-6} throughout the main
+campaign; Anthropic PBC, San Francisco, CA, USA), the query-benchmark
+answering under all four conditions (the same model), place-name
+generation from ring codes, and the five-verifier comparison of
+Sec.~\ref{sec:exp-ablation} (Anthropic and OpenAI models); every such
+call is made under a forced tool-use schema with prompts, decoding
+parameters, model identifiers, and per-call usage archived in the data
+package, and these models contributed no text to this article. As a
+\emph{writing aid}: a generative AI assistant was used for language
+editing and LaTeX formatting of the manuscript, as declared in the
+Acknowledgments; it played no role in study design, data collection, or
+analysis beyond the archived experimental calls above.
 
 \subsection{Segmentation: Repeatability, Filtering, and Sensitivity}
 \label{sec:exp-seg}
@@ -116,7 +217,22 @@ is not information-starved---it is verification-starved.
 \paragraph{Repeatability.}
 Running the full pipeline twice from the same E57---including ten-plane
 structure removal---reproduces every cluster byte-identically on both
-scenes (hash-verified). This is the property the incremental machinery
+scenes (hash-verified). To probe robustness beyond one software stack, we
+packaged the backbone into a version-pinned container and re-ran the
+robot-hall scan under a deliberately different environment (glibc 2.41
+vs.\ 2.39, Python 3.12.14 vs.\ 3.12.3): all 81 retained clusters remain
+byte-identical to the native run, and consecutive container runs
+reproduce each other exactly. Running the same container on a second
+machine with a different CPU vendor and microarchitecture (Intel Core
+i9-13900H laptop vs.\ the AMD Ryzen~9 9900X reference workstation)
+reproduces the identical per-cluster checksums and aggregate hash---the
+determinism claim therefore holds across operating environments and
+x86-64 CPU vendors under the pinned library set. The verification kit
+(container recipe,
+reference checksums, comparison script) ships with the data package so
+the check can be repeated elsewhere; bit-level
+reproducibility across instruction-set architectures is not claimed.
+This is the property the incremental machinery
 builds on: identical clusters mean carryable verification results and
 attributable diffs.
 
@@ -134,24 +250,41 @@ doubt itself (cf. the pose-context ablation, Sec.~\ref{sec:exp-ablation}).
 
 \paragraph{Parameter sensitivity.}
 A 36-combination sweep (giant-split footprint $\times$ DBSCAN
-$\varepsilon$ $\times$ minimum points) on both scenes shows a stable plateau
+$\varepsilon$ $\times$ minimum points) shows a stable plateau
 at footprint 2.0--2.5\,m: instance recall degrades at 3.0\,m as neighbors
-merge (recall 0.929) and at 1.5\,m as equipment shatters, while
-$\varepsilon$/min-point extremes collapse recall to 0.21. The operating
-point (2.5\,m / 0.30 / 100) sits inside the plateau rather than on a peak.
-One caveat is circularity: the sweep's reference instances are the audited
-operating-point decomposition, so the sweep measures stability around the
-operating point, not global optimality.
+merge and at 1.5\,m as equipment shatters, while
+$\varepsilon$/min-point extremes collapse recall to 0.21. Because scoring
+a sweep against the operating point's own decomposition would be
+circular, we re-scored every combination against an independent
+object-level reference: the owner-audited inventory, in a
+membership-independent form (all clean-cloud points falling inside each
+owner-audited oriented box, so no clustering decision defines the
+reference). On the robot hall (42 reference objects) the conclusion
+survives intact: the min-points-100 band is a broad plateau, and the
+operating point (2.5\,m / 0.30 / 100) sits at the grid maximum under
+the independent reference (recall 0.952, a uniform $\sim$0.05 below the
+cluster-referenced numbers, with the plateau shape unchanged). On the
+showroom, the audit surfaced an error we report plainly: the original
+showroom sweep rows had joined the reference onto the operating run's
+own clusters, and against the genuinely audited 57-object inventory
+\emph{no} grid combination of the base clustering exceeds recall 0.33
+--- the audited granularity of that scene is produced by the
+split-refinement stage, not by any base-DBSCAN setting. The showroom
+rows are therefore evidence for the necessity of the refinement stage,
+and the parameter-robustness claim rests on the non-circular robot-hall
+table (full grids in the data package).
 
 \paragraph{Conditional Point-SAM refinement.}
 Under a pre-specified rule (adopt iff $\geq$50\% of merged-cluster failures
 separate correctly \emph{and} label accuracy improves $\geq$5 points),
 Point-SAM separated 3/6 flagged merged clusters and sub-cluster labels
 reached 9/11 versus 5/11 for their parents (+36.4 points,
-Fig.~\ref{fig:baselines}), so refinement is
-adopted---but only for \emph{flagged merged candidates}, since automatic
-candidate selection also produced 2/6 false positives that fragment single
-objects.
+Fig.~\ref{fig:baselines}), so the rule is met for \emph{flagged merged
+candidates}; because automatic candidate selection also produced 2/6
+false positives that fragment single objects, Point-SAM is retained only
+as an optional, manually triggered diagnostic refinement---it is not part
+of the frozen pipeline of Sec.~\ref{sec:corrective} and contributes
+nothing to the end-to-end replay of Sec.~\ref{sec:exp-endtoend}.
 
 \begin{figure}[t]
 \centering
@@ -195,9 +328,17 @@ conditional refiner above.
 \begin{table}[t]
 \centering
 \caption{Segmentation$\times$classification backbone comparison on a
-wall-removed industrial TLS scene (proxy metrics; no point-level GT).}
+wall-removed industrial TLS scene. The metrics are screening proxies
+(no point-level GT) and do not measure instance quality; the PTv3 row
+is a semantic-segmentation head whose outputs are not
+instance-comparable with the clustering rows and is included only to
+document why closed-set semantic heads were screened out. Instance
+quality of the retained backbone is validated independently in
+Secs.~\ref{sec:exp-seg} (owner-referenced sweep)
+and~\ref{sec:exp-endtoend} (end-to-end recall).}
 \label{tab:backbones}
-\small
+\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccl@{}}
 \toprule
 Pipeline & Coverage & Unnameable & Classes & Dominant failure \\
@@ -212,6 +353,8 @@ DBSCAN + PointCLIP~V2 & 98.3\% & --- & 1--7 & collapse (pipe 23/30) \\
 \end{table}
 
 \paragraph{Diffuseness-gated re-splitting.}
+This layer and the next are defined, with triggers and parameters, in
+Sec.~\ref{sec:corrective}; here we report what they did.
 Two T3 clusters that survived every upstream filter are \emph{diffuse
 webs}: 95K and 13K points spread over 80 and 12\,m$^2$ at a 2D occupancy
 fill below 0.3, versus 0.5--0.85 for every real object in the scene ---
@@ -324,6 +467,75 @@ objects unverified versus 24\% for exploration scans, and re-processing the
 T3 scan from a single setup (1/6 coverage) drops the verified tier from
 75.6\% to 56.6\% on identical geometry. Coverage buys verifiability.
 
+\paragraph{Per-tier recall.}
+Precision alone understates what gating costs, so
+Table~\ref{tab:tierrf} completes the tier picture with recall and $F_1$
+against confirmed GT. The pattern is consistent: the combined verified
+tier reaches recall 0.722/0.781 on the two industrial scenes
+($F_1$ 0.839/0.847) but only 0.250 on the cafeteria, where the gate
+abstained on half of the confirmed objects---the stress scene's
+segmentation failures surface here as recall, not as precision. The
+escalated tier is small everywhere (recall 0.194--0.250), consistent
+with its role as a recovery channel rather than a primary path.
+
+\begin{table}[t]
+\centering
+\caption{Per-tier precision, recall, and $F_1$ on confirmed ground truth
+(synonym-tolerant). Recall counts a confirmed object as retrieved only if
+the tier contains it with the correct type; the unverified row is the
+abstention tier, so its ``precision'' is only the fraction of abstained
+objects whose withheld top vote happened to be correct.}
+\label{tab:tierrf}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+Scene & Tier & $n$ & $n_{\mathrm{conf}}$ & Prec. & Rec. & $F_1$ \\
+\midrule
+Showroom & verified (unanimous) & 21 & 19 & 1.000 & 0.528 & 0.691 \\
+ & verified\_escalated & 8 & 7 & 1.000 & 0.194 & 0.326 \\
+ & combined verified & 29 & 26 & 1.000 & 0.722 & 0.839 \\
+ & unverified (abstained) & 21 & 10 & 0.600 & 0.167 & 0.261 \\
+ & \emph{confirmed GT total} & 50 & 36 & & & \\
+\midrule
+Robot hall & verified (unanimous) & 25 & 18 & 0.944 & 0.531 & 0.680 \\
+ & verified\_escalated & 16 & 9 & 0.889 & 0.250 & 0.390 \\
+ & combined verified & 41 & 27 & 0.926 & 0.781 & 0.847 \\
+ & unverified (abstained) & 10 & 5 & 0.400 & 0.062 & 0.108 \\
+ & \emph{confirmed GT total} & 51 & 32 & & & \\
+\midrule
+Cafeteria & verified (unanimous) & 8 & 7 & 0.571 & 0.200 & 0.296 \\
+ & verified\_escalated & 6 & 3 & 0.333 & 0.050 & 0.087 \\
+ & combined verified & 14 & 10 & 0.500 & 0.250 & 0.333 \\
+ & unverified (abstained) & 11 & 10 & 0.200 & 0.100 & 0.133 \\
+ & \emph{confirmed GT total} & 25 & 20 & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Threshold sensitivity.}
+Because the 0.6 share threshold gates status only
+(Sec.~\ref{sec:verification}), its effect can be quantified exactly by
+re-scoring the stored votes at alternative thresholds---no new verifier
+calls. Sweeping 0.40--0.90 in steps of 0.05 shows 0.6 sitting on a
+plateau rather than a cliff. On the showroom, thresholds 0.55 and 0.60
+produce identical tiers (escalated-tier precision 100\%); lowering to
+0.50 trades combined verified-tier precision (1.000\,$\rightarrow$\,0.966)
+for recall (0.722\,$\rightarrow$\,0.778), and raising to 0.70 keeps
+precision saturated while dropping recall to 0.639. The robot hall
+behaves the same way (at 0.60: escalated precision 0.889, recall 0.781;
+at 0.70: precision 1.000, recall 0.688), and on both industrial scenes
+F1 is maximized on a broad 0.45--0.65 band with every 0.05 step moving
+at most one or two objects. The stress scene shifts the whole curve
+downward without changing its shape---the threshold cannot repair
+render- or segmentation-level failures
+(Sec.~\ref{sec:exp-ablation})---which is the scene dependence noted for
+the tiers themselves. Between 0.50 and 0.70 only 11/34, 12/49, and 7/19
+escalated objects change tier on the three scenes, and those bands mix
+correct and incorrect labels almost evenly, which is why no alternative
+threshold dominates 0.6 by more than single-object noise. We therefore
+retain the a-priori 0.6 rather than tuning it post hoc.
+
 \paragraph{Error taxonomy.}
 Four recurring error classes emerged (Fig.~\ref{fig:taxonomy}):
 (a) \emph{structure-remnant phantoms}---soffit bands verified as keyboards;
@@ -356,6 +568,78 @@ failure mode.
 Classes (b) and (c) motivate reporting verification as \emph{tiered
 evidence} rather than truth, and drive the structural gating design.
 
+\paragraph{Class-level breakdown.}
+Table~\ref{tab:classdist} disaggregates every scene's ground truth into
+class families and per-family verification outcomes, making the error
+classes above quantitative. Three patterns stand out. First, the
+vocabulary gap is class-structured: robots are the worst family
+everywhere they occur (0/4, 0/3, and 0/8 correct across the three
+robot-bearing sets)---absorption, not misperception, since most land in
+\texttt{clutter} or abstain. Second, displays and fixtures abstain
+heavily on the showroom (0/5 and 0/6 correct, all withheld or
+mislabeled)---flat panels and ceiling fixtures are exactly the
+render-ambiguous shapes the taxonomy predicts. Third, the T3 owner audit
+shows the same distribution end-to-end (6 correct / 25 wrong / 10
+abstained over 41), confirming that per-family results, not the
+aggregate, are the actionable signal for vocabulary and geometry work.
+
+\begin{table}[t]
+\centering
+\caption{Ground-truth object classes per scene, grouped into families,
+with each object's verification outcome in the canonical run
+(synonym-tolerant matching as in the escalation analysis). ``Filtered''
+= excluded before scoring (structure artifact or out of room scope).
+For the T3 owner audit, correctness follows the owner's category
+labels; one verified cluster with no owner answer is counted as wrong
+in the total row only.}
+\label{tab:classdist}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+Scene & Family & GT & Corr. & Wrong & Unver. & Filt. \\
+\midrule
+Showroom (57-set) & seating & 5 & 4 & 1 & 0 & 0 \\
+ & robots & 4 & 0 & 1 & 3 & 0 \\
+ & displays/monitors & 5 & 0 & 0 & 5 & 0 \\
+ & machines/electrical & 6 & 3 & 0 & 3 & 0 \\
+ & furniture & 2 & 0 & 0 & 2 & 0 \\
+ & fixtures & 6 & 0 & 0 & 6 & 0 \\
+ & structure-noise & 7 & 0 & 0 & 0 & 7 \\
+ & clutter/unknown & 22 & 20 & 0 & 2 & 0 \\
+ & \emph{total} & 57 & 27 & 2 & 21 & 7 \\
+\midrule
+Robot hall (det) & seating & 5 & 4 & 0 & 1 & 0 \\
+ & robots & 3 & 0 & 1 & 2 & 0 \\
+ & displays/monitors & 1 & 0 & 0 & 0 & 1 \\
+ & machines/electrical & 1 & 0 & 0 & 0 & 1 \\
+ & furniture & 2 & 0 & 0 & 0 & 2 \\
+ & fixtures & 8 & 3 & 1 & 4 & 0 \\
+ & structure-noise & 8 & 0 & 0 & 1 & 7 \\
+ & clutter/unknown & 53 & 25 & 7 & 2 & 19 \\
+ & \emph{total} & 81 & 32 & 9 & 10 & 30 \\
+\midrule
+Cafeteria & seating & 10 & 1 & 4 & 5 & 0 \\
+ & machines/electrical & 1 & 1 & 0 & 0 & 0 \\
+ & furniture & 1 & 0 & 1 & 0 & 0 \\
+ & fixtures & 5 & 0 & 1 & 4 & 0 \\
+ & structure-noise & 3 & 0 & 0 & 0 & 3 \\
+ & clutter/unknown & 8 & 4 & 2 & 2 & 0 \\
+ & \emph{total} & 28 & 6 & 8 & 11 & 3 \\
+\midrule
+T3 re-scan (owner GT) & seating & 5 & 2 & 2 & 1 & 0 \\
+ & robots & 8 & 0 & 6 & 2 & 0 \\
+ & displays/monitors & 2 & 0 & 1 & 1 & 0 \\
+ & machines/electrical & 4 & 0 & 4 & 0 & 0 \\
+ & furniture & 4 & 0 & 3 & 1 & 0 \\
+ & fixtures & 4 & 0 & 2 & 2 & 0 \\
+ & structure-noise & 9 & 0 & 6 & 3 & 0 \\
+ & clutter/unknown & 5 & 4 & 0 & 0 & 0 \\
+ & \emph{total} & 41 & 6 & 25 & 10 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Owner Audit and Corrective Feedback (T3)}
 \label{sec:exp-owner}
 
@@ -367,7 +651,8 @@ mechanics matter here.
 
 \paragraph{Exhaustive audit and mitigations.}
 The room occupant exhaustively labeled all 41 T3 clusters, giving a
-second, fully independent ground truth beyond the showroom scoring sets.
+distinct T3 owner-audited ground-truth set beyond the showroom scoring
+sets.
 Of the 31 verified-tier clusters, 6 were correct, 13 were real objects
 flattened to \texttt{clutter}, 6 were structure-noise phantoms, 2 carried
 a wrong specific label, and 3 were multi-object merges (one unanswered).
@@ -376,7 +661,10 @@ The absorption cause is now identifiable: the room is a robotics testbed
 and none of these classes exist in the classifier vocabulary. The
 unverified tier behaved as designed in five structure/fixture cases but
 also withheld three real objects, including the wall TV of
-Sec.~\ref{sec:exp-verify}. Three audit-driven mitigations follow.
+Sec.~\ref{sec:exp-verify}. Three audit-driven mitigations follow; their
+definitions, triggers, and parameters are given in
+Sec.~\ref{sec:corrective} (layers 4--5), and this subsection reports their
+development-time evaluation.
 \emph{(i) Hybrid structure filter:} registering every cluster against the
 exploration-scan occupancy grid --- an independent, drift-free wall prior
 --- and combining a wall-line hug test with local (per-metre-segment)
@@ -505,17 +793,25 @@ grounded conditions.
 \begin{table}[t]
 \centering
 \caption{Query benchmark, four conditions (accuracy / hallucination rate /
-traps blocked).}
+traps blocked), with abstention counts. Question sets: showroom $n{=}48$
+(14 symbolic, 12 explicit, 9 implicit, 9 scene-level, 4 trap); robot hall
+$n{=}32$ (15 symbolic, 12 explicit, 1 scene-level, 4 trap). An abstention
+counts against accuracy (the denominator is always $n$) but is not a
+hallucination; the verified-only condition's low accuracy is largely its
+abstention cost.}
 \label{tab:query}
-\small
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
  & LLM-only & Ungated & Verified-only & Gated \\
 \midrule
-Showroom & 52.1\% / 20.8\% / 2/4 & 81.2\% / 18.8\% / 0/4 &
+Showroom ($n{=}48$) & 52.1\% / 20.8\% / 2/4 & 81.2\% / 18.8\% / 0/4 &
 58.3\% / 16.7\% / 4/4 & \textbf{83.3\% / 16.7\% / 3/4} \\
-Robot hall & 50.0\% / 37.5\% / 4/4 & 56.2\% / 43.8\% / 0/4 &
+\quad abstentions & 13 & 0 & 12 & 0 \\
+Robot hall ($n{=}32$) & 50.0\% / 37.5\% / 4/4 & 56.2\% / 43.8\% / 0/4 &
 46.9\% / 40.6\% / 2/4 & \textbf{59.4\% / 40.6\% / 2/4} \\
+\quad abstentions & 4 & 0 & 4 & 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -535,7 +831,14 @@ bounded by verifier quality; we report both as properties, not anomalies.
 The robot hall reproduces the ordering at lower absolute levels because its
 end-to-end label errors (banner$\rightarrow$refrigerator,
 robot$\rightarrow$clutter) propagate into every grounded condition---an
-honest end-to-end number rather than a curated one.
+honest end-to-end number rather than a curated one. We note the statistical
+scope explicitly: at $n{=}48$/$32$ questions the gated-vs-ungated
+\emph{accuracy} gap is a single question on each scene, so the benchmark is
+diagnostic rather than powered for significance. The case for gating rests
+on the mechanisms the benchmark isolates---trap blocking, the abstention
+structure, and the direction of the hallucination change---and on the
+downstream mission-level consequences of Sec.~\ref{sec:semnav}, not on the
+accuracy deltas alone.
 
 \begin{figure}[t]
 \centering
@@ -559,7 +862,13 @@ overlap-based matching features in future work. On the combined-edit
 re-scan (move, insertion, and removal applied together), selective
 re-verification re-ran Stage B on only the two changed clusters: 26 of 822
 VLM calls, \$0.23 versus \$7.37 for a full re-verification---3.1\% of
-rebuild cost, and 0\% for scenario A.
+rebuild cost, and 0\% for scenario A. We scope this claim precisely: the
+3.1\% figure comes from this controlled same-quality re-scan, where
+unchanged clusters reproduce byte-identically. On the real
+T2$\rightarrow$T3 transition the scan protocol itself changed
+(higher-coverage acquisition), no cluster hash matched, and the epoch paid
+full verification cost (\$3.54 for 41 clusters)---zero-cost carry-over is
+a property of reproducible acquisition, not of the update mechanism alone.
 
 \paragraph{Real three-epoch study.}
 The three epochs of Table~\ref{tab:scenes} form a real update sequence:
@@ -578,6 +887,37 @@ Fig.~\ref{fig:epochs}) sits on top of measured natural drift: only 65\% of
 in-room object geometry is mutually supported at 10\,cm between the two
 scans two weeks apart---roughly a third of the room changed before any
 protocol was applied.
+
+\emph{Matching scorecard.} To score the real transitions without circular
+reference to the matcher itself, we built an independent correspondence
+reference by bidirectional point overlap between epochs (5\,cm
+association, both directions $\ge$0.5 for a strong pair, 0.3--0.5
+partial; the same construction as the T1 GT transfer of
+Sec.~\ref{sec:exp-verify}), and replayed the recorded upserts against it.
+The reference finds 4 strong and 6 partial static pairs for
+T1$\rightarrow$T2 and 7 strong and 5 partial for T2$\rightarrow$T3.
+Matching accuracy on strong pairs is 2/4 and 4/7; \textbf{identity
+switches are zero on both transitions}---every miss is a
+\emph{fragmentation} error in which re-segmentation changed an extent
+beyond the 30\% tolerance, so the object was marked absent and
+re-inserted under a new ID, never associated to the wrong object. The
+per-miss diagnosis is uniform: all five failed the per-axis extent gate
+(the most consequential case is the T3 ``new'' fire extinguisher, whose
+cluster overlaps a T2 \texttt{clutter} cluster at 0.96--0.99 mutual
+overlap but with width 0.11 vs.\ 0.28\,m). Strict false-new and
+false-absent counts are 2/2 (T1$\rightarrow$T2) and 3/3
+(T2$\rightarrow$T3), rising to 5/5 and 3/3 if partial pairs are also
+demanded; nine split/merge cases (one cluster absorbing several) are
+reported separately rather than forced into either bin. Multi-candidate
+conflicts---the greedy resolution of Sec.~\ref{sec:matching}---occurred
+zero times in pass~1 on both transitions and once in pass~2, where
+nearest-centroid arbitration picked the owner-confirmed 0.64\,m chair
+move. All three recorded \texttt{moved} claims are consistent with the
+reference (a true move has no in-place overlap, so the reference can
+refute but not confirm identity; the chair move is additionally
+owner-confirmed). Repeating the reference construction at 10\,cm
+association (twice the registration RMSE) leaves identity switches at
+zero.
 
 Against the controlled-change protocol, the system detected \textbf{2/2
 physical changes at geometry level}: the moved chair is the epoch's
@@ -641,7 +981,15 @@ developed from failures observed in this same environment, this
 experiment is a \emph{retrospective end-to-end replay} on the
 development scene, not an independent generalization test; what it
 measures is how much of the owner-audited inventory the automated
-layers recover once owner-informed development has concluded. One
+layers recover once owner-informed development has concluded. The
+replay runs the \emph{frozen} pipeline exactly as defined in
+Secs.~\ref{sec:preprocess}--\ref{sec:corrective}---every trigger and
+threshold fixed, no per-scene adjustment, no owner input at execution
+time---so it is an independent \emph{run}, on a non-independent
+\emph{scene}. The cafeteria (Sec.~\ref{sec:exp-ablation}) is the only
+scene that is independent in both senses, and a multi-building
+evaluation remains future work
+(Sec.~\ref{sec:discussion}). One
 corrective layer transfers mechanically and can therefore be checked
 held-out: applying the hybrid structure filter to the cafeteria with
 its T3 rules frozen (the occupancy-grid prior synthesized from the
@@ -692,7 +1040,7 @@ Verified path (Sec.~\ref{sec:decomposition}--\ref{sec:verification}) &
 + diffuseness re-split & 26/46 (57\%) & 53\% \\
 + wall-compound gate & 36/46 (78\%) & 60\% \\
 + structure-condition ensemble & 37/46 (80\%) & 49\% \\
-+ panel square-up & \textbf{39/46 (85\%)} & 51\% \\
++ wall-compound panel square-up (Sec.~\ref{sec:corrective}, layer~2) & \textbf{39/46 (85\%)} & 51\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -727,6 +1075,35 @@ curated-20 (48.7\%) and above the owner-derived 18-term set (33.3\%), with
 $\sim$5-point run-to-run variance---narrowing the prompt set toward the
 deployment vocabulary \emph{hurts} the embedding-level classifier,
 confirming the domain gap that motivates VLM verification downstream.
+
+\paragraph{Provisional-label ablation.}
+Since the Stage-A label is supplied to the verifier as context, a fair
+question is whether Stage B verifies or merely echoes it. We re-ran the
+full showroom protocol (same renders, same verifier, base $+$ automatic
+escalation) with the provisional label removed from both the system
+prompt and the per-object context---dimensions and all perceptual
+guardrails retained. The answer has two sides. With the label, Stage B
+is a genuine but conservative corrector: on confirmed GT it departs from
+Stage A on 8 of 36 objects, 5 correctly and 3 incorrectly, turning
+Stage A's 77.8\% into 88.9\%. Without the label, the verifier is not an
+independent classifier: decisiveness collapses (trigger rate
+58\%\,$\rightarrow$\,90\%, unanimity 21\,$\rightarrow$\,5 objects) and
+escalated accuracy falls to 38.9\%, with 22 of 26 departures from the
+Stage-A label wrong. Two mechanisms account for the drop. Generic piles
+lose their anchor: blind, the verifier names a specific type for
+clutter (12 vs.\ 23 \texttt{clutter} answers against 22 GT), and on
+specific-type objects accuracy still halves (10/14
+$\rightarrow$ 4/14)---sparse renders under-determine the label, and the
+prior selects among render-compatible hypotheses. The tier machinery,
+however, degrades in the intended direction: blind uncertainty flows to
+\texttt{unverified} (38 vs.\ 21 objects) rather than into confident
+errors, though verified-tier precision does erode (unanimous 0.667,
+escalated 0.5). The conclusion we draw is the one the architecture
+already assumes: Stage~B is a \emph{verifier of hypotheses}, and the
+provisional label is load-bearing context---the same anchoring power
+that the candidate-shortlist experiment of Sec.~\ref{sec:exp-owner}
+shows can mislead, which is why label adoption is agreement-gated and
+owner-auditable rather than trusted outright.
 
 \paragraph{Verifier model.}
 Running the identical Stage-B protocol (Table~\ref{tab:vlmcmp}) across
@@ -853,8 +1230,11 @@ Table~\ref{tab:cafe}), circles the seven carpet floor-noise clusters.
 full-resolution re-associated points (right) under the identical
 512-px protocol: the chair (top) is recovered by the render-source
 change alone; the sofa fragment (bottom) is not. (c)~Escalated
-accuracy (confirmed GT) and unanimous precision across verifier
-$\times$ render source.}
+accuracy (confirmed GT, $n{=}20$ per cell) and unanimous precision
+(per-bar $n=8$--$15$ unanimous objects, annotated on each bar) across
+verifier $\times$ render source; error bars are 95\% Wilson intervals,
+wide on the precision bars because unanimous sets are small---the
+point estimates order the cells, the intervals bound how far.}
 \label{fig:cafe}
 \end{figure}
 
@@ -924,3 +1304,35 @@ than a property of the architecture.
 The backbone's parameter sensitivity (36-combination sweep) and the
 conditional refinement rules are ablated where their context lives, in
 Sec.~\ref{sec:exp-seg}.
+
+\paragraph{Voxel resolution and registration noise.}
+Two controlled perturbations of the robot-hall backbone, scored per
+object against the owner-grounded reference of
+Sec.~\ref{sec:exp-seg}, bound the geometric operating regime. Voxel
+size is not a free knob but part of a jointly calibrated triple with
+$(\varepsilon, \mathrm{min\_points})$: at the baseline 3\,cm the full
+backbone recovers 42/42 reference objects, but refining to 2\,cm
+collapses recall to 0.36 (density rises, the fixed
+$\varepsilon{=}0.30$ bridges gaps, 22 objects merge) and coarsening to
+5\,cm collapses it to 0.33 (small objects starve below the 100-point
+floor, 18 misses)---so the voxel size must be reported with the
+clustering parameters, as Table~\ref{tab:sampleflow}'s pipeline
+configuration does. Seeded per-point Gaussian noise applied to the raw
+cloud before the backbone probes registration error at the point
+level: at $\sigma{=}5$\,mm---the scale of the scanner's real per-scan
+bundle error (4--5\,mm)---recall drops to 0.48, and by
+$\sigma{=}20$\,mm (4$\times$ bundle error) the backbone effectively
+fails (0.07), the dominant mechanism being saturation of the 5\,cm
+RANSAC inlier band: un-removed wall residue grows from 267K to 853K
+points and chains objects into merged clusters (39/42 merged) rather
+than fragmenting them. We note the regime carefully: per-point scatter
+at these levels is an artificial stress---the real $\sim$5\,cm
+inter-epoch ICP residual is a rigid-transform error the pipeline
+absorbs at the KG matching level (Sec.~\ref{sec:exp-update}), not
+per-point noise---so the practical claim is robustness at the real
+bundle-error scale, contingent on the structure-removal stage, which
+is the first component to saturate. Color variation is not isolated by
+any experiment in this paper: the render-source ablation above changes
+point density and silhouette detail together with color, so it is an
+appearance-quality control rather than a pure photometric one, and a
+color-only perturbation study remains open.

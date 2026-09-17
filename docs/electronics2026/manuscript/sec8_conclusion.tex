@@ -8,14 +8,18 @@ reproducible and diffs meaningful; multi-view VLM verification with automatic
 escalation attaches empirically validated confidence tiers to every label
 while retaining what it
 cannot resolve as explicitly unverified; and mint-once identities with
-two-pass matching turn re-scans into node-level upserts whose cost scales
-with actual change. Across two operational configurations of one
+two-pass matching turn re-scans into node-level upserts whose
+verification cost can scale with detected content change under
+reproducible acquisition. Across two operational configurations of one
 industrial room, a real three-epoch study of that room, and a
 cross-floor stress scene that bounds domain transfer, the framework improved verification accuracy by up to 11
 points through escalation, blocked hallucination traps by gating the data
-rather than instructing the model, preserved object identity across three
-scan epochs including a controlled physical change, and re-verified repeat
-scans at zero marginal VLM cost. Extending the loop beyond one-shot
+rather than instructing the model, preserved node identities for
+continuously tracked objects across three scan epochs---with zero
+observed identity switches on strong reference pairs, though
+re-segmentation still yields false-new/false-absent cases---including a
+controlled physical change, and re-verified identical-input repeat scans
+at zero marginal VLM cost. Extending the loop beyond one-shot
 verification, automatic re-split gates and a structure-condition ensemble
 raised automated recall against an owner-audited 46-object
 inventory---owner-free at execution time, after owner-informed corrective
@@ -24,7 +28,8 @@ wall the baseline had verified as a single cabinet --- while the remaining
 type errors localized the owner's role precisely: verifier bias is
 correlated across models, conditions, and view sets, so label truth enters
 through revisioned owner evidence over a single semantic store that also
-feeds the console, the mission mediator, and the simulation twin. The
+feeds the console, the mission mediator, the simulation twin, and---through
+the same mediator---the physical AMMR (Sec.~\ref{sec:realrobot}). The
 verifier-tier comparison makes the same point economically: a weaker model
 escalates more, resolves less, and pays back part of its nominal price
 advantage in extra calls---while decisiveness itself is no guarantee of

@@ -48,7 +48,9 @@ the confidence gate propagates across layers.
 
 \begin{table}[t]
 \centering
-\caption{Positioning against DK-SMF~\cite{joo2025dksmf}.}
+\caption{Positioning against DK-SMF~\cite{joo2025dksmf}. The table is
+the authors' own tabulation: the DK-SMF column paraphrases that paper's
+published description and reproduces none of its tables or figures.}
 \label{tab:dksmf}
 \small
 \begin{tabular}{@{}lll@{}}
@@ -93,9 +95,10 @@ fixed-parameter density clustering~\cite{ester1996dbscan}---and position
 it not as a novel algorithm but as a
 \emph{reproducible decomposition} whose determinism underwrites
 verification carry-over and incremental diffing
-(Sec.~\ref{sec:decomposition}). Point-SAM appears in our pipeline only as a
-conditionally adopted refinement of flagged merged clusters, under a
-pre-specified adoption rule (Sec.~\ref{sec:exp-seg}).
+(Sec.~\ref{sec:decomposition}). Point-SAM is evaluated only as an optional
+diagnostic refinement of flagged merged clusters under a pre-specified
+adoption rule (Sec.~\ref{sec:exp-seg}); it is not part of the frozen
+TLS-SMF pipeline.
 
 \subsection{Multi-View VLM Verification}
 Using VLMs to label rendered 3D content is increasingly common; our prior
@@ -158,19 +161,24 @@ and~\ref{sec:exp-update}.
 
 \begin{table}[t]
 \centering
-\caption{Capability comparison of environment representations.}
+\caption{Capability comparison of environment representations. Each
+``this work'' cell cites the section that substantiates it
+experimentally; the 2D-map and 3D-scan columns state definitional
+properties of those representations~\cite{macenski2020marathon,tang2010asbuilt}
+rather than measured results.}
 \label{tab:capability}
-\small
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
 \begin{tabular}{@{}lccc@{}}
 \toprule
  & 2D map & 3D scan & 3D semantic KG (this work) \\
 \midrule
-Metric navigation & \checkmark & \checkmark & \checkmark (derived) \\
-Object geometry & -- & \checkmark & \checkmark (explicit models) \\
-Task-language query & -- & -- & \checkmark (gated) \\
-Per-fact confidence & -- & -- & \checkmark (verification tiers) \\
-Change maintenance & re-map & re-scan & node-level upsert \\
-Place semantics & -- & -- & \checkmark (verified ring codes) \\
+Metric navigation & \checkmark & \checkmark & \checkmark (derived; Sec.~\ref{sec:semnav}) \\
+Object geometry & -- & \checkmark & \checkmark (explicit models; Sec.~\ref{sec:explicit}) \\
+Task-language query & -- & -- & \checkmark (gated; Sec.~\ref{sec:exp-query}) \\
+Per-fact confidence & -- & -- & \checkmark (tiers; Sec.~\ref{sec:exp-verify}) \\
+Change maintenance & re-map & re-scan & node-level upsert (Sec.~\ref{sec:exp-update}) \\
+Place semantics & -- & -- & \checkmark (ring codes; Sec.~\ref{sec:place}) \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -1,5 +1,39 @@
 \begin{thebibliography}{999}
 
+\bibitem[Salas-Moreno et~al.(2013)Salas-Moreno, Newcombe, Strasdat, Kelly, and
+  Davison]{salas2013slampp}
+Salas-Moreno, R.F.; Newcombe, R.A.; Strasdat, H.; Kelly, P.H.J.; Davison, A.J.
+\newblock {SLAM++}: Simultaneous Localisation and Mapping at the Level of
+  Objects.
+\newblock In Proceedings of the IEEE Conf. on Computer Vision and Pattern
+  Recognition (CVPR),  2013, pp. 1352--1359.
+\newblock {\url{https://doi.org/10.1109/CVPR.2013.178}}.
+
+\bibitem[McCormac et~al.(2017)McCormac, Handa, Davison, and
+  Leutenegger]{mccormac2017semanticfusion}
+McCormac, J.; Handa, A.; Davison, A.; Leutenegger, S.
+\newblock {SemanticFusion}: Dense {3D} Semantic Mapping with Convolutional
+  Neural Networks.
+\newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
+  (ICRA),  2017, pp. 4628--4635.
+\newblock {\url{https://doi.org/10.1109/ICRA.2017.7989538}}.
+
+\bibitem[Rosinol et~al.(2020)Rosinol, Abate, Chang, and
+  Carlone]{rosinol2020kimera}
+Rosinol, A.; Abate, M.; Chang, Y.; Carlone, L.
+\newblock Kimera: An Open-Source Library for Real-Time Metric-Semantic
+  Localization and Mapping.
+\newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
+  (ICRA),  2020, pp. 1689--1696.
+\newblock {\url{https://doi.org/10.1109/ICRA40945.2020.9196885}}.
+
+\bibitem[Hughes et~al.(2022)Hughes, Chang, and Carlone]{hughes2022hydra}
+Hughes, N.; Chang, Y.; Carlone, L.
+\newblock Hydra: A Real-Time Spatial Perception System for {3D} Scene Graph
+  Construction and Optimization.
+\newblock In Proceedings of the Robotics: Science and Systems (RSS),  2022.
+\newblock {\url{https://doi.org/10.15607/RSS.2022.XVIII.050}}.
+
 \bibitem[Armeni et~al.(2019)Armeni, He, Gwak, Zamir, Fischer, Malik, and
   Savarese]{armeni20193dsg}
 Armeni, I.; He, Z.Y.; Gwak, J.; Zamir, A.R.; Fischer, M.; Malik, J.; Savarese,
@@ -8,6 +42,7 @@ Armeni, I.; He, Z.Y.; Gwak, J.; Zamir, A.R.; Fischer, M.; Malik, J.; Savarese,
   Camera.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
   2019, pp. 5663--5672.
+\newblock {\url{https://doi.org/10.1109/ICCV.2019.00576}}.
 
 \bibitem[Koch et~al.(2024)Koch, Vaskevicius, Colosi, Hermosilla, and
   Ropinski]{koch2024open3dsg}
@@ -16,6 +51,7 @@ Koch, S.; Vaskevicius, N.; Colosi, M.; Hermosilla, P.; Ropinski, T.
   Queryable Objects and Open-Set Relationships.
 \newblock In Proceedings of the IEEE/CVF Conf. on Computer Vision and Pattern
   Recognition (CVPR),  2024, pp. 14183--14193.
+\newblock {\url{https://doi.org/10.1109/CVPR52733.2024.01345}}.
 
 \bibitem[Gu et~al.(2024)Gu, Kuwajerwala, Morin, Jatavallabhula, Sen, Agarwal,
   Rivera, Paul, Ellis, Chellappa, Gan, de~Melo, Tenenbaum, Torralba, Shkurti,
@@ -26,6 +62,7 @@ Gu, Q.; Kuwajerwala, A.; Morin, S.; Jatavallabhula, K.M.; Sen, B.; Agarwal, A.;
   Planning.
 \newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
   (ICRA),  2024, pp. 5021--5028.
+\newblock {\url{https://doi.org/10.1109/ICRA57147.2024.10610243}}.
 
 \bibitem[Honerkamp et~al.(2024)Honerkamp, B{\"u}chner, Despinoy, Welschehold,
   and Valada]{honerkamp2024momallm}
@@ -34,12 +71,67 @@ Honerkamp, D.; B{\"u}chner, M.; Despinoy, F.; Welschehold, T.; Valada, A.
   with Mobile Manipulation.
 \newblock {\em IEEE Robotics and Automation Letters} {\bf 2024}, {\em
   9},~8298--8305.
+\newblock {\url{https://doi.org/10.1109/LRA.2024.3441495}}.
+
+\bibitem[Galindo et~al.(2008)Galindo, Fern{\'a}ndez-Madrigal, Gonz{\'a}lez, and
+  Saffiotti]{galindo2008task}
+Galindo, C.; Fern{\'a}ndez-Madrigal, J.A.; Gonz{\'a}lez, J.; Saffiotti, A.
+\newblock Robot Task Planning Using Semantic Maps.
+\newblock {\em Robotics and Autonomous Systems} {\bf 2008}, {\em 56},~955--966.
+\newblock {\url{https://doi.org/10.1016/j.robot.2008.08.007}}.
+
+\bibitem[Deeken et~al.(2018)Deeken, Wiemann, and Hertzberg]{deeken2018semap}
+Deeken, H.; Wiemann, T.; Hertzberg, J.
+\newblock Grounding Semantic Maps in Spatial Databases.
+\newblock {\em Robotics and Autonomous Systems} {\bf 2018}, {\em
+  105},~146--165.
+\newblock {\url{https://doi.org/10.1016/j.robot.2018.03.011}}.
+
+\bibitem[Tenorth and Beetz(2013)]{tenorth2013knowrob}
+Tenorth, M.; Beetz, M.
+\newblock {KnowRob}: A Knowledge Processing Infrastructure for
+  Cognition-Enabled Robots.
+\newblock {\em The International Journal of Robotics Research} {\bf 2013}, {\em
+  32},~566--590.
+\newblock {\url{https://doi.org/10.1177/0278364913481635}}.
+
+\bibitem[Manzoor et~al.(2021)Manzoor, Rocha, Joo, Bae, Kim, Joo, and
+  Kuc]{manzoor2021survey}
+Manzoor, S.; Rocha, Y.G.; Joo, S.H.; Bae, S.H.; Kim, E.J.; Joo, K.J.; Kuc, T.Y.
+\newblock Ontology-Based Knowledge Representation in Robotic Systems: A Survey
+  Oriented toward Applications.
+\newblock {\em Applied Sciences} {\bf 2021}, {\em 11},~4324.
+\newblock {\url{https://doi.org/10.3390/app11104324}}.
+
+\bibitem[Joo et~al.(2020)Joo, Manzoor, Rocha, Bae, Lee, Kuc, and
+  Kim]{joo2020tosm}
+Joo, S.H.; Manzoor, S.; Rocha, Y.G.; Bae, S.H.; Lee, K.H.; Kuc, T.Y.; Kim, Y.G.
+\newblock Autonomous Navigation Framework for Intelligent Robots Based on a
+  Semantic Environment Modeling.
+\newblock {\em Applied Sciences} {\bf 2020}, {\em 10},~3219.
+\newblock {\url{https://doi.org/10.3390/app10093219}}.
+
+\bibitem[Joo et~al.(2022)Joo, Bae, Choi, Park, Lee, You, Uhm, Moon, and
+  Kuc]{joo2022fsom}
+Joo, S.; Bae, S.; Choi, J.; Park, H.; Lee, S.; You, S.; Uhm, T.; Moon, J.; Kuc,
+  T.
+\newblock A Flexible Semantic Ontological Model Framework and Its Application
+  to Robotic Navigation in Large Dynamic Environments.
+\newblock {\em Electronics} {\bf 2022}, {\em 11},~2420.
+\newblock {\url{https://doi.org/10.3390/electronics11152420}}.
 
 \bibitem[Joo et~al.(2025)Joo, Jeong, Kwon, Jeong, Kim, and Kuc]{joo2025dksmf}
 Joo, K.; Jeong, Y.; Kwon, S.; Jeong, M.; Kim, H.; Kuc, T.
 \newblock {DK-SMF}: Domain Knowledge-Driven Semantic Modeling Framework for
   Service Robots.
 \newblock {\em Electronics} {\bf 2025}, {\em 14},~3197.
+\newblock {\url{https://doi.org/10.3390/electronics14163197}}.
+
+\bibitem[{Verband der Automobilindustrie (VDA)} and {VDMA}(2022)]{vda5050}
+{Verband der Automobilindustrie (VDA)}.; {VDMA}.
+\newblock {VDA} 5050: Interface for the Communication between Automated Guided
+  Vehicles ({AGV}) and a Master Control, Version 2.0.0.
+\newblock VDA/VDMA joint recommendation, Berlin, Germany,  2022.
 
 \bibitem[Zhou et~al.(2024)Zhou, Wang, Ma, Liu, Huang, and Wang]{zhou2024uni3d}
 Zhou, J.; Wang, J.; Ma, B.; Liu, Y.S.; Huang, T.; Wang, X.
@@ -54,12 +146,55 @@ Zhu, X.; Zhang, R.; He, B.; Guo, Z.; Zeng, Z.; Qin, Z.; Zhang, S.; Gao, P.
   Open-World Learning.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
   2023, pp. 2639--2650.
+\newblock {\url{https://doi.org/10.1109/ICCV51070.2023.00249}}.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal,
+  Sastry, Askell, Mishkin, Clark, Krueger, and Sutskever]{radford2021clip}
+Radford, A.; Kim, J.W.; Hallacy, C.; Ramesh, A.; Goh, G.; Agarwal, S.; Sastry,
+  G.; Askell, A.; Mishkin, P.; Clark, J.;  et~al.
+\newblock Learning Transferable Visual Models from Natural Language
+  Supervision.
+\newblock In Proceedings of the Int. Conf. on Machine Learning (ICML),  2021,
+  pp. 8748--8763.
+
+\bibitem[Peng et~al.(2023)Peng, Genova, Jiang, Tagliasacchi, Pollefeys, and
+  Funkhouser]{peng2023openscene}
+Peng, S.; Genova, K.; Jiang, C.; Tagliasacchi, A.; Pollefeys, M.; Funkhouser,
+  T.
+\newblock {OpenScene}: {3D} Scene Understanding with Open Vocabularies.
+\newblock In Proceedings of the IEEE/CVF Conf. on Computer Vision and Pattern
+  Recognition (CVPR),  2023, pp. 815--824.
+\newblock {\url{https://doi.org/10.1109/CVPR52729.2023.00085}}.
+
+\bibitem[Takmaz et~al.(2023)Takmaz, Fedele, Sumner, Pollefeys, Tombari, and
+  Engelmann]{takmaz2023openmask3d}
+Takmaz, A.; Fedele, E.; Sumner, R.W.; Pollefeys, M.; Tombari, F.; Engelmann, F.
+\newblock {OpenMask3D}: Open-Vocabulary {3D} Instance Segmentation.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2023, Vol.~36, pp. 68367--68390.
+\newblock {\url{https://doi.org/10.52202/075280-2989}}.
+
+\bibitem[Qi et~al.(2017)Qi, Yi, Su, and Guibas]{qi2017pointnetpp}
+Qi, C.R.; Yi, L.; Su, H.; Guibas, L.J.
+\newblock {PointNet++}: Deep Hierarchical Feature Learning on Point Sets in a
+  Metric Space.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2017, pp. 5099--5108.
+
+\bibitem[Schult et~al.(2023)Schult, Engelmann, Hermans, Litany, Tang, and
+  Leibe]{schult2023mask3d}
+Schult, J.; Engelmann, F.; Hermans, A.; Litany, O.; Tang, S.; Leibe, B.
+\newblock {Mask3D}: Mask Transformer for {3D} Semantic Instance Segmentation.
+\newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
+  (ICRA),  2023, pp. 8216--8223.
+\newblock {\url{https://doi.org/10.1109/ICRA48891.2023.10160590}}.
 
 \bibitem[Sun et~al.(2023)Sun, Qing, Tan, and Xu]{sun2023spformer}
 Sun, J.; Qing, C.; Tan, J.; Xu, X.
 \newblock Superpoint Transformer for 3{D} Scene Instance Segmentation.
 \newblock In Proceedings of the AAAI Conf. on Artificial Intelligence,  2023,
   pp. 2393--2401.
+\newblock {\url{https://doi.org/10.1609/aaai.v37i2.25335}}.
 
 \bibitem[Wu et~al.(2024)Wu, Jiang, Wang, Liu, Liu, Qiao, Ouyang, He, and
   Zhao]{wu2024ptv3}
@@ -68,6 +203,7 @@ Wu, X.; Jiang, L.; Wang, P.S.; Liu, Z.; Liu, X.; Qiao, Y.; Ouyang, W.; He, T.;
 \newblock Point Transformer {V}3: Simpler, Faster, Stronger.
 \newblock In Proceedings of the IEEE/CVF Conf. on Computer Vision and Pattern
   Recognition (CVPR),  2024, pp. 4840--4851.
+\newblock {\url{https://doi.org/10.1109/CVPR52733.2024.00463}}.
 
 \bibitem[Zhou et~al.(2025)Zhou, Gu, Chiang, Xiang, and Su]{zhou2024pointsam}
 Zhou, Y.; Gu, J.; Chiang, T.Y.; Xiang, F.; Su, H.
@@ -75,13 +211,33 @@ Zhou, Y.; Gu, J.; Chiang, T.Y.; Xiang, F.; Su, H.
 \newblock In Proceedings of the Int. Conf. on Learning Representations (ICLR),
   2025.
 
+\bibitem[Fischler and Bolles(1981)]{fischler1981ransac}
+Fischler, M.A.; Bolles, R.C.
+\newblock Random Sample Consensus: A Paradigm for Model Fitting with
+  Applications to Image Analysis and Automated Cartography.
+\newblock {\em Communications of the ACM} {\bf 1981}, {\em 24},~381--395.
+\newblock {\url{https://doi.org/10.1145/358669.358692}}.
+
+\bibitem[Schnabel et~al.(2007)Schnabel, Wahl, and Klein]{schnabel2007efficient}
+Schnabel, R.; Wahl, R.; Klein, R.
+\newblock Efficient {RANSAC} for Point-Cloud Shape Detection.
+\newblock {\em Computer Graphics Forum} {\bf 2007}, {\em 26},~214--226.
+\newblock {\url{https://doi.org/10.1111/j.1467-8659.2007.01016.x}}.
+
+\bibitem[Ester et~al.(1996)Ester, Kriegel, Sander, and Xu]{ester1996dbscan}
+Ester, M.; Kriegel, H.P.; Sander, J.; Xu, X.
+\newblock A Density-Based Algorithm for Discovering Clusters in Large Spatial
+  Databases with Noise.
+\newblock In Proceedings of the 2nd Int. Conf. on Knowledge Discovery and Data
+  Mining (KDD). AAAI Press,  1996, pp. 226--231.
+
 \bibitem[Kim et~al.(2026)Kim, Kim, Song, and Kuc]{kim2026ictc}
 Kim, S.; Kim, H.; Song, Y.; Kuc, T.Y.
-\newblock Multi-View Vision--Language Semantic Extraction from Terrestrial
-  Laser Scans.
+\newblock Multi-View {VLM} Verification for Semantic Object Extraction from a
+  Terrestrial Laser Scan Toward {TOSM}-Based Robot Environment Models.
 \newblock In Proceedings of the Int. Conf. on Information and Communication
   Technology Convergence (ICTC),  2026.
-\newblock submitted.
+\newblock submitted for publication (under review).
 
 \bibitem[Lewis et~al.(2020)Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal,
   K{\"u}ttler, Lewis, Yih, Rockt{\"a}schel, Riedel, and Kiela]{lewis2020rag}
@@ -91,11 +247,20 @@ Lewis, P.; Perez, E.; Piktus, A.; Petroni, F.; Karpukhin, V.; Goyal, N.;
 \newblock In Proceedings of the Advances in Neural Information Processing
   Systems (NeurIPS),  2020, Vol.~33, pp. 9459--9474.
 
-\bibitem[Kim and Kuc(2025)]{kim2025isis}
-Kim, S.; Kuc, T.Y.
-\newblock Knowledge-Graph-Based Environment Representation for Mobile Robots.
-\newblock In Proceedings of the Int. Symp. on Advanced Intelligent Systems
-  (ISIS),  2025.
+\bibitem[Ji et~al.(2023)Ji, Lee, Frieske, Yu, Su, Xu, Ishii, Bang, Madotto, and
+  Fung]{ji2023hallucination}
+Ji, Z.; Lee, N.; Frieske, R.; Yu, T.; Su, D.; Xu, Y.; Ishii, E.; Bang, Y.J.;
+  Madotto, A.; Fung, P.
+\newblock Survey of Hallucination in Natural Language Generation.
+\newblock {\em ACM Computing Surveys} {\bf 2023}, {\em 55},~1--38.
+\newblock {\url{https://doi.org/10.1145/3571730}}.
+
+\bibitem[Kim et~al.(2025)Kim, Joo, Galvis~Giraldo, Kim, and Kuc]{kim2025isis}
+Kim, H.; Joo, K.; Galvis~Giraldo, G.; Kim, S.; Kuc, T.Y.
+\newblock Toward Long-Term Memory in Embodied {AI}: A Knowledge-Grounded {3D}
+  Scene Graph Framework.
+\newblock In Proceedings of the 26th Int. Symp. on Advanced Intelligent Systems
+  (ISIS), Cheongju, Republic of Korea,  2025; pp. 237--240.
 
 \bibitem[Fehr et~al.(2017)Fehr, Furrer, Dryanovski, Sturm, Gilitschenski,
   Siegwart, and Cadena]{fehr2017tsdf}
@@ -105,6 +270,7 @@ Fehr, M.; Furrer, F.; Dryanovski, I.; Sturm, J.; Gilitschenski, I.; Siegwart,
   Reconstruction and Dynamic Object Discovery.
 \newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
   (ICRA),  2017, pp. 5237--5244.
+\newblock {\url{https://doi.org/10.1109/ICRA.2017.7989614}}.
 
 \bibitem[Wald et~al.(2019)Wald, Avetisyan, Navab, Tombari, and
   Nie{\ss}ner]{wald2019rescan}
@@ -113,6 +279,57 @@ Wald, J.; Avetisyan, A.; Navab, N.; Tombari, F.; Nie{\ss}ner, M.
   Environments.
 \newblock In Proceedings of the IEEE/CVF Int. Conf. on Computer Vision (ICCV),
   2019, pp. 7657--7666.
+\newblock {\url{https://doi.org/10.1109/ICCV.2019.00775}}.
+
+\bibitem[Deng et~al.(2026)Deng, Tombari, Pollefeys, Wald, and
+  Barath]{deng2026ovimap}
+Deng, Z.; Tombari, F.; Pollefeys, M.; Wald, J.; Barath, D.
+\newblock {OVI-MAP}: Open-Vocabulary Instance-Semantic Mapping.
+\newblock arXiv preprint arXiv:2603.26541,  2026.
+\newblock {\url{https://doi.org/10.48550/arXiv.2603.26541}}.
+
+\bibitem[Zhai et~al.(2026)Zhai, Zhang, Pan, Zhang, Dong, Zhang, Xu, and
+  Zhang]{zhai2026onlinepg}
+Zhai, H.; Zhang, Q.; Pan, X.; Zhang, X.; Dong, Y.; Zhang, H.; Xu, D.; Zhang, G.
+\newblock {OnlinePG}: Online Open-Vocabulary Panoptic Mapping with {3D}
+  {Gaussian} Splatting.
+\newblock In Proceedings of the IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition (CVPR),  2026.
+\newblock arXiv:2603.18510, {\url{https://doi.org/10.48550/arXiv.2603.18510}}.
+
+\bibitem[Zhang et~al.(2025)Zhang, Delitzas, Wang, Zhang, Ji, Pollefeys, and
+  Engelmann]{zhang2025funcgraph}
+Zhang, C.; Delitzas, A.; Wang, F.; Zhang, R.; Ji, X.; Pollefeys, M.; Engelmann,
+  F.
+\newblock Open-Vocabulary Functional {3D} Scene Graphs for Real-World Indoor
+  Spaces.
+\newblock In Proceedings of the IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition (CVPR),  2025, pp. 19401--19413.
+\newblock {\url{https://doi.org/10.1109/CVPR52734.2025.01807}}.
+
+\bibitem[Tang et~al.(2010)Tang, Huber, Akinci, Lipman, and
+  Lytle]{tang2010asbuilt}
+Tang, P.; Huber, D.; Akinci, B.; Lipman, R.; Lytle, A.
+\newblock Automatic Reconstruction of As-Built Building Information Models from
+  Laser-Scanned Point Clouds: A Review of Related Techniques.
+\newblock {\em Automation in Construction} {\bf 2010}, {\em 19},~829--843.
+\newblock {\url{https://doi.org/10.1016/j.autcon.2010.06.007}}.
+
+\bibitem[Ochmann et~al.(2016)Ochmann, Vock, Wessel, and
+  Klein]{ochmann2016parametric}
+Ochmann, S.; Vock, R.; Wessel, R.; Klein, R.
+\newblock Automatic Reconstruction of Parametric Building Models from Indoor
+  Point Clouds.
+\newblock {\em Computers \& Graphics} {\bf 2016}, {\em 54},~94--103.
+\newblock {\url{https://doi.org/10.1016/j.cag.2015.07.008}}.
+
+\bibitem[Macenski et~al.(2020)Macenski, Mart{\'i}n, White, and
+  Gin{\'e}s~Clavero]{macenski2020marathon}
+Macenski, S.; Mart{\'i}n, F.; White, R.; Gin{\'e}s~Clavero, J.
+\newblock The Marathon 2: A Navigation System.
+\newblock In Proceedings of the IEEE/RSJ Int. Conf. on Intelligent Robots and
+  Systems (IROS),  2020, pp. 2718--2725.
+\newblock {\url{https://doi.org/10.1109/IROS45743.2020.9341207}}.
 
 \bibitem[Achanta et~al.(2012)Achanta, Shaji, Smith, Lucchi, Fua, and
   S{\"u}sstrunk]{achanta2012slic}
@@ -120,6 +337,7 @@ Achanta, R.; Shaji, A.; Smith, K.; Lucchi, A.; Fua, P.; S{\"u}sstrunk, S.
 \newblock {SLIC} Superpixels Compared to State-of-the-Art Superpixel Methods.
 \newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence}
   {\bf 2012}, {\em 34},~2274--2282.
+\newblock {\url{https://doi.org/10.1109/TPAMI.2012.120}}.
 
 \bibitem[Bormann et~al.(2016)Bormann, Jordan, Li, Hampp, and
   H{\"a}gele]{bormann2016room}
@@ -127,6 +345,7 @@ Bormann, R.; Jordan, F.; Li, W.; Hampp, J.; H{\"a}gele, M.
 \newblock Room Segmentation: Survey, Implementation, and Analysis.
 \newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
   (ICRA),  2016, pp. 1019--1026.
+\newblock {\url{https://doi.org/10.1109/ICRA.2016.7487234}}.
 
 \bibitem[Luperto et~al.(2022)Luperto, Kucner, Tassi, Magnusson, and
   Amigoni]{luperto2022robust}
@@ -135,13 +354,50 @@ Luperto, M.; Kucner, T.P.; Tassi, A.; Magnusson, M.; Amigoni, F.
   Indoor Environments from Occupancy Grid Maps.
 \newblock {\em IEEE Robotics and Automation Letters} {\bf 2022}, {\em
   7},~7974--7981.
+\newblock {\url{https://doi.org/10.1109/LRA.2022.3186495}}.
+
+\bibitem[Rusu et~al.(2009)Rusu, Blodow, and Beetz]{rusu2009fpfh}
+Rusu, R.B.; Blodow, N.; Beetz, M.
+\newblock Fast Point Feature Histograms ({FPFH}) for {3D} Registration.
+\newblock In Proceedings of the IEEE Int. Conf. on Robotics and Automation
+  (ICRA),  2009, pp. 3212--3217.
+\newblock {\url{https://doi.org/10.1109/ROBOT.2009.5152473}}.
+
+\bibitem[Besl and McKay(1992)]{besl1992icp}
+Besl, P.J.; McKay, N.D.
+\newblock A Method for Registration of {3-D} Shapes.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence}
+  {\bf 1992}, {\em 14},~239--256.
+\newblock {\url{https://doi.org/10.1109/34.121791}}.
+
+\bibitem[Colledanchise and {\"O}gren(2018)]{colledanchise2018bt}
+Colledanchise, M.; {\"O}gren, P.
+\newblock {\em Behavior Trees in Robotics and {AI}: An Introduction}; CRC
+  Press,  2018.
+\newblock {\url{https://doi.org/10.1201/9780429489105}}.
+
+\bibitem[Iovino et~al.(2022)Iovino, Scukins, Styrud, {\"O}gren, and
+  Smith]{iovino2022btsurvey}
+Iovino, M.; Scukins, E.; Styrud, J.; {\"O}gren, P.; Smith, C.
+\newblock A Survey of Behavior Trees in Robotics and {AI}.
+\newblock {\em Robotics and Autonomous Systems} {\bf 2022}, {\em 154},~104096.
+\newblock {\url{https://doi.org/10.1016/j.robot.2022.104096}}.
+
+\bibitem[Koenig and Howard(2004)]{koenig2004gazebo}
+Koenig, N.; Howard, A.
+\newblock Design and Use Paradigms for {Gazebo}, an Open-Source Multi-Robot
+  Simulator.
+\newblock In Proceedings of the IEEE/RSJ Int. Conf. on Intelligent Robots and
+  Systems (IROS),  2004, pp. 2149--2154.
+\newblock {\url{https://doi.org/10.1109/IROS.2004.1389727}}.
 
 \bibitem[Kim et~al.(2026)Kim, Kim, and Kuc]{raaicon2026}
 Kim, S.; Kim, B.; Kuc, T.Y.
 \newblock An Automated Scan-to-Simulation Pipeline for Indoor Digital Twin
   Construction Using {BLK360} and {NVIDIA} {Isaac} {Sim}.
 \newblock In Proceedings of the IEEE Int. Conf. on Robotics, Automation,
-  Artificial-Intelligence and Internet-of-Things (RAAICON),  2026.
-\newblock submitted.
+  Artificial-Intelligence and Internet-of-Things (RAAICON), Jashore,
+  Bangladesh,  2026.
+\newblock accepted for presentation; to appear in the conference proceedings.
 
 \end{thebibliography}

@@ -26,3 +26,20 @@ __pycache__/
 # Proprietary Leica BLK360 runtime library — NOT redistributable.
 # Supply it locally to build blk360_scanner (see third_party/lib/README.md).
 src/blk360_scanner/third_party/lib/*.so
+
+# TeX build junk (manuscripts/thesis are compiled in docker; sources + final PDFs only)
+*.aux
+*.log
+*.out
+*.clog
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+texput.log
+docs/thesis2026/final/main.pdf
+docs/thesis2026/final/main.bbl
+docs/thesis2026/final/main.toc
+docs/thesis2026/final/main.lof
+docs/thesis2026/final/main.lot
+docs/thesis2026/ko/*.aux

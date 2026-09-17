@@ -10,10 +10,10 @@ geometric object decomposition with structure-remnant filtering
 confidence-gated graph upsert (\ref{sec:upsert}), followed by the structurally
 gated query interface (\ref{sec:query}) and the object-grounded place layer
 (\ref{sec:place}). Two further mechanism families---the corrective
-re-split gates with the structure-condition ensemble, and the
-owner-evidence revision path---are introduced in
-Sec.~\ref{sec:experiments} alongside the failures that motivated them
-(Secs.~\ref{sec:exp-seg} and~\ref{sec:exp-owner}); for brevity we refer
+decomposition layers with the structure-condition ensemble, and the
+owner-evidence revision path---are defined in Sec.~\ref{sec:corrective},
+with the failures that motivated them reported in
+Secs.~\ref{sec:exp-seg} and~\ref{sec:exp-owner}; for brevity we refer
 to the geometric stages through explicit modeling as \emph{Stage~A} and
 to VLM verification as \emph{Stage~B}. Stages \ref{sec:preprocess}--\ref{sec:explicit} form the
 \emph{deterministic geometric backbone}: every random draw is seeded, so a
@@ -32,16 +32,27 @@ scanner (Leica BLK360). When the export contains multiple setups, the loader
 applies each setup's registered pose and merges them into a single cloud; a
 70M-point six-setup scan and a pre-merged single-scan export are treated
 identically. The cloud is voxel-downsampled at 3\,cm---dense enough to retain
-object detail while bounding the cost of all later stages---and normalized so
-that the floor lies near $z=0$.
+object detail while bounding the cost of all later stages. The cloud is kept
+in the scanner's registered frame; no global normalization is applied.
+Instead, the floor height is estimated where a stage needs it, by a robust
+statistic suited to that stage's input (the densest 5\,cm height bin of the
+lower half-cloud for the remnant filter; the lower quartile of per-cluster
+bottom heights for the map-based filter of
+Sec.~\ref{sec:corrective}).
 
 Structural surfaces are then removed by iterative RANSAC plane
-extraction~\cite{fischler1981ransac}:
-the largest plane is estimated, its inliers (4\,cm threshold) are removed, and
-the process repeats until no plane exceeds a minimum support. Floors, walls,
-and ceilings---including split ceiling levels---are removed in practice within
-ten iterations on our scenes. RANSAC is seeded, making the extraction
-deterministic; the pre-removal cloud is retained as a \emph{ceiling reference}
+extraction~\cite{fischler1981ransac}. Each round draws 300 seeded random
+point triples, keeps the candidate with the most inliers at a 5\,cm distance
+threshold, and refits it once by a least-squares (SVD) fit to those inliers.
+A plane is removed only if it is structural by orientation: near-horizontal
+($|n_z|\ge0.85$; floors, ceilings, split ceiling levels) or near-vertical
+($|n_z|\le0.2$; walls). The loop stops at the first of four conditions:
+(i)~ten planes have been removed, (ii)~fewer than 2{,}000 points remain,
+(iii)~the best remaining plane supports less than 4\% of the points still
+present---no large plane is left---or (iv)~the best remaining plane is
+slanted ($0.2<|n_z|<0.85$), i.e., object-like, so removing it would begin
+carving objects. The fixed seed makes the extraction deterministic; the
+pre-removal cloud is retained as a \emph{ceiling reference}
 for the remnant filter of Sec.~\ref{sec:decomposition} and for incremental
 re-runs. Fig.~\ref{fig:pipeline}a,b show a scan before and after
 structural-plane removal.
@@ -64,7 +75,10 @@ later stages exploit for result carry-over and change detection
 (Sec.~\ref{sec:matching}). Fig.~\ref{fig:pipeline}c shows the resulting
 instances, and Fig.~\ref{fig:pipeline}d two of the TOSM records they
 eventually populate. The parameter sensitivity of this choice is
-quantified in Sec.~\ref{sec:exp-seg}.
+quantified in Sec.~\ref{sec:exp-seg}. Four automatic corrective layers and
+one human-in-the-loop channel extend this conservative backbone; they are
+defined, with their trigger conditions and parameters, in
+Sec.~\ref{sec:corrective}.
 
 \paragraph{Structure-remnant filter.}
 Real buildings violate the implicit assumption that structure is planar and
@@ -73,11 +87,20 @@ objects are not. Our showroom scene has a three-level ceiling
 \emph{vertical soffit bands} at the level transitions survive removal and
 surface as phantom objects (Fig.~\ref{fig:pipeline}e)---thin, wall-colored
 slabs that a downstream verifier confidently misreads (e.g., as wall-mounted
-keyboards or handrails, Sec.~\ref{sec:exp-verify}). We therefore filter any cluster that is (i) a thin vertical planar
-band whose (ii) upward neighborhood in the \emph{pre-removal} cloud terminates
-in a dense horizontal layer---i.e., the band hangs from a real ceiling. The
-topmost-layer condition prevents false positives on window sills and wall
-remnants, which do not have a ceiling directly above. The filter reduced the
+keyboards or handrails, Sec.~\ref{sec:exp-verify}). We therefore filter any
+cluster that passes all of the following tests, with the thresholds fixed
+once and used unchanged on every scene. (i)~\emph{Soffit-scale geometry}: the
+cluster's vertical extent is at most 0.6\,m and its bottom is at least
+1.5\,m above the floor. (ii)~\emph{Thin vertical planar band}: the best-fit
+plane (SVD) has $|n_z|\le0.25$ and an RMS off-plane thickness of at most
+3\,cm. (iii)~\emph{Ceiling above}: the cluster's footprint, padded by
+0.3\,m, contains at least 40 pre-removal points in the band from 2\,cm to
+45\,cm above the cluster top, and (iv)~\emph{dense horizontal layer}: at
+least 60\% of those points concentrate in a single $\sim$7\,cm slab around
+the modal 3.5\,cm height bin---i.e., the band hangs from a real ceiling.
+(v)~\emph{Topmost layer}: the region above that slab (0.1--1.5\,m higher)
+holds at most 20\% as many points as the slab itself; window sills and wall
+remnants fail this test because wall continues above them. The filter reduced the
 showroom scene from 45 to 38 clusters and the robot hall from 88 to 81 while
 leaving every retained cluster byte-identical, so previously computed
 verification results remain valid. Horizontal and sloped ceiling patches are
@@ -137,8 +160,15 @@ model is an experimental control (Sec.~\ref{sec:setup}), and Sec.~\ref{sec:exp-a
 identical protocol across five commercial VLMs to characterize how the
 choice affects decisiveness, accuracy, and cost.
 
-Per-view votes are combined by confidence-weighted late fusion into a fused
-type and a \emph{vote share}. Three outcomes follow
+Per-view votes are combined by confidence-weighted late fusion. Let view $v$
+return label $\ell_v$ (lowercased; no synonym mapping is applied at fusion
+time) with confidence $c_v\in[0,1]$. Each candidate label accumulates the
+\emph{sum} of the confidences of the views that voted for it,
+$s(\ell)=\sum_{v:\,\ell_v=\ell}c_v$; the fused type is
+$\hat{\ell}=\arg\max_{\ell}s(\ell)$, and the \emph{vote share} is its
+normalized confidence mass, $\sigma=s(\hat{\ell})/\sum_{\ell}s(\ell)$.
+A confidence-weighted sum, rather than a view count, lets one hesitant
+dissenter matter less than a confident one. Three outcomes follow
 (Fig.~\ref{fig:escalation}). If the votes are
 unanimous, the object is \texttt{verified}; unanimity is empirically a strong
 signal (94.4--100\% precision on the two scenes' confirmed ground truth,
@@ -146,9 +176,18 @@ Sec.~\ref{sec:exp-verify}),
 although Sec.~\ref{sec:exp-verify} also documents its failure modes. If the vote splits, the
 object \emph{escalates automatically}: eight additional images---four diagonal
 azimuths and four zoomed close-ups---are classified, and the fusion is
-recomputed over all twelve votes. If the post-escalation share reaches 0.6
+recomputed over all twelve votes pooled (the base four included). If the
+post-escalation share reaches $\sigma\ge0.6$
 the object becomes \texttt{verified\_escalated}; otherwise it remains
-\texttt{unverified}. Crucially, unresolved objects are not hidden, discarded,
+\texttt{unverified}. The 0.6 threshold was fixed a~priori, before any
+evaluation, as the smallest round value that demands a clear supermajority
+of the confidence mass: at 0.5 a twelve-view vote split between two labels
+of equal confidence could verify on a tie-break, whereas 0.6 requires the
+winning label to dominate all alternatives combined by a margin. The
+threshold gates \emph{status only}---the fused label is recorded either
+way---so its effect is a precision--recall trade on the verified tier;
+Sec.~\ref{sec:exp-verify} re-scores the stored votes across a threshold
+sweep to quantify that trade. Crucially, unresolved objects are not hidden, discarded,
 or resolved by a human: they stay in the graph with their failed candidate
 label attached, and the query interface (Sec.~\ref{sec:query}) is responsible
 for making their status impossible to ignore. Implicit robot-facing
@@ -181,18 +220,42 @@ minting, matching alone carries identity forward.
 Matching between a new scan's records and existing nodes runs in two passes:
 
 \begin{enumerate}
-\item \textbf{Spatial pass.} A record matches a node if centroids agree
-within 0.5\,m and each extent agrees within 30\% (or 0.15\,m for small
-objects). Matches update pose and extents in place (\texttt{unchanged} /
+\item \textbf{Spatial pass.} A record matches a node if their 3-D centroids
+agree within 0.5\,m and each of the three extents (length, width, height)
+agrees within a per-axis tolerance of $\max(0.3\cdot
+\max(d_{\mathrm{old}},d_{\mathrm{new}}),\,0.15\,\mathrm{m})$---a 30\%
+relative band with a 15\,cm absolute floor so that small objects are not
+over-constrained. No type constraint applies in this pass; a changed label
+on a geometrically stable object is recorded as an update, not a new
+object. Matches update pose and extents in place (\texttt{unchanged} /
 \texttt{updated}).
 \item \textbf{Move pass.} Remaining records match remaining nodes of the
-\emph{same type} with consistent dimensions within a 6\,m search radius,
+\emph{same type} with dimensions consistent under the same per-axis
+tolerance, within a 6\,m horizontal search radius,
 producing \texttt{moved} nodes with preserved IDs. Generic types
 (\texttt{clutter}, \texttt{unknown}) are excluded from this pass: a generic
 label carries too little identity for displacement claims, and our real
 two-epoch data showed that admitting them fabricates 2--5\,m
 ``moves'' between unrelated piles (Sec.~\ref{sec:exp-update}).
 \end{enumerate}
+
+\emph{Conflict resolution.} When several nodes satisfy the predicate for one
+record, the record claims the node with the smallest horizontal centroid
+distance; when several records compete for one node, the first claim wins
+and the node is removed from the candidate pool, so later records fall
+through to the move pass and then to insertion. Assignment is therefore
+greedy in record order rather than a global optimum---a deliberate
+simplicity choice: records arrive in the backbone's deterministic cluster
+order, so the assignment itself is reproducible, and at the object densities
+of our scenes ($\le$0.6 objects/m$^2$) multi-candidate conflicts are rare
+(Sec.~\ref{sec:exp-update} reports the observed conflict counts).
+The thresholds encode physical priors rather than tuned values: 0.5\,m is
+below the smallest inter-object spacing we expect a scan-to-scan pose drift
+to produce for a stationary object (and is far above the $\le$5\,cm
+registration residual, Sec.~\ref{sec:setup}); the 30\%/0.15\,m extent band
+absorbs partial-view truncation between scans without admitting
+differently-sized objects; and 6\,m bounds a within-room relocation. They
+were fixed on the development epochs (T1/T2) and used unchanged afterwards.
 
 Records that match nothing are minted as new nodes (\texttt{inserted});
 nodes that no record claims are marked \texttt{absent} but retained with
@@ -227,9 +290,15 @@ the resulting map. The result is exported both as a canonical
 JSON graph and as mapId-scoped Neo4j Cypher, so multiple sites and epochs
 coexist in one database. Because unchanged objects reproduce byte-identical
 clusters (Sec.~\ref{sec:decomposition}), their verification results are
-carried over by content hash and a repeat scan costs \emph{zero} VLM calls;
-across-epoch scans pay only for changed clusters (3.1\% of full cost in our
-measurement, Sec.~\ref{sec:exp-update}). Fig.~\ref{fig:upsert} summarizes
+carried over by content hash and an identical-input repeat scan costs
+\emph{zero} VLM calls;
+a changed scan of the same acquisition quality pays only for changed
+clusters (3.1\% of full cost in our controlled combined-edit measurement,
+Sec.~\ref{sec:exp-update}). The carry-over is conditional on reproducible
+acquisition: when scan quality itself changes between epochs, as in our
+real T2$\rightarrow$T3 transition, no cluster hashes match and the epoch
+pays full verification cost (Sec.~\ref{sec:exp-update}).
+Fig.~\ref{fig:upsert} summarizes
 the mint-once identity flow and the node outcomes of a re-scan.
 
 \begin{figure}[t]
@@ -252,6 +321,111 @@ including owner feedback (Sec.~\ref{sec:exp-owner}).}
 two-pass matching, and the five node outcomes across a re-scan.}
 \label{fig:upsert}
 \end{figure}
+
+\paragraph{Formal summary.}
+Consolidating the above: an object record is the tuple
+$r=(a, p, d, \ell, c, \tau, \pi)$ with birth anchor $a$ (map ID plus
+position and extent quantized at 0.25\,m, hashed once at first insertion),
+pose $p\in SE(2)\times\mathbb{R}$, extents $d=(l,w,h)$, fused label $\ell$,
+confidence $c$, verification tier $\tau$, and provenance $\pi$ (per-view
+votes, share, escalation flag, model version). The tier set is
+\[\begin{aligned}\mathcal{T}=\{&\texttt{verified},\ \texttt{verified\_escalated},\ \texttt{verified\_majority},\\
+&\texttt{verified\_recovery},\ \texttt{verified\_owner},\ \texttt{unverified},\ \texttt{refuted}\},\end{aligned}\]
+ordered by evidence
+source: unanimity, escalated supermajority, agreement-gated recovery, and
+owner declaration (confidence 1.0); the query gate
+(Sec.~\ref{sec:query}) exposes only the verified tiers as typed objects.
+The match function is
+$m(n,r)=\mathbb{1}[\lVert p_n-p_r\rVert_{3\mathrm{D}}\le0.5]\cdot
+\prod_{k\in\{l,w,h\}}\mathbb{1}[\,|d_{n,k}-d_{r,k}|\le
+\max(0.3\max(d_{n,k},d_{r,k}),0.15)]$, with the move-pass variant
+substituting a 6\,m horizontal bound and an exact-type, non-generic
+constraint. The upsert decision for each record--node pair follows the
+deterministic cascade \emph{match} $\rightarrow$ \emph{move} $\rightarrow$
+\emph{insert}, with unclaimed nodes marked \emph{absent}; every transition
+appends to the node's history, and no node is ever deleted. All numeric
+constants above and in
+Secs.~\ref{sec:preprocess}--\ref{sec:upsert} were fixed on the development
+epochs (T1/T2) and applied unchanged to T3 and the cross-floor scene.
+
+\subsection{Corrective Decomposition Layers and Owner Feedback}
+\label{sec:corrective}
+
+The backbone of Sec.~\ref{sec:decomposition} is deliberately conservative,
+and its characteristic failures---diffuse residual webs, wall-flush
+compounds amputated by structure removal, structure noise that survives
+plane removal, and real objects absorbed into \texttt{clutter}---are
+corrected by five layers defined here. The first four are automatic and
+run inside the frozen pipeline on every epoch; the fifth is the
+human-in-the-loop channel. Each was \emph{developed} in response to
+failures observed on the development epochs
+(Sec.~\ref{sec:exp-owner} preserves that discovery narrative and its
+evaluation); their definitions, triggers, and parameters were frozen
+before the cafeteria evaluation and require no per-scene parameter
+adjustment at execution; held-out transfer is evaluated only where
+explicitly reported in Sec.~\ref{sec:exp-endtoend}.
+
+\begin{enumerate}
+\item \textbf{Diffuseness-gated re-split.} Trigger: a cluster whose 2-D
+occupancy fill (10\,cm grid) is below 0.30 while its footprint exceeds
+5\,m$^2$---real objects in our scenes fill 0.5--0.85. The cluster is
+re-decomposed by occupancy-core erosion: grid cells with $\ge$8 points and
+$\ge$3 occupied 8-neighbors seed connected components; components with
+$\ge$250 points survive. Compounds are further split at the support plane
+(the $z$-histogram peak 0.5--0.95\,m above floor), with grounded cells
+spanning $>$1.3\,m vertically treated as legs/poles, and under-slab
+fragments re-attached at $\ge$60\% footprint overlap. An evidence gate
+($\ge$250 points, $\ge$5\,m$^2$ or 12\,m$^2$ for desk banks,
+$\ge$0.15\,m height) keeps only physically plausible sub-objects.
+\item \textbf{Wall-compound gate.} Trigger: $\ge$25\% of a cluster's
+points within 0.12\,m of the exploration-grid wall line over a span of
+$\ge$2\,m, with $\ge$250 points protruding off-wall, and the cluster not
+diffuse. The wall band is stripped, the support plane is detected as
+above, and the panel band is cut at density valleys along the wall,
+yielding unit-level decomposition of wall-mounted equipment. A final
+\emph{panel square-up} pass then re-assigns every compound point that
+falls inside a panel unit's bounding box, padded by 6\,cm horizontally
+and 5\,cm vertically, back to that unit---drawing from the extracted
+support-post pieces and from points left unassigned by the cuts---so that
+post extraction and layer clustering do not leave bite marks or holes in
+the panel rectangles; it is instance-segmentation finishing with no
+semantic input.
+\item \textbf{Structure-condition ensemble.} Trigger: every epoch.
+The geometric pass is repeated under three structure-removal conditions
+(none / ceiling-only / full); clusters found under an alternative
+condition but absent from the production set become new candidates, and
+only those are sent to verification. Cross-condition label agreement is
+stored per object as a \texttt{labelStability} attribute
+(stable/unstable) that prioritizes owner review; cross-condition
+\emph{voting} is deliberately not used to fuse labels, because verifier
+biases proved correlated across conditions
+(Sec.~\ref{sec:exp-seg}).
+\item \textbf{Hybrid grid-map structure filter.} Trigger: every epoch,
+after clustering. Each cluster is registered against the exploration
+occupancy grid (an independent, drift-free wall prior) and flagged by the
+first matching rule of a fixed cascade: outside-room ($>$50\% of points
+beyond the filled room polygon), ceiling fixture (bottom $>$2.0\,m above
+floor), wall remnant (wall-hug fraction---the fraction of cluster points
+within 0.15\,m of the nearest grid wall line---$>$0.6 with PCA minor
+extent $<$0.22\,m and a horizontal minor axis), or full-height wall band
+($z$-span $>$2.5\,m, per-metre-segment median thickness $<$0.3\,m,
+along-wall length $>$2\,m---the length condition spares wall-mounted
+panels). Flagged clusters are removed upstream of verification.
+\item \textbf{Owner feedback and gated recovery.} The console exposes
+four operations, each applied as a normal KG revision with history:
+\emph{declare} (sets \texttt{verified\_owner} at confidence 1.0),
+\emph{refute} (sets \texttt{refuted}, presence \texttt{absent}, and
+exclusion from key-object designation), \emph{correct} (label or
+attribute in place, the VLM verdict retained in provenance), and
+\emph{re-verify}. Recovery re-verification re-asks the verifier with
+\texttt{clutter} treated as \emph{unidentified}, in two independent
+passes (open vocabulary; site vocabulary plus Uni3D candidates); a
+recovered label is adopted---as \texttt{verified\_recovery}---only when
+the two passes agree under canonical synonym matching, or a pass agrees
+with the cluster's own base label, and the label is not \texttt{clutter};
+a focused tie-break pass re-asks with exactly the two disputed labels and
+is accepted only when its answer is one of them at confidence $\ge$0.6.
+\end{enumerate}
 
 \subsection{Query Interface with Structural Gating}
 \label{sec:query}

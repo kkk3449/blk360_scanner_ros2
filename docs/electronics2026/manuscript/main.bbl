@@ -61,12 +61,30 @@ Daniel Honerkamp, Martin B{\"u}chner, Fabien Despinoy, Tim Welschehold, and
   with mobile manipulation.
 \newblock {\em IEEE Robotics and Automation Letters}, 9(10):8298--8305, 2024.
 
+\bibitem{galindo2008task}
+Cipriano Galindo, Juan-Antonio Fern{\'a}ndez-Madrigal, Javier Gonz{\'a}lez, and
+  Alessandro Saffiotti.
+\newblock Robot task planning using semantic maps.
+\newblock {\em Robotics and Autonomous Systems}, 56(11):955--966, 2008.
+
+\bibitem{deeken2018semap}
+Henning Deeken, Thomas Wiemann, and Joachim Hertzberg.
+\newblock Grounding semantic maps in spatial databases.
+\newblock {\em Robotics and Autonomous Systems}, 105:146--165, 2018.
+
 \bibitem{tenorth2013knowrob}
 Moritz Tenorth and Michael Beetz.
 \newblock {KnowRob}: A knowledge processing infrastructure for
   cognition-enabled robots.
 \newblock {\em The International Journal of Robotics Research}, 32(5):566--590,
   2013.
+
+\bibitem{manzoor2021survey}
+Sumaira Manzoor, Yuri~Goncalves Rocha, Sung-Hyeon Joo, Sang-Hyeon Bae, Eun-Jin
+  Kim, Kyeong-Jin Joo, and Tae-Yong Kuc.
+\newblock Ontology-based knowledge representation in robotic systems: A survey
+  oriented toward applications.
+\newblock {\em Applied Sciences}, 11(10):4324, 2021.
 
 \bibitem{joo2020tosm}
 Sung-Hyeon Joo, Sumaira Manzoor, Yuri~Goncalves Rocha, Sang-Hyeon Bae,
@@ -90,11 +108,10 @@ Kyeongjin Joo, Yeseul Jeong, Seungwon Kwon, Minyoung Jeong, Haryeong Kim, and
 \newblock {\em Electronics}, 14(16):3197, 2025.
 
 \bibitem{vda5050}
-{VDA/VDMA}.
+{Verband der Automobilindustrie (VDA)} and {VDMA}.
 \newblock {VDA} 5050: Interface for the communication between automated guided
-  vehicles ({AGV}) and a master control.
-\newblock German Association of the Automotive Industry (VDA) recommendation,
-  2022.
+  vehicles ({AGV}) and a master control, version 2.0.0.
+\newblock VDA/VDMA joint recommendation, Berlin, Germany, 2022.
 
 \bibitem{zhou2024uni3d}
 Junsheng Zhou, Jinsheng Wang, Baorui Ma, Yu-Shen Liu, Tiejun Huang, and Xinlong
@@ -124,27 +141,28 @@ Songyou Peng, Kyle Genova, Chiyu Jiang, Andrea Tagliasacchi, Marc Pollefeys,
   and Thomas Funkhouser.
 \newblock {OpenScene}: {3D} scene understanding with open vocabularies.
 \newblock In {\em IEEE/CVF Conf. on Computer Vision and Pattern Recognition
-  (CVPR)}, 2023.
+  (CVPR)}, pages 815--824, 2023.
 
 \bibitem{takmaz2023openmask3d}
 Ay{\c{c}}a Takmaz, Elisabetta Fedele, Robert~W. Sumner, Marc Pollefeys,
   Federico Tombari, and Francis Engelmann.
 \newblock {OpenMask3D}: Open-vocabulary {3D} instance segmentation.
 \newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
-  2023.
+  volume~36, pages 68367--68390, 2023.
 
 \bibitem{qi2017pointnetpp}
 Charles~R. Qi, Li~Yi, Hao Su, and Leonidas~J. Guibas.
 \newblock {PointNet++}: Deep hierarchical feature learning on point sets in a
   metric space.
 \newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
-  2017.
+  pages 5099--5108, 2017.
 
 \bibitem{schult2023mask3d}
 Jonas Schult, Francis Engelmann, Alexander Hermans, Or~Litany, Siyu Tang, and
   Bastian Leibe.
 \newblock {Mask3D}: Mask transformer for {3D} semantic instance segmentation.
-\newblock In {\em IEEE Int. Conf. on Robotics and Automation (ICRA)}, 2023.
+\newblock In {\em IEEE Int. Conf. on Robotics and Automation (ICRA)}, pages
+  8216--8223, 2023.
 
 \bibitem{sun2023spformer}
 Jiahao Sun, Chunmei Qing, Junpeng Tan, and Xiangmin Xu.
@@ -180,15 +198,15 @@ Martin Ester, Hans-Peter Kriegel, J{\"o}rg Sander, and Xiaowei Xu.
 \newblock A density-based algorithm for discovering clusters in large spatial
   databases with noise.
 \newblock In {\em 2nd Int. Conf. on Knowledge Discovery and Data Mining (KDD)},
-  pages 226--231, 1996.
+  pages 226--231. AAAI Press, 1996.
 
 \bibitem{kim2026ictc}
 Sangmin Kim, Haryeong Kim, Yonghyeon Song, and Tae-Yong Kuc.
-\newblock Multi-view vision--language semantic extraction from terrestrial
-  laser scans.
+\newblock Multi-view {VLM} verification for semantic object extraction from a
+  terrestrial laser scan toward {TOSM}-based robot environment models.
 \newblock In {\em Int. Conf. on Information and Communication Technology
   Convergence (ICTC)}, 2026.
-\newblock submitted.
+\newblock submitted for publication (under review).
 
 \bibitem{lewis2020rag}
 Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir
@@ -205,9 +223,12 @@ Ziwei Ji, Nayeon Lee, Rita Frieske, Tiezheng Yu, Dan Su, Yan Xu, Etsuko Ishii,
 \newblock {\em ACM Computing Surveys}, 55(12):1--38, 2023.
 
 \bibitem{kim2025isis}
-Sangmin Kim and Tae-Yong Kuc.
-\newblock Knowledge-graph-based environment representation for mobile robots.
-\newblock In {\em Int. Symp. on Advanced Intelligent Systems (ISIS)}, 2025.
+Haryeong Kim, Kyeongjin Joo, Gilberto Galvis~Giraldo, Sangmin Kim, and Tae-Yong
+  Kuc.
+\newblock Toward long-term memory in embodied {AI}: A knowledge-grounded {3D}
+  scene graph framework.
+\newblock In {\em 26th Int. Symp. on Advanced Intelligent Systems (ISIS)},
+  pages 237--240, Cheongju, Republic of Korea, 2025.
 
 \bibitem{fehr2017tsdf}
 Marius Fehr, Fadri Furrer, Ivan Dryanovski, J{\"u}rgen Sturm, Igor
@@ -225,6 +246,28 @@ Johanna Wald, Armen Avetisyan, Nassir Navab, Federico Tombari, and Matthias
 \newblock In {\em IEEE/CVF Int. Conf. on Computer Vision (ICCV)}, pages
   7657--7666, 2019.
 
+\bibitem{deng2026ovimap}
+Zilong Deng, Federico Tombari, Marc Pollefeys, Johanna Wald, and Daniel Barath.
+\newblock {OVI-MAP}: Open-vocabulary instance-semantic mapping.
+\newblock arXiv preprint arXiv:2603.26541, 2026.
+
+\bibitem{zhai2026onlinepg}
+Hongjia Zhai, Qi~Zhang, Xiaokun Pan, Xiyu Zhang, Yitong Dong, Huaqi Zhang, Dan
+  Xu, and Guofeng Zhang.
+\newblock {OnlinePG}: Online open-vocabulary panoptic mapping with {3D}
+  {Gaussian} splatting.
+\newblock In {\em IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2026.
+\newblock arXiv:2603.18510.
+
+\bibitem{zhang2025funcgraph}
+Chenyangguang Zhang, Alexandros Delitzas, Fangjinhua Wang, Ruida Zhang,
+  Xiangyang Ji, Marc Pollefeys, and Francis Engelmann.
+\newblock Open-vocabulary functional {3D} scene graphs for real-world indoor
+  spaces.
+\newblock In {\em IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 19401--19413, 2025.
+
 \bibitem{tang2010asbuilt}
 Pingbo Tang, Daniel Huber, Burcu Akinci, Robert Lipman, and Alan Lytle.
 \newblock Automatic reconstruction of as-built building information models from
@@ -236,6 +279,13 @@ Sebastian Ochmann, Richard Vock, Raoul Wessel, and Reinhard Klein.
 \newblock Automatic reconstruction of parametric building models from indoor
   point clouds.
 \newblock {\em Computers \& Graphics}, 54:94--103, 2016.
+
+\bibitem{macenski2020marathon}
+Steve Macenski, Francisco Mart{\'i}n, Ruffin White, and Jonatan
+  Gin{\'e}s~Clavero.
+\newblock The marathon 2: A navigation system.
+\newblock In {\em IEEE/RSJ Int. Conf. on Intelligent Robots and Systems
+  (IROS)}, pages 2718--2725, 2020.
 
 \bibitem{achanta2012slic}
 Radhakrishna Achanta, Appu Shaji, Kevin Smith, Aurelien Lucchi, Pascal Fua, and
@@ -281,13 +331,6 @@ Matteo Iovino, Edvards Scukins, Jonathan Styrud, Petter {\"O}gren, and
 \newblock A survey of behavior trees in robotics and {AI}.
 \newblock {\em Robotics and Autonomous Systems}, 154:104096, 2022.
 
-\bibitem{macenski2020marathon}
-Steve Macenski, Francisco Mart{\'i}n, Ruffin White, and Jonatan
-  Gin{\'e}s~Clavero.
-\newblock The marathon 2: A navigation system.
-\newblock In {\em IEEE/RSJ Int. Conf. on Intelligent Robots and Systems
-  (IROS)}, pages 2718--2725, 2020.
-
 \bibitem{koenig2004gazebo}
 Nathan Koenig and Andrew Howard.
 \newblock Design and use paradigms for {Gazebo}, an open-source multi-robot
@@ -300,7 +343,8 @@ Sangmin Kim, Byeongjun Kim, and Tae-Yong Kuc.
 \newblock An automated scan-to-simulation pipeline for indoor digital twin
   construction using {BLK360} and {NVIDIA} {Isaac} {Sim}.
 \newblock In {\em IEEE Int. Conf. on Robotics, Automation,
-  Artificial-Intelligence and Internet-of-Things (RAAICON)}, 2026.
-\newblock submitted.
+  Artificial-Intelligence and Internet-of-Things (RAAICON)}, Jashore,
+  Bangladesh, 2026.
+\newblock accepted for presentation; to appear in the conference proceedings.
 
 \end{thebibliography}

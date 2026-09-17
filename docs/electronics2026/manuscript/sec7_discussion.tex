@@ -10,9 +10,13 @@ run and \$7.37 for the 86-cluster robot-hall det run---the full 88-cluster
 detection set before room scoping and remnant filtering, of which 86 had
 renderable view sets---all calls included). The incremental
 design changes
-the cost model qualitatively: a repeat scan costs \$0 (hash carry-over) and
-a changed scene costs in proportion to its change (3.1\% of rebuild in our
-measurement). Wall-clock time is equally bounded, measured on this
+the cost model qualitatively: an identical-input repeat scan costs \$0
+(hash carry-over) and
+under reproducible acquisition a changed scene can cost approximately in
+proportion to its detected change (3.1\% of rebuild in our
+controlled same-quality re-scan; a transition that changes acquisition
+quality, like the real T2$\rightarrow$T3, forfeits the carry-over and pays
+in full, Sec.~\ref{sec:exp-update}). Wall-clock time is equally bounded, measured on this
 workstation: the full deterministic backbone---loading the 68.6M-point
 E57, 3\,cm downsampling, ten-plane removal, decomposition, and remnant
 filtering---completes in 29\,s (8.1\,GB peak memory), rendering the
@@ -115,7 +119,10 @@ render-level adaptation (Sec.~\ref{sec:exp-ablation}). Manipulation is likewise 
 verified pose and extents provide the minimum contract a manipulation
 planner needs for coarse feasibility screening, but we state this as an
 interface property without experiments. The three-epoch study mitigates but does not remove the two-scene
-limitation. The place layer's regions are parameterized SLIC superpixels over the grid
+limitation. Real-robot validation (Sec.~\ref{sec:realrobot}) is bounded
+in the same way: three completed drives and two gate refusals in one
+room on one platform, each issued from a standing start; a longer
+multi-mission, multi-site campaign remains to be done. The place layer's regions are parameterized SLIC superpixels over the grid
 map: spatial cells rather than architecturally meaningful rooms, with the
 superpixel count fixed by hand; inferring wall- and doorway-aligned region
 boundaries is future work.

@@ -1,0 +1,18 @@
+# Cover Letter — Revision 2 (electronics-4525706)
+
+Dear Editor,
+
+Thank you for the second-round assessment of our manuscript "TLS-SMF" (electronics-4525706). Reviewer 1 had no further comments, Reviewer 2 did not respond, and Reviewer 3 raised three remaining points, all concerning independent validation. We have addressed them within the five-day window as follows.
+
+- **Real-robot end-to-end validation (new Section 6.3, Table 14, Figure 20, Video S1).** The mission stack of Section 6 was run unchanged on the physical AMMR in the test room, driven from the management console with the same knowledge graph and mirrored in the Isaac Sim twin. Three semantic drives completed (3.6–4.0 m, 14–22 s, mean arrival error 0.30 m), a place command issued inside the target region completed without motion, and the owner-refuted phantom target was refused by the gate with zero motion, twice. The abstract, introduction, discussion, and conclusion now mention the result, and a Supplementary Video S1 provides synchronized console, twin, and camera footage.
+- **Independent facility.** We state plainly that a second building is not part of this study, and we point to the evidence the paper does contain: the cross-floor cafeteria scene evaluated end-to-end with the frozen pipeline (Section 5.8), and the new real-robot run, whose navigation map is built independently of the scan. Multi-site validation remains future work (Sections 7 and 8).
+- **Independent ground truth.** We added a blind annotation by an external annotator with no connection to the work or the facility (Section 5.1): agreement with the owner is 21/33 overall and 16/19 at high confidence, with the disagreements concentrated on the render-ambiguous categories the paper already identifies. Together with the disclosed owner audit, the blinded co-author annotation (31/33; 25/26 owner overrides reproduced), and the membership-independent inventory reference of Section 5.2, the limits of each layer are stated explicitly.
+
+Per the editorial checklist: all references were re-checked for relevance and no new references were added; all changes are highlighted in the marked PDF; the point-by-point response is provided as a separate document; no references were recommended by the reviewer; and no comment was impossible to address.
+
+We thank the reviewers and the editorial team for their time.
+
+Sincerely,
+
+Sangmin Kim, on behalf of all authors
+Sungkyunkwan University / CASELAB Co., Ltd.

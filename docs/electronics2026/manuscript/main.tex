@@ -28,6 +28,18 @@ $^3$Department of Intelligent Robotics, Sungkyunkwan University \quad
 $^*$Corresponding author}
 \date{Draft \today\ --- not for distribution}
 
+% Float pages: anchor floats at the top instead of vertically centering them
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+% Discourage half-empty float pages: text must fill under top floats
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.05}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
 \begin{document}
 \maketitle
 
@@ -49,10 +61,12 @@ accuracy from 77.8\% to 88.9\% and from 78.1\% to 84.4\%, with
 94.4--100\% unanimous-vote precision against confirmed owner ground
 truth; on the showroom benchmark, structurally gated querying answers
 83.3\% of questions versus 52.1\% for an unverified Stage-A LLM baseline
-while blocking hallucination traps; selective re-verification reduces
-the VLM cost of a changed re-scan to 3.1\% of a full rebuild; and a real
-three-epoch study detects 2/2 controlled physical changes while
-preserving object identity throughout. A cross-floor cafeteria stress
+while blocking hallucination traps; in a controlled same-quality
+combined-edit re-scan, selective re-verification reduces VLM cost to
+3.1\% of a full rebuild; and a real three-epoch study detects 2/2
+controlled physical changes with zero observed identity switches on
+strong reference correspondences, while re-segmentation still produces
+false-new/false-absent cases. A cross-floor cafeteria stress
 scene bounds domain transfer, and an owner-in-the-loop revision path
 keeps the single semantic store corrigible for robot-facing use.
 \end{abstract}

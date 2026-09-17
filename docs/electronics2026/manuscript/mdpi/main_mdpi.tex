@@ -19,6 +19,18 @@
 \hreflink{https://doi.org/}
 
 \graphicspath{{../../figs/}}
+% Float pages: anchor floats at the top instead of vertically centering them
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+% Discourage half-empty float pages: text must fill under top floats
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.05}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
 
 \Title{From Terrestrial Laser Scans to Queryable Robot Knowledge: A
 VLM-Verified Framework for Incremental 3D Semantic Modeling}
@@ -34,7 +46,7 @@ VLM-Verified Framework for Incremental 3D Semantic Modeling}
 
 \Author{Sangmin Kim $^{1,2}$\orcidA{}, Yonghyeon Song $^{1,2}$\orcidB{},
 Byeongjun Kim $^{2,3}$\orcidC{}, Haryeong Kim $^{1}$\orcidE{} and
-Tae-Yong Kuc $^{1,}$*\orcidD{}}
+Tae-Yong Kuc $^{1,2,}$*\orcidD{}}
 
 \AuthorNames{Sangmin Kim, Yonghyeon Song, Byeongjun Kim, Haryeong Kim and
 Tae-Yong Kuc}
@@ -43,10 +55,11 @@ Tae-Yong Kuc}
 
 \address{%
 $^{1}$ \quad Department of Electrical and Computer Engineering, Sungkyunkwan
-University, Suwon, Republic of Korea; kimsang.m@g.skku.edu\\
+University, Suwon, Republic of Korea;
+\{kimsang.m, songyong2535, khy0403\}@g.skku.edu (S.K.; Y.S.; H.K.)\\
 $^{2}$ \quad CASELAB Co., Ltd., Anyang, Republic of Korea\\
 $^{3}$ \quad Department of Intelligent Robotics, Sungkyunkwan University,
-Suwon, Republic of Korea}
+Suwon, Republic of Korea; byeongjunkim@g.skku.edu (B.K.)}
 
 \corres{Correspondence: tykuc@skku.edu}
 
@@ -76,12 +89,17 @@ accuracy from 77.8\% to 88.9\% and from 78.1\% to 84.4\%, with
 94.4--100\% unanimous-vote precision against confirmed owner ground
 truth; on the showroom benchmark, structurally gated querying answers
 83.3\% of questions versus 52.1\% for an unverified Stage-A LLM baseline
-while blocking hallucination traps; selective re-verification reduces
-the VLM cost of a changed re-scan to 3.1\% of a full rebuild; and a real
-three-epoch study detects 2/2 controlled physical changes while
-preserving object identity throughout. A cross-floor cafeteria stress
+while blocking hallucination traps; in a controlled same-quality
+combined-edit re-scan, selective re-verification reduces VLM cost to
+3.1\% of a full rebuild; and a real three-epoch study detects 2/2
+controlled physical changes with zero observed identity switches on
+strong reference correspondences, while re-segmentation still produces
+false-new/false-absent cases. A cross-floor cafeteria stress
 scene bounds domain transfer, and an owner-in-the-loop revision path
-keeps the single semantic store corrigible for robot-facing use.}
+keeps the single semantic store corrigible for robot-facing use; the
+same store drives a physical mobile manipulator, which completes three
+console-issued semantic missions with a mean arrival error of 0.30\,m
+while phantom goals are refused with zero motion.}
 
 \keyword{terrestrial laser scanning; semantic mapping; knowledge graph;
 vision--language models; incremental update; mobile robots}
@@ -98,6 +116,8 @@ vision--language models; incremental update; mobile robots}
 \input{../sec8_conclusion}
 
 \vspace{6pt}
+
+\supplementary{The following supporting information can be downloaded at: \linksupplementary{s1}, Video S1: real-robot semantic mission execution --- synchronized management console, Isaac Sim twin, and camera footage of the physical AMMR for the two filmed missions of Table~\ref{tab:realrobot} (goto\_object tv; goto\_place electrical\_maintenance\_area).}
 
 \authorcontributions{Conceptualization, S.K. and T.-Y.K.; methodology, S.K.;
 software, S.K. and H.K.; validation, S.K. and H.K.; formal analysis, S.K.;
@@ -129,20 +149,31 @@ pipeline configuration, and pointers to the exact prompt templates,
 forced answer schema, and synonym-tolerant scoring code used for every
 reported number. The processed semantic-object
 records and knowledge-graph snapshots are available
-from the corresponding author on reasonable request. Raw scan data is
-subject to facility-owner restrictions.}
+from the corresponding author on reasonable request. The raw terrestrial
+laser scans (all three epochs of the test room, including the
+wall-removed T1 processing input, and the cafeteria stress scene; E57
+format with SHA-256 checksums) are openly deposited on Zenodo under
+CC-BY~4.0 (DOI: \url{https://doi.org/10.5281/zenodo.22590752}).
+The determinism verification kit (version-pinned container recipe,
+reference checksums, and comparison script; Sec.~\ref{sec:exp-seg}) is
+included in the repository.}
 
 \acknowledgments{The authors thank CASELAB Co., Ltd. for access to the
 scanned facility and for ground-truth confirmation of object labels. During
 the preparation of this manuscript, the authors used a generative AI
-assistant (Claude, Anthropic) for drafting and editing support; the authors
-have reviewed and edited all output and take full responsibility for the
-content of this publication. (The use of the claude-sonnet-4-6 model as the
-verification component of the proposed method is described in the
-experimental controls of Section~5 and is unrelated to this disclosure.)}
+assistant (Claude, model \texttt{claude-sonnet-4-6}, accessed via the
+Claude interface; Anthropic PBC, San Francisco, CA, USA;
+\url{https://claude.ai}) for language drafting and editing support and for
+LaTeX formatting; the authors have reviewed and edited all output and take
+full responsibility for the content of this publication. The distinct use
+of VLM/LLM models \emph{as experimental components of the proposed method}
+is disclosed in the Materials-and-Methods disclosure of
+Section~\ref{sec:setup} and controlled in Section~\ref{sec:exp-ablation}.}
 
 \conflictsofinterest{Authors Sangmin Kim, Yonghyeon Song, and Byeongjun Kim
-are employed by CASELAB Co., Ltd. The company provided access to the indoor
+are employed by CASELAB Co., Ltd.; author Tae-Yong Kuc serves as vice
+chairman of CASELAB Co., Ltd. The company provided access
+to the indoor
 facility in which the terrestrial laser scans were collected and, as the
 facility owner, confirmed the ground-truth object labels. The company had no
 role in the design of the study; in the collection, analyses, or

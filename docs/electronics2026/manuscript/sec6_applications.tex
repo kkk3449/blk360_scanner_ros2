@@ -3,7 +3,10 @@
 
 This section demonstrates the framework in use. The semantic mission
 experiment of Sec.~\ref{sec:semnav} is quantitative; the twin injection
-of Sec.~\ref{sec:twin} illustrates the single-store integration surface.
+of Sec.~\ref{sec:twin} illustrates the single-store integration surface;
+and Sec.~\ref{sec:realrobot} repeats the mission interface on the
+physical AMMR, with the console, the twin, and the robot all served from
+the same knowledge graph.
 
 \subsection{Semantic Mission Execution in Simulation}
 \label{sec:semnav}
@@ -41,10 +44,16 @@ of the target platform itself: the AMMR's footprint
 layer are instantiated in the world, and the mediator derives approach
 poses and clearance checks from the same layer (circumscribed radius
 $0.74$\,m) --- the knowledge that \emph{describes} the robot is the
-knowledge that \emph{drives} it. Over three repetitions of a
-three-mission battery (approach the TV, go to the seating area, return
-home), all nine missions succeeded (mean leg paths $4.6/5.4/1.8$\,m in
-$16.5/24.9/15.0$\,s). The phantom experiment (Table~\ref{tab:semnav})
+knowledge that \emph{drives} it. Mission-level metrics: over three
+repetitions of a three-mission battery (approach the TV, go to the
+seating area, return home), task success is 9/9, with mean leg path
+lengths $4.6/5.4/1.8$\,m and completion times $16.5/24.9/15.0$\,s;
+semantic resolution latency (command to accepted or refused goal) is
+under one second, and a gate refusal stops the robot safely with zero
+motion. The reactive layer supplies the safety-stop behavior: a
+low-battery event during navigation preempts the active Nav2 goal and
+returns the platform to a holding position at home, resuming only on
+recovery. The phantom experiment (Table~\ref{tab:semnav})
 sends the robot to three owner-refuted phantoms under two knowledge
 states. Against the pre-feedback graph, all three phantoms carry
 \emph{verified} labels, so the confidence gate passes them --- and the
@@ -89,7 +98,12 @@ filtered + owner feedback & all three & refused & 0\,m & $\sim$1\,s \\
 layer re-evaluates battery and interrupt conditions every tick and can
 preempt navigation (canceling the active Nav2 goal); the deliberative
 branch resolves semantic commands through the TOSM mediator, which
-hot-reloads the knowledge graph when the management console edits it.}
+hot-reloads the knowledge graph when the management console edits it.
+Highlighted nodes (violet) are the decisions the verified knowledge
+graph drives: the semantic-resolve node, where a gated graph refuses
+phantom or unverified goals, and the navigation node that consumes the
+resolved pose; the unhighlighted reactive nodes are generic
+behavior-tree machinery.}
 \label{fig:bttree}
 \end{figure}
 
@@ -103,7 +117,10 @@ $\rightarrow$ seating area $\rightarrow$ home). Red dashed: against the
 pre-feedback graph the robot drives toward a verified-phantom keyboard
 --- a fluorescent lamp; crosses mark the three phantom goals with their
 failure modes (pointless drive, false arrival, unreachable). All three
-are refused once structure filtering and owner feedback are applied.}
+are refused once structure filtering and owner feedback are applied.
+These runs establish the knowledge-graph--to--mission interface in a
+physics simulation; Sec.~\ref{sec:realrobot} repeats the interface on
+the physical platform.}
 \label{fig:semnav}
 \end{figure}
 
@@ -126,3 +143,77 @@ self-auditing --- deriving the stage from the graph immediately
 per-view export paths had silently hidden, prompting the cleanup revision
 of Sec.~\ref{sec:exp-update}.
 
+\subsection{Real-Robot Mission Execution}
+\label{sec:realrobot}
+To close the loop on hardware, the mission stack of Sec.~\ref{sec:semnav}
+was run unchanged against the physical AMMR in the test room (the robot
+hall configuration), with the knowledge graph of
+Sec.~\ref{sec:exp-update} as the semantic store. The platform runs its own
+localization and Nav2 stack on an independently built occupancy map; a
+thin bridge node replaces the simulator: it converts the robot's
+localization pose into the scan frame through a single SE(2) offset,
+calibrated once by parking the robot on a taped start spot of known scan
+coordinates, and forwards the mediator's resolved goals (scan frame) to
+the robot's on-board navigation in the robot's map frame. Nothing above
+the bridge changes: commands are issued from the management console, the
+mediator resolves and gates them against the graph, the behavior tree
+executes them, and the Isaac Sim twin mirrors the robot from the same
+store. Fig.~\ref{fig:realrobot} shows two filmed missions and
+Table~\ref{tab:realrobot} summarizes all runs; Video~S1 contains the
+synchronized console, twin, and camera footage.
+
+Three semantic drives completed --- two \texttt{goto\_object} approaches
+to the wall TV and one \texttt{goto\_place} drive into the monitor
+workstation region, each $3.6$--$4.0$\,m from the start --- in $14$--$22$\,s
+with arrival errors of $0.22$--$0.34$\,m (mean $0.30$\,m) between the
+robot's localized pose and the resolved goal; a place command issued
+while the robot already stood inside the region completed without motion
+($0.11$\,m from the region goal). The gate behaved as in simulation:
+\texttt{goto\_object keyboard}, the owner-refuted phantom of
+Table~\ref{tab:semnav}, was refused by the mediator in under one second
+with zero robot motion, twice. Missions were issued one at a time from
+a standing start. The exercise is a bounded validation --- one room, one
+platform, three completed drives --- but it confirms that the graph that
+survives verification, gating, and owner feedback is directly consumable
+by a real robot, and that the twin, console, and robot stay consistent
+because they read one store.
+
+\begin{table}[t]
+\caption{Real-robot semantic missions on the AMMR (test room,
+15~Sep~2026). Goals are resolved by the mediator in the scan frame;
+distance is straight-line start-to-goal; arrival error is the
+localized-pose--to--goal distance at mission completion.}
+\label{tab:realrobot}
+\begin{adjustwidth}{-\extralength}{0cm}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llcccl@{}}
+\toprule
+\textbf{Command} & \textbf{Resolved goal (m)} & \textbf{Dist.} & \textbf{Time} & \textbf{Err.} & \textbf{Outcome} \\
+\midrule
+\texttt{goto\_object tv} & tv\_006 approach (3.09, 1.91) & 4.0\,m & 14\,s & 0.34\,m & completed \\
+\texttt{goto\_object tv} (Fig.~\ref{fig:realrobot}a) & tv\_006 approach (3.09, 1.91) & 3.6\,m & 20.8\,s & 0.33\,m & completed \\
+\texttt{goto\_place electrical\_maintenance\_area} (Fig.~\ref{fig:realrobot}b) & region ($-$0.69, 3.81) & 3.9\,m & 22.1\,s & 0.22\,m & completed \\
+\texttt{goto\_place display\_briefing\_area} & region (3.31, 1.76) & 0.1\,m & $<$1\,s & 0.11\,m & completed (already inside) \\
+\texttt{goto\_object keyboard} ($\times$2, phantom) & --- & --- & $<$1\,s & --- & refused by gate, no motion \\
+\bottomrule
+\end{tabular}
+\end{adjustwidth}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig20_real_robot_missions.png}
+\caption{Real-robot semantic missions (Table~\ref{tab:realrobot}). Rows:
+the physical AMMR, the Isaac Sim twin derived from the same knowledge
+graph (the red cone marks the twin's goal handle), and the management
+console's status log; columns: command issued, $10$\,s, $20$\,s, and
+arrival. (a)~\texttt{goto\_object tv}: the mediator resolves the
+verified node \texttt{tv\_006} to an approach pose and the robot arrives
+$0.33$\,m from it in $20.8$\,s. (b)~\texttt{goto\_place
+electrical\_maintenance\_area}: the region containing the monitor
+workstation, reached in $22.1$\,s with $0.22$\,m error. Video~S1 shows
+the synchronized footage.}
+\label{fig:realrobot}
+\end{figure}

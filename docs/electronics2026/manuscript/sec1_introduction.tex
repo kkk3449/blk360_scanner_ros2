@@ -45,8 +45,9 @@ From registered TLS input, seeded-RANSAC structure removal, fixed-parameter
 clustering with a conservative giant-split and a structure-remnant filter,
 and PCA-based explicit modeling run fully automatically; same-host re-runs
 are byte-identical. Determinism is not an implementation nicety: it is what
-makes verification results carryable, diffs meaningful, and update costs
-proportional to actual change.
+makes verification results carryable, diffs meaningful, and, under
+reproducible acquisition, allows verification cost to track detected
+content change.
 \item \textbf{Confidence-aware multi-view VLM verification with automatic
 escalation.} Each object is classified per-view under a forced answer
 schema; votes are fused confidence-weighted; split votes escalate
@@ -71,8 +72,32 @@ geometry, and attributes enter as highest-trust but time-variant evidence
 through the same revision mechanism as re-scans; the management console,
 the mission mediator, and an Isaac~Sim twin are all derived from the one
 revisioned graph, so a correction propagates to every consumer from a
-single write.
+single write; the same mediator drives the physical AMMR
+(Sec.~\ref{sec:realrobot}).
 \end{enumerate}
+
+We are explicit about what is new versus assembled. The base algorithms
+are deliberately standard and claimed as integration: RANSAC, DBSCAN, and
+PCA modeling (contribution~1's backbone), open-vocabulary 3D
+classification, per-view VLM querying, and the TOSM
+object/place/robot schema follow prior work. The new mechanisms are the
+control structures wrapped around them: the confidence-weighted
+escalation tiers with structural query gating (contributions~2 and the
+gate of Sec.~\ref{sec:query}), mint-once identity with history-preserving
+upserts (contribution~3), the trigger-defined corrective layers
+(contribution~4, Sec.~\ref{sec:corrective}), and owner feedback as
+first-class, time-variant evidence (contribution~5). The additions are
+quantified against their bases where a base exists: the corrective layers
+lift automated recall over the raw backbone from 28\% to 85\%
+cumulatively (Sec.~\ref{sec:exp-endtoend}); structural gating changes
+trap hallucination from 0/4 blocked (same graph, ungated) to 3--4/4
+(Sec.~\ref{sec:exp-query}); escalation adds $+$11.1/$+$6.3 accuracy
+points over single-pass fusion (Sec.~\ref{sec:exp-verify}); and, for context
+rather than like-for-like comparison, the TOSM lineage reports 78--81\%
+recognition accuracy under a different evaluation protocol, whereas the
+frozen re-run reaches 85\% automated recall with, additionally, per-fact
+confidence tiers and revision provenance that the lineage does not
+maintain (Sec.~\ref{sec:exp-endtoend}).
 
 We validate the framework on two operational configurations of one
 industrial room (an exhibition showroom and a robot test hall), each with
@@ -83,10 +108,14 @@ repeatability and sensitivity, verification accuracy and escalation cost, a
 four-condition knowledge-grounded query benchmark with hallucination traps,
 synthetic update scenarios, and a real three-epoch study of one room spanning
 a manual scan, an autonomous exploration scan, and a controlled-change
-re-scan at 99.6\% coverage. Beyond the headline gains---escalation
+re-scan at 99.6\% coverage---plus a real-robot check in which the
+physical AMMR executes console-issued semantic missions from the same
+graph (three completed drives, mean arrival error 0.30\,m; phantom goals
+refused; Sec.~\ref{sec:realrobot}). Beyond the headline gains---escalation
 +11.1/+6.3 points, gated querying +31 points over LLM-only with 3 of 4
 hallucination traps blocked,
-re-verification at 3.1\% of rebuild cost---the study surfaces
+re-verification at 3.1\% of rebuild cost on a controlled same-quality
+re-scan---the study surfaces
 failure modes we believe are as valuable as the successes: phantom objects
 from ceiling soffits, unanimous-but-wrong verifications, clutter absorption
 of small low-reflectance objects, and a coverage paradox in which a
