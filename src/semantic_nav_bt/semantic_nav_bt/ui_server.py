@@ -18,6 +18,8 @@ import json
 import math
 import os
 import threading
+
+import yaml
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import rclpy
@@ -26,6 +28,24 @@ from std_msgs.msg import String
 from geometry_msgs.msg import PoseWithCovarianceStamped
 
 BLK = "/home/caselab/Downloads/Cyclone360_data/blk360_seg/outputs"
+
+
+def load_map_png(yaml_path):
+    """ROS map (yaml + pgm) -> (png bytes, info dict for the browser)."""
+    import io
+    import yaml as _yaml
+    from PIL import Image
+    y = _yaml.safe_load(open(yaml_path))
+    pgm = os.path.join(os.path.dirname(yaml_path), y["image"])
+    im = Image.open(pgm).convert("L")
+    # trinary pgm: 254 free / 205 unknown / 0 occupied -> soften for the UI
+    lut = [int(30 + v * 0.85) for v in range(256)]
+    im = im.point(lut)
+    buf = io.BytesIO()
+    im.save(buf, format="PNG")
+    info = {"res": float(y["resolution"]), "ox": float(y["origin"][0]),
+            "oy": float(y["origin"][1]), "w": im.width, "h": im.height}
+    return buf.getvalue(), info
 
 PAGE = """<!doctype html><html><head><meta charset="utf-8">
 <title>TOSM Semantic Mission Console</title><style>
@@ -58,6 +78,7 @@ th{background:#eef2f7;position:sticky;top:0}
     <div style="margin-top:6px">
       <button onclick="cmd({cmd:'patrol'})">patrol (all places)</button>
       <button class=warn onclick="cmd({cmd:'return_home'})">return home</button>
+      <button class=warn style="background:#7a0000;font-weight:700" onclick="cmd({cmd:'stop'})">&#9632; STOP (cancel all, hold)</button>
     </div>
     <div class=small style="margin-top:6px">battery <input id=batt type=range min=0 max=100 value=100
       oninput="setBatt(this.value)" style="width:130px"> <span id=battv>100%</span> (sim)</div>
@@ -65,6 +86,33 @@ th{background:#eef2f7;position:sticky;top:0}
   <div class=card style="margin-top:12px"><h3>Mission status</h3>
     <div id=statuslog></div>
     <div class=small id=robotpose style="margin-top:6px"></div>
+  </div>
+  <div class=card style="margin-top:12px"><h3>Robot map (AMCL) &rarr; KG frame</h3>
+    <div id=mapdrop style="border:2px dashed #9ab;border-radius:8px;padding:10px;text-align:center;color:#567;font-size:12.5px;cursor:pointer">
+      drop the robot's <b>map .pgm + .yaml</b> here (or click to choose)<br>
+      <input id=mapfiles type=file multiple accept=".pgm,.yaml,.yml" style="display:none"></div>
+    <div class=small id=regmsg style="margin-top:6px"></div>
+    <div class=small style="margin-top:4px">
+      <label><input type=checkbox id=regoverlay checked onchange="drawMap()"> show registered robot map on the map panel</label>
+      <label style="margin-left:8px"><input type=checkbox id=reginit checked> use stored offset as initial guess</label></div>
+  </div>
+  <div class=card style="margin-top:12px"><h3>3D semantic modeling from E57</h3>
+    <div id=e57drop style="border:2px dashed #9ab;border-radius:8px;padding:10px;text-align:center;color:#567;font-size:12.5px;cursor:pointer">
+      drop a registered <b>.e57</b> here (or click) &middot; or type a server path below<br>
+      <input id=e57file type=file accept=".e57" style="display:none"></div>
+    <div class=small id=e57msg style="margin-top:4px"></div>
+    <div style="margin-top:6px"><input id=e57path placeholder="server path to .e57" style="width:96%"></div>
+    <div style="margin-top:6px"><input id=pname placeholder="site / scan name" style="width:46%">
+      <select id=pmode style="width:48%"><option value=new>new site (new map + KG)</option><option value=epoch>new epoch of the test room</option></select></div>
+    <div class=small style="margin-top:6px">
+      <label><input type=checkbox id=pvlm checked> VLM verification</label>
+      budget $<input id=pbudget type=number value=5 step=0.5 style="width:50px">
+      <label style="margin-left:6px"><input type=checkbox id=pover checked> overhead pass</label></div>
+    <div style="margin-top:8px"><button onclick="startPipeline()" id=pstart>&#9654; Start 3D semantic modeling</button>
+      <button class=warn onclick="fetch('/api/pipeline/stop',{method:'POST',body:'{}'})">stop</button>
+      <button onclick="loadPipelineResult()" id=pload style="display:none">load result into console</button></div>
+    <div id=psteps class=small style="margin-top:8px"></div>
+    <div id=plog style="display:none;height:120px;overflow-y:auto;font-family:ui-monospace,monospace;font-size:11px;background:#101820;color:#cfe;border-radius:8px;padding:6px;margin-top:6px"></div>
   </div>
 </div>
 <div>
@@ -89,8 +137,20 @@ th{background:#eef2f7;position:sticky;top:0}
               transform:translate(-50%,-50%);display:none;pointer-events:none"></div>
           </div>
         </div></div>
-      <div><div class=small>robot camera</div>
-        <img src="/stream/robot" style="height:320px;border-radius:8px;background:#222"></div>
+      <div><div class=small>semantic map (occupancy grid, KG frame)
+          <button style="padding:1px 8px" onclick="mapMode('init')" id=b_init>set initial pose</button>
+          <button style="padding:1px 8px" onclick="mapMode('goal')" id=b_goal>send goal</button>
+          <button style="padding:1px 8px" onclick="mapMode(null)">cancel</button>
+          <button style="padding:1px 8px" onclick="mapReset()">reset view</button>
+          <span id=maphint style="color:#999">wheel=zoom · drag=pan · in a mode: press, drag for heading, release</span>
+          <span id=mapcoord style="font-family:ui-monospace,monospace;color:#1d3557"></span></div>
+        <div id=mapview style="width:427px;height:320px;overflow:hidden;border-radius:8px;
+            background:#333;position:relative;cursor:grab">
+          <div id=mapwrap style="position:absolute;left:0;top:0;transform-origin:0 0">
+            <img id=mapimg src="/map.png" style="display:block;image-rendering:pixelated">
+            <canvas id=mapcanvas style="position:absolute;left:0;top:0;pointer-events:none"></canvas>
+          </div>
+        </div></div>
     </div>
   </div>
   <div>
@@ -181,11 +241,11 @@ window.addEventListener('load',()=>{const v=document.getElementById('ovview');
 function pickObj(name){const i=SELS.findIndex(s=>s.kind==='obj'&&s.o.name===name);
   if(i>=0){SELS.splice(i,1);drawOverlay();render();return;}
   const o=STATE.objects.find(v=>v.name===name);
-  SELS.push({kind:'obj',o:o});drawOverlay();render();}
+  SELS.push({kind:'obj',o:o});drawOverlay();drawMap();render();}
 function pickPlace(region){const i=SELS.findIndex(s=>s.kind==='place'&&s.region===region);
   if(i>=0){SELS.splice(i,1);drawOverlay();render();return;}
   fetch('/api/region?name='+region).then(r=>r.json()).then(c=>{
-    SELS.push({kind:'place',region:region,cells:c});drawOverlay();render();});}
+    SELS.push({kind:'place',region:region,cells:c});drawOverlay();drawMap();render();});}
 function drawOverlay(){const img=document.getElementById('ovimg'),
   cv=document.getElementById('ovcanvas');
   if(!img||!img.clientWidth)return;
@@ -207,6 +267,134 @@ function drawOverlay(){const img=document.getElementById('ovimg'),
       ctx.fillRect(-w/2,-h/2,w,h);ctx.strokeRect(-w/2,-h/2,w,h);ctx.restore();
       ctx.font='bold 11px system-ui';ctx.fillStyle=col;
       ctx.fillText(o.name,cx+5,cy-5);}}}
+// ---- occupancy-grid map panel: KG-frame overlays, initial pose / goal ------
+let MV={s:1,tx:0,ty:0}, MAPMODE=null, MDRAG=null, MAPINFO=null;
+function mapApply(){document.getElementById('mapwrap').style.transform=
+  `translate(${MV.tx}px,${MV.ty}px) scale(${MV.s})`;}
+function mapReset(){const img=document.getElementById('mapimg');
+  const v=document.getElementById('mapview');
+  if(img.naturalWidth){MV.s=Math.min(v.clientWidth/img.naturalWidth,v.clientHeight/img.naturalHeight);
+    MV.tx=(v.clientWidth-img.naturalWidth*MV.s)/2;MV.ty=(v.clientHeight-img.naturalHeight*MV.s)/2;}
+  mapApply();drawMap();}
+function mapMode(m){MAPMODE=m;MDRAG=null;
+  document.getElementById('b_init').style.background=m==='init'?'#b23b3b':'';
+  document.getElementById('b_goal').style.background=m==='goal'?'#2f855a':'';
+  document.getElementById('maphint').textContent=m?
+    (m==='init'?' INITIAL POSE: press at the robot position, drag toward its front, release':
+     ' GOAL: press at the target, drag toward the desired heading, release'):
+    ' wheel=zoom · drag=pan · in a mode: press, drag for heading, release';
+  document.getElementById('mapview').style.cursor=m?'crosshair':'grab';drawMap();}
+// world <-> map-image pixel (ROS map yaml: origin at bottom-left, +y up)
+function w2p(x,y){const M=MAPINFO;return [(x-M.ox)/M.res,M.h-(y-M.oy)/M.res];}
+function p2w(u,v){const M=MAPINFO;return [M.ox+u*M.res,M.oy+(M.h-v)*M.res];}
+function mapPix(e){const v=document.getElementById('mapview').getBoundingClientRect();
+  return [(e.clientX-v.left-MV.tx)/MV.s,(e.clientY-v.top-MV.ty)/MV.s];}
+window.addEventListener('load',()=>{const v=document.getElementById('mapview');
+  const img=document.getElementById('mapimg');
+  img.addEventListener('load',mapReset);
+  v.addEventListener('wheel',e=>{e.preventDefault();const [u0,v0]=mapPix(e);
+    const f=e.deltaY<0?1.15:1/1.15;MV.s=Math.min(12,Math.max(0.2,MV.s*f));
+    const R=v.getBoundingClientRect();MV.tx=e.clientX-R.left-u0*MV.s;MV.ty=e.clientY-R.top-v0*MV.s;
+    mapApply();},{passive:false});
+  let pan=null;
+  v.addEventListener('mousedown',e=>{e.preventDefault();if(e.button!==0)return;
+    if(MAPMODE&&MAPINFO){const [u,w]=mapPix(e);MDRAG={p0:p2w(u,w),p1:null};drawMap();}
+    else{pan=[e.clientX,e.clientY];v.style.cursor='grabbing';}});
+  window.addEventListener('mousemove',e=>{
+    if(pan){MV.tx+=e.clientX-pan[0];MV.ty+=e.clientY-pan[1];pan=[e.clientX,e.clientY];mapApply();}
+    if(MDRAG){const [u,w]=mapPix(e);MDRAG.p1=p2w(u,w);drawMap();}});
+  v.addEventListener('mousemove',e=>{if(!MAPINFO)return;const [u,w]=mapPix(e);const [x,y]=p2w(u,w);
+    let near='';if(STATE){let best=null;for(const o of STATE.objects){const d=Math.hypot(o.x-x,o.y-y);
+      if(!best||d<best[0])best=[d,o];}
+      if(best&&best[0]<2.0)near=` · ${best[1].name} ${best[0].toFixed(2)} m`;}
+    document.getElementById('mapcoord').textContent=` x=${x.toFixed(2)} y=${y.toFixed(2)}${near}`;});
+  window.addEventListener('mouseup',e=>{
+    if(MDRAG){const p0=MDRAG.p0,p1=MDRAG.p1||p0;
+      const yaw=(p1===p0||Math.hypot(p1[0]-p0[0],p1[1]-p0[1])<0.05)?null:Math.atan2(p1[1]-p0[1],p1[0]-p0[0]);
+      const body={x:p0[0],y:p0[1],yaw:yaw};
+      fetch(MAPMODE==='init'?'/api/initialpose':'/api/goal',{method:'POST',body:JSON.stringify(body)});
+      MDRAG=null;mapMode(null);}
+    pan=null;if(!MAPMODE)v.style.cursor='grab';});});
+function drawMap(){const img=document.getElementById('mapimg'),cv=document.getElementById('mapcanvas');
+  if(!img.naturalWidth||!MAPINFO)return;cv.width=img.naturalWidth;cv.height=img.naturalHeight;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);const m=1/MAPINFO.res;
+  if(ROBMAP&&document.getElementById('regoverlay').checked){ctx.fillStyle='rgba(255,140,0,.55)';
+    for(const p of ROBMAP){const [u,w]=w2p(p[0],p[1]);ctx.fillRect(u-0.6,w-0.6,1.4,1.4);}}
+  if(!STATE)return;
+  // places (selected) -> cells
+  for(const S of SELS){if(S.kind==='place'){const c=S.cells,cs=Math.max(1,c.cs*m);const [r,g,b]=c.color;
+    ctx.fillStyle=`rgba(${r},${g},${b},.45)`;
+    for(const p of c.cells){const [u,w]=w2p(p[0],p[1]);ctx.fillRect(u-cs/2,w-cs/2,cs,cs);}}}
+  // all objects: verified colored, unverified gray; selected ones bold
+  for(const o of STATE.objects){const [u,w]=w2p(o.x,o.y);const sel=SELS.some(S=>S.kind==='obj'&&S.o.name===o.name);
+    const ver=o.status&&o.status.startsWith('verified');const col=ver?objColor(o.name):'#8a8f98';
+    ctx.save();ctx.translate(u,w);ctx.rotate(-(o.theta||0));
+    const L=(o.length||0.5)*m,W=(o.width||0.5)*m;
+    ctx.fillStyle=col+(sel?'80':'33');ctx.strokeStyle=col;ctx.lineWidth=sel?3:1.2;
+    ctx.fillRect(-L/2,-W/2,L,W);ctx.strokeRect(-L/2,-W/2,L,W);ctx.restore();
+    if(sel||o.level==='high'){ctx.font=(sel?'bold ':'')+'9px system-ui';ctx.fillStyle=col;ctx.fillText(o.name,u+3,w-3);}}
+  // robot with heading
+  if(STATE.robot_pose){const [u,w]=w2p(STATE.robot_pose[0],STATE.robot_pose[1]);const th=STATE.robot_pose[2]||0;
+    ctx.save();ctx.translate(u,w);ctx.rotate(-th);ctx.strokeStyle='#e63946';ctx.fillStyle='rgba(230,57,70,.35)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,0.45*m,0,6.283);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0.9*m,0);ctx.stroke();ctx.restore();}
+  // drag preview (initial pose / goal arrow)
+  if(MDRAG){const [u,w]=w2p(MDRAG.p0[0],MDRAG.p0[1]);ctx.strokeStyle=MAPMODE==='init'?'#b23b3b':'#2f855a';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(u,w,0.3*m,0,6.283);ctx.stroke();
+    if(MDRAG.p1){const [u1,w1]=w2p(MDRAG.p1[0],MDRAG.p1[1]);ctx.beginPath();ctx.moveTo(u,w);ctx.lineTo(u1,w1);ctx.stroke();}}}
+// ---- robot map upload -> registration -> bridge offset ----------------
+let ROBMAP=null;
+window.addEventListener('load',()=>{const dz=document.getElementById('mapdrop'),fi=document.getElementById('mapfiles');
+  dz.addEventListener('click',()=>fi.click());
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.background='#eef4fb';});
+  dz.addEventListener('dragleave',()=>{dz.style.background='';});
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.style.background='';sendMapFiles(e.dataTransfer.files);});
+  fi.addEventListener('change',()=>sendMapFiles(fi.files));});
+function sendMapFiles(files){const fd=new FormData();let n=0;
+  for(const f of files){if(/\\.(pgm|yaml|yml)$/i.test(f.name)){fd.append('file',f,f.name);n++;}}
+  if(n<2){document.getElementById('regmsg').textContent=' need both .pgm and .yaml';return;}
+  fd.append('use_init',document.getElementById('reginit').checked?'1':'0');
+  document.getElementById('regmsg').textContent=' uploading + registering...';
+  fetch('/api/robotmap',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{
+    if(d.error){document.getElementById('regmsg').textContent=' '+d.error;return;}
+    const o=d.map_offset,st=d.stats;
+    document.getElementById('regmsg').innerHTML=`offset X ${o[0].toFixed(3)} Y ${o[1].toFixed(3)} YAW ${o[2].toFixed(2)}&deg; &middot; mean ${(st.mean_m*100).toFixed(1)} cm, inliers&lt;15cm ${(st.inlier_frac_15cm*100).toFixed(0)}% &middot; sent to bridge`;
+    ROBMAP=d.cells;drawMap();});}
+// ---- E57 upload + pipeline control ----------------------------------------
+window.addEventListener('load',()=>{const dz=document.getElementById('e57drop'),fi=document.getElementById('e57file');
+  dz.addEventListener('click',()=>fi.click());
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.background='#eef4fb';});
+  dz.addEventListener('dragleave',()=>{dz.style.background='';});
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.style.background='';if(e.dataTransfer.files[0])uploadE57(e.dataTransfer.files[0]);});
+  fi.addEventListener('change',()=>{if(fi.files[0])uploadE57(fi.files[0]);});
+  pollPipeline();setInterval(pollPipeline,3000);});
+function uploadE57(f){const msg=document.getElementById('e57msg');
+  msg.textContent=` uploading ${f.name} (${(f.size/1e9).toFixed(2)} GB)...`;
+  const xhr=new XMLHttpRequest();xhr.open('PUT','/api/e57?name='+encodeURIComponent(f.name));
+  xhr.upload.onprogress=e=>{if(e.lengthComputable)msg.textContent=` uploading ${f.name}: ${(100*e.loaded/e.total).toFixed(0)}%`;};
+  xhr.onload=()=>{try{const d=JSON.parse(xhr.responseText);
+    if(d.path){document.getElementById('e57path').value=d.path;msg.textContent=' stored: '+d.path;
+      if(!document.getElementById('pname').value)document.getElementById('pname').value=f.name.replace(/\\.e57$/i,'');}
+    else msg.textContent=' '+(d.error||'upload failed');}catch(e){msg.textContent=' upload failed';}};
+  xhr.onerror=()=>{msg.textContent=' upload failed';};xhr.send(f);}
+function startPipeline(){const body={e57:document.getElementById('e57path').value,name:document.getElementById('pname').value,
+  mode:document.getElementById('pmode').value,vlm:document.getElementById('pvlm').checked,
+  budget_usd:parseFloat(document.getElementById('pbudget').value||'0'),overhead:document.getElementById('pover').checked};
+  if(!body.e57||!body.name){document.getElementById('psteps').textContent='need an E57 path and a name';return;}
+  fetch('/api/pipeline/start',{method:'POST',body:JSON.stringify(body)}).then(r=>r.json()).then(d=>{
+    document.getElementById('psteps').textContent=d.error?d.error:'started';pollPipeline();});}
+const STEPICON={running:'&#9654;',done:'&#10003;',skipped:'&#8211;',failed:'&#10007;'};
+function pollPipeline(){fetch('/api/pipeline/status').then(r=>r.json()).then(d=>{
+  const el=document.getElementById('psteps'),lg=document.getElementById('plog');
+  if(!d||!d.steps){return;}
+  let h=`<b>${d.job.name}</b> &middot; ${d.state} &middot; cost $${(d.cost_usd||0).toFixed(2)}<br>`;
+  for(const s of d.steps){h+=`<div style="color:${s.state==='failed'?'#b23b3b':s.state==='running'?'#1d3557':'#2f855a'}">${STEPICON[s.state]||''} ${s.label}${s.note?' <span style=color:#666>'+s.note+'</span>':''}</div>`;}
+  if(d.error)h+=`<div style=color:#b23b3b>${d.error}</div>`;
+  el.innerHTML=h;lg.style.display='block';lg.innerHTML=(d.log||[]).slice(-40).map(x=>`<div>${x.replace(/</g,'&lt;')}</div>`).join('');lg.scrollTop=lg.scrollHeight;
+  document.getElementById('pload').style.display=d.state==='done'?'':'none';}).catch(()=>{});}
+function loadPipelineResult(){fetch('/api/pipeline/load',{method:'POST',body:'{}'}).then(r=>r.json()).then(d=>{
+  document.getElementById('psteps').innerHTML+=`<div>${d.error||('console switched to '+d.kg_path+' (restart mediator/BT with the same paths for missions)')}</div>`;
+  ROBMAP=null;MAPINFO=null;document.getElementById('mapimg').src='/map.png?'+Date.now();poll();});}
 // ---- Groot-composition live BT view: left-to-right layout, type line over
 // ---- instance name (as Groot2 draws it), UI design language kept
 const BTC={RUNNING:'#ffb703',SUCCESS:'#3ddc84',FAILURE:'#ff5964',INVALID:'#5c6370'};
@@ -365,7 +553,8 @@ function poll(){fetch('/api/state').then(r=>r.json()).then(d=>{STATE=d;
     mk.style.left=(img.offsetLeft+u*img.clientWidth/960)+'px';
     mk.style.top=(img.offsetTop+v*img.clientHeight/720)+'px';
     mk.style.display='block';}
-  drawOverlay();
+  if(d.map)MAPINFO=d.map;if(!ROBMAP&&d.robot_map_cells)ROBMAP=d.robot_map_cells;
+  drawOverlay();drawMap();
   render();}).catch(()=>{document.getElementById('conn').textContent=' — offline';});}
 setInterval(poll,1000);poll();
 </script></body></html>"""
@@ -381,7 +570,43 @@ class UIServer(Node):
         self.naming_path = p("naming_path",
                              f"{BLK}/place_ring_naming.json").value
         self.port = p("port", 8080).value
+        # occupancy grid shown in the map panel (KG frame; the same map the
+        # place layer and the Gazebo world are built on)
+        self.map_yaml = p("map_yaml",
+                          "/home/caselab/ammr_twin/map_vis_n2_1.yaml").value
+        self.map_png, self.map_info = None, None
+        try:
+            self.map_png, self.map_info = load_map_png(self.map_yaml)
+        except Exception as e:  # noqa: BLE001
+            self.get_logger().warn(f"map not loaded ({self.map_yaml}): {e}")
+        from geometry_msgs.msg import PoseStamped
+        # operator-picked initial pose / goal from the map panel. Sim: these
+        # are Nav2's own topics; real robot: remap to /kg_initialpose and
+        # /kg_goal_pose so the bridge converts KG frame -> robot frame.
+        self.init_pub = self.create_publisher(PoseWithCovarianceStamped,
+                                              "initialpose", 10)
+        # robot AMCL map -> KG frame offset: stored on disk, latched to the
+        # bridge on /kg_map_offset (String JSON {"map_offset":[X,Y,YAW_DEG]})
+        from rclpy.qos import (QoSProfile, QoSDurabilityPolicy,
+                               QoSReliabilityPolicy)
+        latched = QoSProfile(depth=1, reliability=QoSReliabilityPolicy.RELIABLE,
+                             durability=QoSDurabilityPolicy.TRANSIENT_LOCAL)
+        self.offset_pub = self.create_publisher(String, "kg_map_offset", latched)
+        self.offset_path = p("offset_path",
+                             os.path.expanduser("~/ammr_twin/robot_map_offset.json")).value
+        self.robot_map_cells = None
+        try:
+            off = json.load(open(self.offset_path))
+            self.offset_pub.publish(String(data=json.dumps(off)))
+            from .map_register import transformed_cells
+            if os.path.exists(off.get("robot_yaml", "")):
+                self.robot_map_cells = transformed_cells(off["robot_yaml"], off["map_offset"])
+        except (OSError, json.JSONDecodeError, KeyError):
+            pass
+        self.goal_pub = self.create_publisher(PoseStamped, "goal_pose", 10)
         self.cmd_pub = self.create_publisher(String, "semantic_command", 10)
+        # operator STOP fan-out: the nav bridge / robot side listens here too
+        self.stop_pub = self.create_publisher(String, "semantic_stop", 10)
         from sensor_msgs.msg import BatteryState
         self.batt_pub = self.create_publisher(BatteryState, "battery_state",
                                               10)
@@ -437,7 +662,161 @@ class UIServer(Node):
 
     def _on_pose(self, msg):
         pp = msg.pose.pose.position
-        self.robot_pose = (pp.x, pp.y)
+        q = msg.pose.pose.orientation
+        yaw = math.atan2(2 * (q.w * q.z + q.x * q.y),
+                         1 - 2 * (q.y * q.y + q.z * q.z))
+        self.robot_pose = (pp.x, pp.y, yaw)
+
+    # ------------------------------------------------ E57 -> semantic model --
+    SEG = os.path.dirname(BLK)
+
+    def pipeline_start(self, req):
+        import subprocess
+        if getattr(self, "pipe_proc", None) and self.pipe_proc.poll() is None:
+            return {"error": "a pipeline is already running"}
+        e57 = req.get("e57", "")
+        if not os.path.exists(e57):
+            return {"error": f"E57 not found: {e57}"}
+        name = "".join(c if c.isalnum() or c in "-_" else "_" for c in req.get("name", "scan"))
+        job = {"name": name, "e57": e57, "mode": req.get("mode", "new"),
+               "map_id": "testroom" if req.get("mode") == "epoch" else name,
+               "vlm": bool(req.get("vlm", True)), "budget_usd": float(req.get("budget_usd", 5.0)),
+               "overhead": bool(req.get("overhead", True)),
+               "kg_graph": self.kg_path, "kg_map_yaml": self.map_yaml,
+               "bounds": "outputs/vis_n2_room_bounds.json",
+               "ref_clean": "outputs/vis_n2_det_filt/clean.ply"}
+        jdir = os.path.join(BLK, f"{name}_objects"); os.makedirs(jdir, exist_ok=True)
+        jpath = os.path.join(jdir, "job.json"); json.dump(job, open(jpath, "w"), indent=1)
+        self.pipe_status = os.path.join(jdir, "pipeline_status.json")
+        if os.path.exists(self.pipe_status):
+            os.remove(self.pipe_status)
+        log = open(os.path.join(jdir, "pipeline.log"), "a")
+        self.pipe_proc = subprocess.Popen(
+            [os.path.join(self.SEG, ".venv", "bin", "python"),
+             os.path.join(self.SEG, "scripts", "semantic_pipeline.py"), "--job", jpath],
+            cwd=self.SEG, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        self.status_log.append(f"semantic modeling started: {name} ({job['mode']})")
+        return {"ok": True, "job": job}
+
+    def pipeline_status(self):
+        p = getattr(self, "pipe_status", None)
+        if not p or not os.path.exists(p):
+            return {}
+        try:
+            d = json.load(open(p))
+        except (OSError, json.JSONDecodeError):
+            return {}
+        proc = getattr(self, "pipe_proc", None)
+        if d.get("state") == "running" and proc is not None and proc.poll() is not None:
+            d["state"] = "failed"; d["error"] = f"pipeline process exited ({proc.returncode})"
+        return d
+
+    def pipeline_stop(self):
+        import signal
+        proc = getattr(self, "pipe_proc", None)
+        if proc and proc.poll() is None:
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            return {"ok": True}
+        return {"error": "nothing running"}
+
+    def pipeline_load(self):
+        d = self.pipeline_status()
+        if d.get("state") != "done":
+            return {"error": "no finished pipeline"}
+        o = d["outputs"]
+        self.kg_path, self.places_path = o["kg"], o["places"]
+        self.naming_path, self.naming_key = o["naming"], o.get("naming_key")
+        if o.get("map_yaml") and os.path.exists(o["map_yaml"]):
+            self.map_yaml = o["map_yaml"]
+            try:
+                self.map_png, self.map_info = load_map_png(self.map_yaml)
+            except Exception as e:  # noqa: BLE001
+                return {"error": f"map reload failed: {e}"}
+        self.robot_map_cells = None
+        self.status_log.append(f"console switched to {os.path.basename(self.kg_path)}")
+        return {"ok": True, "kg_path": self.kg_path, "map_yaml": self.map_yaml}
+
+    def register_robot_map(self, files, use_init=True):
+        """files: {name: bytes} with one .pgm and one .yaml. Saves them,
+        registers onto the KG map, stores + publishes the offset."""
+        import datetime
+        from .map_register import register, transformed_cells
+        d = os.path.expanduser(f"~/ammr_twin/robot_maps/{datetime.datetime.now():%Y%m%d_%H%M%S}")
+        os.makedirs(d, exist_ok=True)
+        ypath = None
+        for name, data in files.items():
+            path = os.path.join(d, os.path.basename(name))
+            open(path, "wb").write(data)
+            if name.lower().endswith((".yaml", ".yml")):
+                ypath = path
+        if ypath is None:
+            return {"error": "no .yaml among the uploaded files"}
+        y = yaml.safe_load(open(ypath))
+        if not os.path.exists(os.path.join(d, os.path.basename(y.get("image", "")))):
+            return {"error": f"yaml 'image: {y.get('image')}' not among the uploaded files"}
+        y["image"] = os.path.basename(y["image"])
+        yaml.safe_dump(y, open(ypath, "w"))
+        init = None
+        if use_init and os.path.exists(self.offset_path):
+            try:
+                init = json.load(open(self.offset_path))["map_offset"]
+            except (OSError, json.JSONDecodeError, KeyError):
+                init = None
+        log = self.get_logger().info
+        try:
+            out = register(ypath, self.map_yaml, init, 30.0 if init else None, log=log)
+        except Exception as e:  # noqa: BLE001
+            return {"error": f"registration failed: {e}"}
+        out["timestamp"] = datetime.datetime.now().isoformat(timespec="seconds")
+        json.dump(out, open(self.offset_path, "w"), indent=1)
+        self.offset_pub.publish(String(data=json.dumps(out)))
+        self.robot_map_cells = transformed_cells(ypath, out["map_offset"])
+        out["cells"] = self.robot_map_cells
+        self.status_log.append(
+            f"robot map registered: offset {out['map_offset']} "
+            f"(mean {out['stats']['mean_m']*100:.1f} cm)")
+        return out
+
+    def publish_initialpose(self, req):
+        m = PoseWithCovarianceStamped()
+        m.header.frame_id = "map"
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.pose.pose.position.x = float(req["x"])
+        m.pose.pose.position.y = float(req["y"])
+        yaw = req.get("yaw")
+        if yaw is None:
+            yaw = self.robot_pose[2] if self.robot_pose else 0.0
+        m.pose.pose.orientation.z = math.sin(yaw / 2)
+        m.pose.pose.orientation.w = math.cos(yaw / 2)
+        cov = [0.0] * 36
+        cov[0] = cov[7] = 0.25
+        cov[35] = 0.068
+        m.pose.covariance = cov
+        self.init_pub.publish(m)
+        self.status_log.append(
+            f"initial pose set from console: ({req['x']:.2f}, {req['y']:.2f}, "
+            f"{math.degrees(yaw):.0f} deg)")
+        return {"ok": True, "yaw": yaw}
+
+    def publish_goal(self, req):
+        from geometry_msgs.msg import PoseStamped
+        m = PoseStamped()
+        m.header.frame_id = "map"
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.pose.position.x = float(req["x"])
+        m.pose.position.y = float(req["y"])
+        yaw = req.get("yaw")
+        if yaw is None and self.robot_pose:   # face the goal from the robot
+            yaw = math.atan2(req["y"] - self.robot_pose[1],
+                             req["x"] - self.robot_pose[0])
+        yaw = yaw or 0.0
+        m.pose.orientation.z = math.sin(yaw / 2)
+        m.pose.orientation.w = math.cos(yaw / 2)
+        self.goal_pub.publish(m)
+        self.status_log.append(
+            f"direct goal from console: ({req['x']:.2f}, {req['y']:.2f}, "
+            f"{math.degrees(yaw):.0f} deg)")
+        return {"ok": True, "yaw": yaw}
 
     # ------------------------------------------------------------- state --
     def state(self):
@@ -446,7 +825,8 @@ class UIServer(Node):
         names = {}
         try:
             book = json.load(open(self.naming_path))
-            ep = book.get("T3_slic_rev4") or book.get("T3_slic") or {}
+            ep = (book.get(getattr(self, "naming_key", None) or "") or
+                  book.get("T3_slic_rev4") or book.get("T3_slic") or {})
             names = {k: v["name"] for k, v in ep.items()
                      if isinstance(v, dict)}
         except (OSError, json.JSONDecodeError):
@@ -494,7 +874,7 @@ class UIServer(Node):
                            "key": keys.get(p["name"]),
                            "cx": round(p["centroid"][0], 2),
                            "cy": round(p["centroid"][1], 2)})
-        return {"objects": objs, "places": places,
+        return {"map": self.map_info, "robot_map_cells": self.robot_map_cells, "objects": objs, "places": places,
                 "robots": kg.get("robots", []),
                 "status_log": self.status_log,
                 "battery": self.battery,
@@ -670,6 +1050,8 @@ class UIServer(Node):
 
     def publish_command(self, cmd):
         self.cmd_pub.publish(String(data=json.dumps(cmd)))
+        if isinstance(cmd, dict) and cmd.get("cmd") in ("stop", "cancel"):
+            self.stop_pub.publish(String(data="stop"))
 
     def publish_battery(self, level):
         from sensor_msgs.msg import BatteryState
@@ -696,11 +1078,17 @@ def make_handler(node):
                 self._send(200, PAGE, "text/html; charset=utf-8")
             elif self.path == "/api/state":
                 self._send(200, json.dumps(node.state()))
+            elif self.path == "/api/pipeline/status":
+                self._send(200, json.dumps(node.pipeline_status()))
             elif self.path.startswith("/api/region"):
                 from urllib.parse import urlparse, parse_qs
                 q = parse_qs(urlparse(self.path).query)
                 self._send(200, json.dumps(
                     node.region_cells(q.get("name", [""])[0])))
+            elif self.path == "/map.png":
+                if node.map_png is None:
+                    return self._send(404, "{}")
+                self._send(200, node.map_png, "image/png")
             elif self.path.startswith("/stream/"):
                 self._stream(self.path.rsplit("/", 1)[-1])
             else:
@@ -728,8 +1116,52 @@ def make_handler(node):
             except (BrokenPipeError, ConnectionResetError):
                 pass
 
+        def do_PUT(self):
+            if not self.path.startswith("/api/e57"):
+                return self._send(404, "{}")
+            from urllib.parse import urlparse, parse_qs, unquote
+            q = parse_qs(urlparse(self.path).query)
+            name = os.path.basename(unquote(q.get("name", ["scan.e57"])[0]))
+            if not name.lower().endswith(".e57"):
+                return self._send(400, '{"error":"not an .e57"}')
+            n = int(self.headers.get("Content-Length", 0))
+            d = os.path.expanduser("~/ammr_twin/scans"); os.makedirs(d, exist_ok=True)
+            path = os.path.join(d, name)
+            with open(path, "wb") as f:      # stream to disk in 8 MB chunks
+                left = n
+                while left > 0:
+                    chunk = self.rfile.read(min(8 << 20, left))
+                    if not chunk:
+                        break
+                    f.write(chunk); left -= len(chunk)
+            self._send(200, json.dumps({"path": path, "bytes": n - left}))
+
+        def _multipart(self, n):
+            """Minimal multipart/form-data parser -> (files{name: bytes}, fields{})"""
+            ctype = self.headers.get("Content-Type", "")
+            boundary = ctype.split("boundary=")[-1].encode()
+            body = self.rfile.read(n)
+            files, fields = {}, {}
+            for part in body.split(b"--" + boundary)[1:]:
+                if part.strip() in (b"", b"--"):
+                    continue
+                head, _, data = part.partition(b"\r\n\r\n")
+                data = data[:-2] if data.endswith(b"\r\n") else data
+                disp = head.decode(errors="ignore")
+                name = disp.split('name="')[1].split('"')[0] if 'name="' in disp else ""
+                if 'filename="' in disp:
+                    fn = disp.split('filename="')[1].split('"')[0]
+                    files[fn] = data
+                else:
+                    fields[name] = data.decode(errors="ignore")
+            return files, fields
+
         def do_POST(self):
             n = int(self.headers.get("Content-Length", 0))
+            if self.path == "/api/robotmap":
+                files, fields = self._multipart(n)
+                return self._send(200, json.dumps(node.register_robot_map(
+                    files, fields.get("use_init", "1") == "1")))
             try:
                 req = json.loads(self.rfile.read(n) or b"{}")
             except json.JSONDecodeError:
@@ -737,6 +1169,16 @@ def make_handler(node):
             if self.path == "/api/command":
                 node.publish_command(req)
                 self._send(200, '{"ok":true}')
+            elif self.path == "/api/pipeline/start":
+                self._send(200, json.dumps(node.pipeline_start(req)))
+            elif self.path == "/api/pipeline/stop":
+                self._send(200, json.dumps(node.pipeline_stop()))
+            elif self.path == "/api/pipeline/load":
+                self._send(200, json.dumps(node.pipeline_load()))
+            elif self.path == "/api/initialpose":
+                self._send(200, json.dumps(node.publish_initialpose(req)))
+            elif self.path == "/api/goal":
+                self._send(200, json.dumps(node.publish_goal(req)))
             elif self.path == "/api/battery":
                 node.publish_battery(req.get("level", 1.0))
                 self._send(200, '{"ok":true}')

@@ -6,7 +6,9 @@
 #
 # Prereq (one-time, needs sudo):
 #   sudo apt install ros-jazzy-rmw-cyclonedds-cpp
-AMMR_IP=192.168.31.56
+# ammr is reachable at one of these depending on which wifi this PC is on:
+#   ammr20_test (PC 192.168.31.x) -> 192.168.31.56 ; AMMR20 (PC 192.168.10.x) -> 192.168.10.66
+AMMR_IPS="192.168.31.56 192.168.10.66"
 source /opt/ros/jazzy/setup.bash
 set -u
 export ROS_DOMAIN_ID=56
@@ -19,8 +21,14 @@ if [ ! -e /opt/ros/jazzy/lib/librmw_cyclonedds_cpp.so ]; then
     exit 1
 fi
 
-echo "== STEP 0: ping ammr ($AMMR_IP)"
-ping -c 2 -W 2 $AMMR_IP >/dev/null && echo "  OK" || { echo "  FAIL: no route — same wifi(ammr20_test)? "; exit 1; }
+MYIP=$(ip -4 -o addr show wlp6s0 | awk '{print $4}')
+SSID=$(nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2)
+echo "== STEP 0: this PC wlp6s0=$MYIP ssid=$SSID ; ping ammr ($AMMR_IPS)"
+AMMR_IP=""
+for ip in $AMMR_IPS; do
+    ping -c 2 -W 2 $ip >/dev/null 2>&1 && { AMMR_IP=$ip; break; }
+done
+[ -n "$AMMR_IP" ] && echo "  OK: ammr at $AMMR_IP" || { echo "  FAIL: no route to ammr — robot on? PC on the robot wifi (AMMR20 / ammr20_test)?"; exit 1; }
 
 echo "== STEP 3a: topic discovery (10 s)"
 if timeout 10 ros2 topic list 2>/dev/null | grep -q "/ammr/state"; then

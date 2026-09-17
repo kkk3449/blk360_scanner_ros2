@@ -144,3 +144,72 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 - 트윈 모드에서 바퀴/조향은 애니메이션 안 함 (베이스 포즈만 미러링).
 - 점유격자에 창문 밖 잡점 일부 포함 (벽 밖이라 주행엔 무영향).
 - 실로봇 pose 토픽 이름/프레임은 AMMR 소프트웨어 확정 후 `--pose-topic`으로 조정.
+
+## 6. 2026-09-08 재가동 준비 (RAAICON 발표 영상 녹화용)
+
+- **망 변경 대응:** PC가 AMMR20(192.168.10.x)에 붙어 있어 옛 설정(31.135 고정)은 바인딩 실패했을 것.
+  `~/cyclonedds_isaac.xml`을 인터페이스 **이름(wlp6s0)** 바인딩 + 피어 2개(31.56, 10.66)로 변경(백업 `.bak_20260908`),
+  `ammr_net_check.sh`는 두 IP를 자동 탐지. 로봇이 AMMR20에 있으면 eno1 주소 192.168.10.66으로 잡힘.
+- **헤드리스 목업 스모크 PASS** (`~/ammr_twin/smoke_20260908/`): 트윈 기동 → /ammr/twin_pose 발행 →
+  goal(1.0,1.5) 발행 → 목업 수신·주행 → 트윈 추종((-0.41,0.93)→(-0.24,3.91)). 기동 ~15 s(헤드리스).
+  `PhysicsUSD: CreateJoint - cannot create a joint between static bodies` 에러 12줄은 트윈 모드의 물리 스트립
+  부작용으로 7월 스모크 로그에도 동일하게 있음 — 무시.
+- 녹화 계획·샷 리스트: `docs/raaicon2026/presentation/recording_plan.md`.
+- **2026-09-08 재앵커 결과:** 저장 오프셋(0.4201 2.3043 55.11)으로 띄우니 트윈이 맵 상단 밖(y 7.44 > 경계 7.25).
+  로봇을 motor_035 자리에 세우고 `--anchor 0.7365 0.7815 0.809` → **CALIBRATED map-offset 3.3977 2.4861 43.119**
+  (7월 값과 3 m/12° 차이 = AMCL 초기포즈 차이). 이 세션 재기동 시 `--map-offset 3.3977 2.4861 43.119`.
+  → 추종 방향이 반대로 확인되어 yaw 3.951로 재앵커: **CALIBRATED map-offset -1.7625 -0.7828 -136.627** (이 값이 유효, 위 43.119 값은 폐기).
+
+## 7. 시맨틱 웹 UI ↔ Isaac 연동 (2026-09-14, `scripts/isaacsim_kg_twin.py`, 모드 `run_isaac_ammr.sh kg`)
+
+- 스택: `scripts/bringup_all.sh`(Gazebo visn2_room → AMCL → Nav2 → mediator+BT.CPP → ui_server:8080 → kg_to_usd --watch) 를 먼저 올리고
+  `DISPLAY=:1 setsid nohup scripts/run_isaac_ammr.sh kg > ~/bringup_logs/isaac_kg.log 2>&1 &` (로컬 FastDDS/도메인 0, 기동 ~80 s).
+- Isaac 씬 = `t4_kg_scene.usda`(KG에서 생성, map 프레임, 바닥 z=0) 참조 + AMMR URDF 키네마틱 트윈 + 돔/태양광 + 룸 중심 오버헤드 카메라.
+- 로봇 미러: `/tf` map→odom(AMCL) ∘ `/odom`(Gazebo) 합성 → 부드러운 추종; `/amcl_pose`(transient_local)는 폴백. 오프셋 0 (같은 프레임).
+- KG 핫리로드: UI에서 refute/타입/JSON 편집 → KG json 저장 → watcher가 usda 재생성(~5 s) → Isaac이 mtime 감지 후 `Sdf.Layer.Reload` (검증: touch 후 로그 "KG scene reloaded").
+- 빨간 콘 드래그 → `/goal_pose`(map) → Nav2가 Gazebo 로봇 주행 → UI 로그·Isaac 트윈 동시 추종. 객체 클릭 → "TOSM Object Info" 패널(customData).
+- 종료: `pkill -f "isaacsim_kg[_]twin"` (대괄호로 자기-킬 회피), 스택은 `scripts/kill_all.sh` + ui_server/mediator/mission_bt_cpp/kg_to_usd 수동 종료.
+- 함정: 명령줄에 스크립트 파일명 리터럴이 들어간 상태에서 `pkill -f 이름` → exit 144 자기-킬. 패턴에 `[_]` 넣기.
+
+## 8. 실로봇 end-to-end 시맨틱 미션 (2026-09-14 준비, Electronics R2 대응)
+
+Gazebo/Nav2 없이 **실제 AMMR**로 UI→mediator→BT→로봇 주행, Isaac 트윈 동시 추종.
+- 새 노드 `scripts/real_robot_nav_bridge.py` (도메인 56/CycloneDDS): `/ammr/state`(로봇 맵) → SE(2) 오프셋 → `/amcl_pose`(KG 프레임, latched);
+  `navigate_to_pose` 액션 서버 → 역오프셋 → `/ammr/goal_pose`; 도착 = 반경 0.35 m + 정지 1 s, 타임아웃 150 s, 8 s마다 goal 재전송(릴레이 edge-trigger 대비), cancel 시 현재 위치를 goal로 보내 정지.
+  `--map-offset`(기본 9/8 값 -1.7625 -0.7828 -136.627) 또는 `--anchor 0.7365 0.7815 0.809|3.951`(motor_035 자리에서 첫 pose로 캘리브레이션).
+- 원스톱: `scripts/bringup_real.sh [--anchor ...]` = Gazebo 스택 정리 → net_check → 브리지 → mediator(gated)+BT.CPP → kg_to_usd --watch + ui_server:8080 → Isaac `run_isaac_ammr.sh kg --pose-source amcl`(AMMR_REAL=1 → cyclone/56). `NO_ISAAC=1`로 Isaac 생략.
+- **목업 검증 통과 (9/14)**: 도메인 0에서 `ammr_pose_mock.py` + 브리지 + mediator + BT + UI → UI `goto_object tv` → BT → 브리지 GOAL KG(3.09,1.91)→robot(-5.37,1.38) → 목업 주행 → ARRIVED d=0.05 m 12.7 s → BT 완료. 스크립트: scratchpad/mock_e2e.sh (heredoc을 Bash 명령줄에 넣으면 kill_all의 pkill이 자기 셸을 죽임 → 파일로 실행).
+- 현장 순서: ① 로봇: digital_twin.launch.py + Nav2/AMCL 초기포즈 ② 로봇을 motor_035 자리에(반대 방향이면 yaw 3.951) ③ `scripts/bringup_real.sh --anchor 0.7365 0.7815 3.951` ④ UI에서 객체·장소 미션, Isaac에서 콘 goal, refute 클로즈드루프 ⑤ 도착 위치 줄자 실측(논문 표).
+- **9/14 현장 결과**: 앵커 캘리브레이션 후 방향이 반대로 나와 브리지 오프셋을 앵커 기준 180° 회전으로 교정(`--map-offset -3.3769 -5.8583 85.831`, 유저 텔레옵으로 방향 확인). 첫 goal 1건은 도착(0.21 m/23.8 s)했으나 이후
+  `goto_object tv`는 로봇이 안 움직임 → 원인 = 로봇 쪽 **Nav2 꺼짐**(`/goal_pose` 구독자 없음; 텔레옵 `teleop_twist_keyboard`→`/manual_vel` 켜져 있었음). 내일 재개 시: 로봇 Nav2/AMCL 기동 확인 → `ros2 topic info -v /goal_pose`에 bt_navigator 구독 확인 → 미션.
+- 추가된 것: UI **STOP 버튼**(`{"cmd":"stop"}` → BT 미션 취소 + `/semantic_stop` → 브리지가 현재 위치를 goal로 보내 정지), Isaac 콘 → `/kg_goal_pose` → 브리지 프레임 변환(로봇 `/goal_pose`에 KG 좌표가 직접 가던 위험 제거).
+- 보조 스크립트(파일로 실행해야 pkill 자기-킬 없음): `scripts/shutdown_all.sh`, `scripts/restart_bridge.sh <args>`, `scripts/restart_isaac_real.sh`, `scripts/mock_e2e.sh`.
+- 오프셋은 AMCL 초기화마다 달라짐 → 매 세션 `bringup_real.sh --anchor ...` 후 텔레옵 0.5 m로 방향 확인이 표준. 반대면 `restart_bridge.sh --anchor 0.7365 0.7815 <다른 yaw>` 또는 위 180° 회전 계산.
+
+## 9. 2026-09-15 실로봇 시맨틱 미션 결과 (Electronics R2용)
+- 요약 CSV: `~/ammr_twin/eval/semantic_missions_20260915_summary.csv` (원본 `semantic_missions_20260915.csv`, 브리지 로그 `~/bringup_logs/bridge.log`).
+- **성공 3건**: goto_object tv 14 s/0.34 m (M1), goto_object tv 20.8 s/0.33 m (M8, 촬영), goto_place electrical_maintenance_area(모니터 존) 22.1 s/0.22 m (M9, 촬영). 장소 내부 즉시완료 1건(M2). **팬텀 거부 2건**(keyboard → mediator REFUSED, 로봇 정지).
+- **실패 패턴**: 로봇 재시작 후 첫 미션은 항상 성공, 두 번째 목표부터 로봇이 안 움직임(우리 쪽 목표 해석·전송은 정상 → 로봇 내비 스택의 연속 goal 처리 문제; 1 m 짧은 목표도 실패, AMCL 정상). 텔레옵 사용 후에도 동일. 대응 = 미션마다 로봇 재시작(초기포즈 → 테이프 자리 → `restart_bridge.sh --anchor 0 0 -2.339`).
+- 확정 사실: 로봇 보고 yaw는 실제 전면과 180° 반대(브리지 `--heading-offset 180` 기본), `/ammr/state`=로봇 AMCL과 동일 프레임, 로봇 Nav2는 도메인 56에서 안 보임(dt_goal_relay가 중계), `dt_state_publisher`가 `/amcl_pose`를 구독하므로 우리 pose는 `/kg_robot_pose`로 발행.
+- 시작 자리(테이프) = KG (0,0), 실제 전면 −134°(anchor yaw −2.339 rad). Isaac 콘은 첫 pose에서 로봇 위에 자동 배치.
+
+## 10. 콘솔 지도 패널 · 초기포즈/목표 · 브리지 옵션 (2026-09-16)
+
+- `ui_server`에 점유격자 지도 패널 추가 (`-p map_yaml:=…`, 기본 `~/ammr_twin/map_vis_n2_1.yaml` = KG 프레임). `/map.png` 정적 배경 + 캔버스 오버레이(모든 객체: 검증=색, 미검증=회색; 선택 장소 셀; 로봇 위치+헤딩). 로봇 카메라 패널은 제거.
+- 버튼 **set initial pose / send goal**: 지도에서 누르고(위치) 끌어서(헤딩) 놓으면 `POST /api/initialpose` → `initialpose`(PoseWithCovarianceStamped), `POST /api/goal` → `goal_pose`(PoseStamped). 시뮬은 Nav2 토픽 그대로; 실로봇은 `bringup_real.sh`가 `goal_pose:=/kg_goal_pose`, `initialpose:=/kg_initialpose`로 리맵.
+- 브리지: `/kg_initialpose`(KG 프레임) → 로봇 프레임 변환 → `/ammr/initialpose` 발행(`--init-topic`). **로봇 측에 `/ammr/initialpose → /initialpose` relay가 아직 없음** (dt_goal_relay와 같은 방식으로 추가 필요). `--stop-mode hold|none`: STOP 시 현 위치 hold goal 재전송 여부(2번째 임무 무응답 원인 분리용).
+- 테스트: `ROS_DOMAIN_ID=77`에서 `ui_server -p port:=8089` + latched `/amcl_pose` 목업 → `/api/state`에 map/robot_pose, `/api/goal`→`/goal_pose`, `/api/initialpose`→`/initialpose` 확인. 브리지 `/kg_initialpose (0,0,−134°)` → `/ammr/initialpose (−1.82, 0.64, −177°)` 확인.
+
+## 11. 로봇 AMCL 지도 업로드 → KG 프레임 자동 정합 (2026-09-17)
+
+- 콘솔 왼쪽 "Robot map (AMCL) → KG frame" 카드에 로봇 지도 `.pgm + .yaml`을 끌어 놓거나 선택 → `POST /api/robotmap`(multipart) → `semantic_nav_bt/map_register.py`가 KG 점유격자에 정합(360° yaw × FFT 상관 → 챔퍼 점수 → ICP; 목업 검증: 오차 1 cm / 0.04°, 2 s) → `~/ammr_twin/robot_map_offset.json` 저장 + `/kg_map_offset`(latched String JSON) 발행 → 브리지가 즉시 오프셋 갱신(`--anchor` 대기 중이면 무시). 브리지는 시작 시 `--map-offset` 미지정이면 `--map-offset-file`(기본 위 json)에서 읽음.
+- 정합된 로봇 지도는 지도 패널에 주황 점으로 오버레이(체크박스). 잔차 mean/inlier가 카드에 표시.
+- 의미: 오프셋이 세션 상수가 되므로 테이프 앵커 없이 아무 위치에서 시작 → 콘솔 initpose 클릭 → (로봇 측 `/ammr/initialpose→/initialpose` relay 필요) → 임무.
+
+## 12. 콘솔 원클릭 "E57 → 3D 시맨틱 모델링" (2026-09-17)
+
+- 카드 "3D semantic modeling from E57": `.e57` 드롭/선택 → `PUT /api/e57?name=` 스트리밍 저장(`~/ammr_twin/scans/`), 또는 서버 경로 직접 입력. 이름·모드(new site / test-room epoch)·VLM 사용+예산(USD)·오버헤드 패스 선택 → **Start** → `POST /api/pipeline/start` → `blk360_seg/scripts/semantic_pipeline.py --job <objects_dir>/job.json` (SEG venv, 별도 세션). 상태는 `pipeline_status.json`을 3 s마다 폴링(단계 ✓/▶/✗, 로그 40줄, 누적 비용). stop = 프로세스 그룹 SIGTERM.
+- 단계: extract_objects(--save-clean) → classify_objects(industrial) → build_semantic_objects → [new: build_occ_from_e57 → make_room_bounds | epoch: register_scan(FPFH+ICP)] → roomscope_any → render 4+8+zoom → vlm_late_fusion(--select 실내, 예산 초과/비활성 시 skip → 잠정 라벨 미검증 편입) → kg_upsert(new: `outputs/<name>_kg.json`, epoch: `testroom_epochs_kg.json` 백업 후) → place_slic_segment + place_ring_naming(`<name>_slic`) → [overhead: overhead_extract(conn 0.15) → 어휘 분류 → 렌더(-30°) → vlm(후보·높이 사전) → upsert].
+- 새 헬퍼: `register_scan.py`(CLI), `roomscope_any.py`(임의 T·bounds·tol), `make_room_bounds.py`(지도 최대 자유영역 → bounds json). 기존 `register_epoch_scan.py`/`roomscope_transform.py`의 하드코딩 경로 대체.
+- "load result into console": ui_server의 kg/places/naming/map 경로를 결과로 교체(지도 패널 재로드). mediator/BT는 같은 경로로 재시작 필요. `kg_to_usd.py`는 아직 경로 상수라 Isaac 반영은 수동.
+- 비용 가드: 실내 객체 수 × 13 호출 × $0.0097 추정이 예산을 넘으면 Stage B를 건너뜀(일일 ₩30,000 규칙).

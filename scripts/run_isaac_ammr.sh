@@ -5,6 +5,7 @@
 #
 #   scripts/run_isaac_ammr.sh teleop [extra args...]   # sim-only teleop stage
 #   scripts/run_isaac_ammr.sh twin   [extra args...]   # live real-robot twin
+#   scripts/run_isaac_ammr.sh kg     [extra args...]   # KG scene + Gazebo/Nav2 robot twin (web-UI stack)
 set -e
 WS="$(cd "$(dirname "$0")/.." && pwd)"
 ISAAC="$HOME/isaacsim"
@@ -18,7 +19,9 @@ case "$MODE" in
   twin)   SCRIPT="$WS/scripts/isaacsim_ammr_twin.py"
           DEFAULTS=(--world "$HOME/ammr_twin/vis_n2_world.usda"
                     --overlay "$HOME/ammr_twin/vis_n2_tosm.usda") ;;
-  *) echo "usage: $0 {teleop|twin} [args]"; exit 1 ;;
+  kg)     SCRIPT="$WS/scripts/isaacsim_kg_twin.py"      # semantic-DB scene + Gazebo/Nav2 robot (local stack)
+          DEFAULTS=() ;;
+  *) echo "usage: $0 {teleop|twin|kg} [args]"; exit 1 ;;
 esac
 
 # scrub any sourced system ROS, then point at the internal jazzy libs
@@ -28,7 +31,7 @@ export LD_LIBRARY_PATH="$LD_SCRUBBED${LD_SCRUBBED:+:}$BRIDGE/lib"
 export ROS_DISTRO=jazzy
 export PYTHONUNBUFFERED=1
 
-if [ "$MODE" = twin ] && [ -z "${AMMR_LOCAL_TEST:-}" ]; then
+if { [ "$MODE" = twin ] && [ -z "${AMMR_LOCAL_TEST:-}" ]; } || { [ "$MODE" = kg ] && [ -n "${AMMR_REAL:-}" ]; }; then
   # real-robot bridge contract (~/Downloads/DataSend/README.md):
   # CycloneDDS + domain 56 + unicast peer to the ammr wifi IP
   export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp

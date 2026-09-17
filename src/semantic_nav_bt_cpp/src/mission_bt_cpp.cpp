@@ -45,6 +45,7 @@ struct MissionContext
   std::vector<json> goals;
   size_t goal_idx = 0;
   bool home_requested = false;
+  bool stop_requested = false;   // operator STOP: cancel nav, hold position
   bool docked = false;
   double battery = 1.0;
   bool have_pose = false;
@@ -129,6 +130,7 @@ private:
   {
     std::lock_guard<std::mutex> lk(ctx_->mtx);
     if (!ctx_->command.is_null()) {return BT::NodeStatus::SUCCESS;}
+    ctx_->stop_requested = false;                  // nothing to stop while idle
     if (!ctx_->pending.empty()) {
       ctx_->command = ctx_->pending.front();
       ctx_->pending.pop_front();
@@ -277,6 +279,20 @@ public:
 
   BT::NodeStatus onRunning() override
   {
+    {
+      std::lock_guard<std::mutex> lk(ctx_->mtx);
+      if (ctx_->stop_requested) {
+        if (handle_ && result_.empty()) {client_->async_cancel_goal(handle_);}
+        ctx_->stop_requested = false;
+        ctx_->clear_mission();
+        ctx_->set_status("STOPPED by operator: mission cancelled, holding position");
+        return BT::NodeStatus::FAILURE;
+      }
+      if (ctx_->goal_idx >= ctx_->goals.size()) {   // mission cleared under us
+        if (handle_ && result_.empty()) {client_->async_cancel_goal(handle_);}
+        return BT::NodeStatus::FAILURE;
+      }
+    }
     const json & g = ctx_->goals[ctx_->goal_idx];
     char b[160];
     if (dry_run_) {
@@ -478,6 +494,16 @@ private:
     }
     RCLCPP_INFO(get_logger(), "command: %s", cmd.dump().c_str());
     std::lock_guard<std::mutex> lk(ctx_->mtx);
+    if (cmd.value("cmd", "") == "stop" || cmd.value("cmd", "") == "cancel") {
+      ctx_->pending.clear();
+      ctx_->home_requested = false;
+      if (!ctx_->command.is_null()) {
+        ctx_->stop_requested = true;               // NavigateToGoal cancels nav
+      } else {
+        ctx_->set_status("STOP: no mission running");
+      }
+      return;
+    }
     if (cmd.value("cmd", "") == "return_home" ||
         cmd.value("cmd", "") == "dock")
     {
