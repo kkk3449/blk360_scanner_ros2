@@ -268,7 +268,7 @@ function drawOverlay(){const img=document.getElementById('ovimg'),
       ctx.font='bold 11px system-ui';ctx.fillStyle=col;
       ctx.fillText(o.name,cx+5,cy-5);}}}
 // ---- occupancy-grid map panel: KG-frame overlays, initial pose / goal ------
-let MV={s:1,tx:0,ty:0}, MAPMODE=null, MDRAG=null, MAPINFO=null;
+let MV={s:1,tx:0,ty:0}, MAPMODE=null, MDRAG=null, MAPINFO=null, LASTARROW=null;
 function mapApply(){document.getElementById('mapwrap').style.transform=
   `translate(${MV.tx}px,${MV.ty}px) scale(${MV.s})`;}
 function mapReset(){const img=document.getElementById('mapimg');
@@ -302,7 +302,8 @@ window.addEventListener('load',()=>{const v=document.getElementById('mapview');
     else{pan=[e.clientX,e.clientY];v.style.cursor='grabbing';}});
   window.addEventListener('mousemove',e=>{
     if(pan){MV.tx+=e.clientX-pan[0];MV.ty+=e.clientY-pan[1];pan=[e.clientX,e.clientY];mapApply();}
-    if(MDRAG){const [u,w]=mapPix(e);MDRAG.p1=p2w(u,w);drawMap();}});
+    if(MDRAG){const [u,w]=mapPix(e);MDRAG.p1=p2w(u,w);const yw=Math.atan2(MDRAG.p1[1]-MDRAG.p0[1],MDRAG.p1[0]-MDRAG.p0[0]);
+      document.getElementById('maphint').textContent=` ${MAPMODE==='init'?'INITIAL POSE':'GOAL'} (${MDRAG.p0[0].toFixed(2)}, ${MDRAG.p0[1].toFixed(2)}) yaw ${(yw*180/Math.PI).toFixed(0)} deg — release to send`;drawMap();}});
   v.addEventListener('mousemove',e=>{if(!MAPINFO)return;const [u,w]=mapPix(e);const [x,y]=p2w(u,w);
     let near='';if(STATE){let best=null;for(const o of STATE.objects){const d=Math.hypot(o.x-x,o.y-y);
       if(!best||d<best[0])best=[d,o];}
@@ -312,7 +313,11 @@ window.addEventListener('load',()=>{const v=document.getElementById('mapview');
     if(MDRAG){const p0=MDRAG.p0,p1=MDRAG.p1||p0;
       const yaw=(p1===p0||Math.hypot(p1[0]-p0[0],p1[1]-p0[1])<0.05)?null:Math.atan2(p1[1]-p0[1],p1[0]-p0[0]);
       const body={x:p0[0],y:p0[1],yaw:yaw};
-      fetch(MAPMODE==='init'?'/api/initialpose':'/api/goal',{method:'POST',body:JSON.stringify(body)});
+      const col=MAPMODE==='init'?'#2e8b57':'#7b3fe4';
+      fetch(MAPMODE==='init'?'/api/initialpose':'/api/goal',{method:'POST',body:JSON.stringify(body)})
+        .then(r=>r.json()).then(d=>{const y=(d&&d.yaw!=null)?d.yaw:(yaw||0);
+          LASTARROW={p0:p0,p1:[p0[0]+Math.cos(y),p0[1]+Math.sin(y)],col:col,t:Date.now()};drawMap();
+          setTimeout(drawMap,4200);});
       MDRAG=null;mapMode(null);}
     pan=null;if(!MAPMODE)v.style.cursor='grab';});});
 function drawMap(){const img=document.getElementById('mapimg'),cv=document.getElementById('mapcanvas');
@@ -338,10 +343,15 @@ function drawMap(){const img=document.getElementById('mapimg'),cv=document.getEl
     ctx.save();ctx.translate(u,w);ctx.rotate(-th);ctx.strokeStyle='#e63946';ctx.fillStyle='rgba(230,57,70,.35)';ctx.lineWidth=2;
     ctx.beginPath();ctx.arc(0,0,0.45*m,0,6.283);ctx.fill();ctx.stroke();
     ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0.9*m,0);ctx.stroke();ctx.restore();}
-  // drag preview (initial pose / goal arrow)
-  if(MDRAG){const [u,w]=w2p(MDRAG.p0[0],MDRAG.p0[1]);ctx.strokeStyle=MAPMODE==='init'?'#b23b3b':'#2f855a';ctx.lineWidth=3;
-    ctx.beginPath();ctx.arc(u,w,0.3*m,0,6.283);ctx.stroke();
-    if(MDRAG.p1){const [u1,w1]=w2p(MDRAG.p1[0],MDRAG.p1[1]);ctx.beginPath();ctx.moveTo(u,w);ctx.lineTo(u1,w1);ctx.stroke();}}}
+  // RViz-style pose arrow: shaft from the press point toward the cursor, with an arrowhead
+  const arrow=(p0,p1,col)=>{const [u0,w0]=w2p(p0[0],p0[1]);ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=Math.max(2,0.08*m);
+    ctx.lineCap='round';if(!p1){ctx.beginPath();ctx.arc(u0,w0,0.15*m,0,6.283);ctx.fill();return;}
+    const [u1,w1]=w2p(p1[0],p1[1]);const ang=Math.atan2(w1-w0,u1-u0),L=Math.hypot(u1-u0,w1-w0),hd=Math.min(0.45*m,L*0.5);
+    ctx.beginPath();ctx.moveTo(u0,w0);ctx.lineTo(u1-hd*Math.cos(ang),w1-hd*Math.sin(ang));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(u1,w1);ctx.lineTo(u1-hd*Math.cos(ang-0.5),w1-hd*Math.sin(ang-0.5));
+    ctx.lineTo(u1-hd*Math.cos(ang+0.5),w1-hd*Math.sin(ang+0.5));ctx.closePath();ctx.fill();};
+  if(MDRAG){arrow(MDRAG.p0,MDRAG.p1,MAPMODE==='init'?'#2e8b57':'#7b3fe4');}
+  if(LASTARROW&&Date.now()-LASTARROW.t<4000){ctx.globalAlpha=0.6;arrow(LASTARROW.p0,LASTARROW.p1,LASTARROW.col);ctx.globalAlpha=1;}}
 // ---- robot map upload -> registration -> bridge offset ----------------
 let ROBMAP=null;
 window.addEventListener('load',()=>{const dz=document.getElementById('mapdrop'),fi=document.getElementById('mapfiles');
