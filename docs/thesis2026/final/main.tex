@@ -1,0 +1,160 @@
+%%=============================================================================
+%% main.tex — 성균관대학교 박사학위논문(영문) — 본심사판 (2026-09)
+%%   An Automated 3D Mapping and Point Cloud Semantic Modeling Framework
+%%   for Spatial-Operation Robots — Sangmin Kim
+%%
+%%  컴파일(반드시 XeLaTeX + BibTeX):
+%%    xelatex main ; bibtex main ; xelatex main ; xelatex main
+%%    또는: latexmk -xelatex main.tex
+%%=============================================================================
+\documentclass[11pt,a4paper]{skkuthesis}
+\usepackage{url}
+\setkeys{Gin}{height=0.82\textheight,keepaspectratio}  % 그림이 한 쪽을 넘지 않도록
+
+%%---- 논문 정보 ----
+\dissertationtitle{An Automated 3D Mapping and\\
+  Point Cloud Semantic Modeling\\
+  Framework for\\
+  Spatial-Operation Robots}
+\koreantitle{공간 작업 로봇을 위한 자동화된\\3D 매핑 및 포인트클라우드\\시맨틱 모델링 프레임워크}
+\authorname{Sangmin Kim}
+\koreanauthorname{김 상 민}
+\departmentname{Electrical and Computer Engineering}
+\koreandepartment{전자전기컴퓨터공학과}
+\degreedate{October 2026}        % 표지 / 심사청구서 날짜 (2027년 2월 졸업 — 학과 지침 확인)
+\approvaldate{December 2026}     % 인정서(본심사 통과) 날짜 (확정 후 수정)
+\advisorname{Taeyong Kuc}        % 지도교수
+\spineyear{2027}                 % 측면표지(책등) 연도
+
+%% 심사위원 성명(인정서 서명란 아래 인쇄) — 확정되면 수정
+\committeechair{}
+\committeeone{}
+\committeetwo{}
+\committeethree{}
+
+\begin{document}
+
+%%====================== 1. 표지류 ==============================
+\makecover
+\makeinsidecover
+\makesubmission
+\makeapproval
+
+%%====================== 2. 앞부분 =================
+\frontmatterstyle
+
+\tableofcontents
+\listoftables
+\listoffigures
+
+\begin{englishabstract}
+Three-dimensional (3D) mapping and semantic modeling have become foundational
+capabilities for autonomous robots. As the environments in which robots operate
+grow more complex and extend vertically, the quality of the underlying 3D
+representation determines the range of operations a robot can perform. A
+well-constructed 3D semantic model captures the geometry of a space, the
+identity and attributes of its objects, and the relationships among them, so
+that heterogeneous downstream robots can share one understanding of the
+environment. Two gaps persist in current practice. First, survey-grade
+terrestrial laser scanners (TLS) deliver millimeter-accurate geometry but
+require minutes of stationary acquisition per pose and register scans only
+offline, so conventional exploration algorithms that assume continuous motion
+and online registration cannot drive them. Second, semantic information is
+usually produced as auxiliary annotation rather than as a verified, queryable,
+and maintainable knowledge representation, and open-vocabulary 3D classifiers
+that work on curated indoor benchmarks propagate confident but wrong labels on
+industrial content.
+
+This dissertation proposes and validates an integrated framework in which a
+mobile robot carrying a survey-grade TLS autonomously acquires a 3D map of an
+unknown indoor environment, a fully automated pipeline converts the registered
+point cloud into a confidence-aware ontological semantic knowledge graph, and
+the same graph supplies a digital twin, a management console, and a physical
+robot. The framework has three parts. Part~A automates acquisition through a
+stop-and-scan-integrated frontier exploration strategy in which the decision to
+halt and scan is driven by an occlusion-aware ray-cast visibility coverage
+model computed on the live occupancy grid rather than by Euclidean proximity.
+In a controlled paired ablation the visibility rule raises line-of-sight (LOS)
+coverage from about 77\% to 84--85\% for one to two additional scans, and in a
+fully autonomous on-hardware comparison with a Leica BLK360 it raises LOS
+coverage from 77.6\% to 92.1\% while every visibility run registers offline at
+survey grade (4--5\,mm bundle error). Part~B converts the registered scan into
+a Triplet Ontological Semantic Model (TOSM) knowledge graph through a
+deterministic geometric backbone (seeded structure removal, fixed-parameter
+decomposition with a structure-remnant filter, and explicit modeling) followed
+by multi-view vision--language-model (VLM) verification with confidence-weighted
+late fusion and automatic escalation, identity-preserving incremental updates,
+structurally gated querying, an object-grounded place layer, and an
+owner-in-the-loop revision path. Escalation lifts verification accuracy from
+77.8\% to 88.9\% and from 78.1\% to 84.4\% on two configurations of an
+industrial room, with 94--100\% precision on unanimous votes; structural gating
+answers 83.3\% of knowledge-grounded questions while blocking hallucination
+traps; selective re-verification reduces VLM cost to 3.1\% of a rebuild on a
+controlled re-scan; and a real three-epoch study preserves node identities with
+zero observed identity switches. Part~C validates the representation downstream:
+an automated scan-to-simulation pipeline builds a physics-enabled NVIDIA Isaac
+Sim twin in under 80~s that preserves metric scale to within 2\%, a live
+bidirectional bridge mirrors the physical mobile manipulator at 30~Hz with 5.5~cm
+mean end-to-end positioning error, and console-issued semantic missions are
+resolved against the graph and executed by the physical robot with a mean
+arrival error of 0.30~m, while owner-refuted phantom goals are refused with
+zero motion.
+
+Together, the results establish an end-to-end path from autonomous survey-grade
+acquisition, through verified and maintainable semantic modeling, to
+consumption by a real spatial-operation robot, and they identify the remaining
+limits---3D visibility, vocabulary gaps for site-specific equipment, and
+multi-site validation---as the directions for future work.
+\keywords{3D Semantic Mapping, Terrestrial Laser Scanning, Stop-and-Scan
+Exploration, Visibility Coverage, Vision--Language Model Verification, Triplet
+Ontological Semantic Model, Knowledge Graph, Digital Twin}
+\end{englishabstract}
+
+%%====================== 3. 본문 ====================
+\mainmatterstyle
+
+\input{chapters/chapter1}   % Introduction
+\input{chapters/chapter2}   % Related Work
+\input{chapters/chapter3}   % Automated 3D Mapping
+\input{chapters/chapter4}   % 3D Point Cloud Semantic Modeling
+\input{chapters/chapter5}   % Digital-Twin-Based Validation
+\input{chapters/chapter6}   % Experiments and Results
+\input{chapters/conclusion} % Conclusion and Future Works
+
+%%====================== 4. 참고문헌 ==========================================
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+%%====================== 5. 국문초록 (논문요약) ===============================
+\begin{koreanabstract}
+본 학위논문은 측량급 지상 레이저 스캐너(TLS)를 탑재한 이동 로봇이 미지의 실내
+환경의 3차원 지도를 자율적으로 획득하고, 정합된 점군을 완전 자동화된 파이프라인을
+통해 신뢰도 계층을 갖는 온톨로지 시맨틱 지식 그래프로 변환하며, 동일한 그래프가
+디지털 트윈·관제 콘솔·실제 로봇에 공급되는 통합 프레임워크를 제안하고 검증한다.
+Part~A는 정지-스캔 통합형 프론티어 탐색으로 획득을 자동화하며, 정지·스캔 결정을
+유클리드 근접성이 아니라 실시간 점유격자 위의 폐색 인지 레이캐스트 가시성
+커버리지 모델로 내린다. 통제된 쌍대 절제실험에서 가시성 규칙은 시선(LOS)
+커버리지를 약 77\%에서 84--85\%로 높였고, Leica BLK360을 탑재한 완전 자율
+실기 비교에서는 77.6\%에서 92.1\%로 높였으며 모든 가시성 주행의 스캔이 측량급
+(번들 오차 4--5\,mm)으로 정합되었다. Part~B는 결정론적 기하 백본(시드 고정 구조면
+제거, 고정 매개변수 분해와 구조 잔재 필터, 명시 모델링)과 다중 시점
+비전-언어모델(VLM) 검증(신뢰도 가중 late fusion, 자동 상향 검증), 정체성 보존
+증분 갱신, 구조적 게이트 질의, 객체 기반 장소 계층, 소유자 참여 수정 경로로
+TOSM 지식 그래프를 구축한다. 상향 검증은 산업용 시험실의 두 구성에서 검증 정확도를
+77.8\%→88.9\%, 78.1\%→84.4\%로 높였고 만장일치 투표 정밀도는 94--100\%였으며,
+구조적 게이트는 환각 함정을 차단하면서 지식 기반 질의의 83.3\%에 답했고, 통제된
+재스캔에서 선택적 재검증은 VLM 비용을 전체 재구축의 3.1\%로 줄였으며, 실제 3
+에폭 연구에서 정체성 전환은 관측되지 않았다. Part~C는 표현의 하류 소비를 검증한다.
+자동 스캔-시뮬레이션 변환은 80초 이내에 척도 오차 2\% 이내의 물리 기반 NVIDIA
+Isaac Sim 트윈을 생성하고, 실시간 양방향 브리지는 실제 이동 매니퓰레이터를 30\,Hz로
+미러링하며 종단 간 위치 오차 평균 5.5\,cm를 보였고, 콘솔에서 발행한 시맨틱 임무는
+그래프에 대해 해석되어 실제 로봇이 평균 도착 오차 0.30\,m로 수행하였으며 소유자가
+반박한 유령 목표는 이동 없이 거부되었다.
+\koreankeywords{3D 시맨틱 매핑, 지상 레이저 스캐닝, 정지-스캔 탐색, 가시성
+커버리지, 비전-언어모델 검증, 삼중항 온톨로지 시맨틱 모델, 지식 그래프, 디지털 트윈}
+\end{koreanabstract}
+
+%%====================== 6. 측면표지(책등) ===========================
+\makesidecover
+
+\end{document}

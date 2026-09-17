@@ -1,0 +1,353 @@
+%%=============================================================================
+%% chapters/chapter2.tex — Related Work (final-defense version)
+%%=============================================================================
+\chapter{Related Work}
+\label{ch:related}
+
+\section{Autonomous Exploration and Next-Best-View Planning}
+\label{sec:rw-exploration}
+
+Simultaneous localization and mapping (SLAM) estimates a robot's pose while
+reconstructing the geometry of its environment, progressing from filter-based
+formulations such as GMapping~\cite{grisetti2007} to graph-based methods such as
+Cartographer~\cite{hess2016} that enforce global consistency through loop
+closure. Exploration governs how a robot expands its map and reduces
+uncertainty, and has been studied principally under two
+paradigms~\cite{placed2023,lluvia2021}. Frontier-based methods drive the robot
+toward the boundary between known and unknown
+space~\cite{yamauchi1997,umari2017}, prioritizing frontiers by expected
+information gain and travel cost. Next-best-view (NBV) methods instead evaluate
+candidate viewpoints directly by an information-gain or coverage
+criterion~\cite{connolly1985,bircher2016}; information-theoretic formulations
+make this gain explicit by quantifying the expected reduction in map
+uncertainty~\cite{stachniss2005}, and the idea extends to the coordination of
+multiple robots~\cite{burgard2005}. Both paradigms have been refined
+extensively, for example through improved frontier extraction and cost
+shaping~\cite{he2025,quin2021}, incremental frontier structures with
+hierarchical planning~\cite{zhou2021}, and sampling-based online informative
+path planning~\cite{schmid2020}. Most of these methods, however, assume a
+sensor that acquires continuously while the platform moves and registers
+incrementally online, so the dominant cost is travel and the act of observing
+is effectively free along the path. Under that assumption, the question of
+whether to pay a large fixed cost to stop and observe at a particular pose does
+not arise. The present work departs from this assumption by introducing a
+stop-and-scan exploration strategy whose scan/skip decision is made on the live
+map, detailed in Chapter~\ref{ch:mapping}.
+
+\section{Coverage Models, Visibility, and Stop-and-Scan Mapping}
+\label{sec:rw-coverage}
+
+The notion that a viewpoint observes only what is in its line of sight is
+classical in computational geometry, where the visibility polygon defines the
+region directly visible from a point, and in the art-gallery problem, which
+asks for a minimal set of guards that jointly see an entire
+domain~\cite{gonzalez2002,orourke1987,urrutia2000}. Sensor-coverage and
+view-planning formulations build on this idea to place viewpoints that maximize
+observed surface, and have been surveyed for automated 3D reconstruction and
+inspection~\cite{scott2003}, for sensor planning in computer
+vision~\cite{tarabanis1995}, and for view planning in robot active
+vision~\cite{zeng2020}. Coverage path planning, which instead seeks a path that
+sweeps a sensor footprint over an entire area, has likewise been surveyed
+extensively~\cite{choset2001,galceran2013}, including for multi-robot model
+reconstruction and mapping~\cite{almadhoun2019}. In robotic exploration
+practice, however, the per-pose coverage used to drive online decisions is
+frequently approximated by a range disk or a sensor cone without explicit
+occlusion reasoning, because such approximations are cheap to evaluate at every
+candidate. This approximation is benign when observation is continuous and
+cheap, but it becomes consequential in the stop-and-scan regime, where a single
+skipped occluded region corresponds to a missing multi-minute scan and an
+unobserved part of the map.
+
+Survey-grade terrestrial scanning, as practiced with tripod-class instruments,
+departs from the continuous-acquisition assumption: each measurement requires a
+stationary dwell of minutes, and registration is performed
+offline~\cite{stopandgo-review}. Prior automated TLS and stop-and-go mapping
+efforts focus largely on the system integration of driving a scanner between
+viewpoints and on offline registration of the collected
+scans~\cite{stopandgo-registration}, while scan-planning studies in
+construction optimize viewpoint placement to maximize the visible area of
+target structures~\cite{tls-scanplanning}. Some of these planning methods are
+explicitly occlusion- or visibility-aware: Mozaffar and
+Varshosaz~\cite{mozaffar2016occlusion} optimize scanner placement to reduce
+occlusions, and Prieto et al.~\cite{prieto2017nbs} drive a next-best-scan
+policy with a line-of-sight visibility analysis. Recent formulations cast
+indoor scan planning as combinatorial optimization over a known floor plan:
+Dehbi et al.~\cite{dehbi2021} compute minimal TLS viewpoint sets under
+visibility and registrability constraints, and Knechtel et
+al.~\cite{knechtel2025} jointly optimize stop-and-go standpoints and the route
+between them with enforced network redundancy. Crucially, these methods operate
+offline on a prior model of the environment: a building information model
+(BIM), a floor plan, or an initial coarse scan. The decision of which
+candidate poses are worth a stationary scan during online exploration of an
+unknown space is still typically handled by fixed spacing or by a proximity
+(disk) test.
+
+The two bodies of work above leave a specific gap. NBV and frontier
+exploration operate online in unknown environments but assume continuous,
+low-cost acquisition. Automated TLS and scan-planning methods reason about
+expensive stationary acquisition but are typically offline and assume a known
+environment model. The regime addressed here is the intersection of the two:
+online exploration of an unknown environment in which each acquisition carries
+a large stationary cost, where the scan/skip decision must be made on the live
+map. In that regime the coverage model is the decisive component, and this
+dissertation argues that it must be occlusion-aware rather than proximity-based.
+A broader class of sensors shares this workflow in that they require stationary
+acquisition or a dwell time at each viewpoint, including structured-light 3D
+scanners, thermal panorama units, ground-penetrating radar, gas and spectral
+sensors, and non-destructive testing probes~\cite{gas-coverage,robotic-ndt};
+the line-of-sight model developed here applies to the optical, non-penetrating
+members of this family.
+
+\section{3D Semantic Mapping, Scene Graphs, and the TOSM Lineage}
+\label{sec:rw-semantic}
+
+Object-level semantic mapping has progressed from object-oriented SLAM and
+dense semantic fusion~\cite{salas2013slampp,mccormac2017semanticfusion} to
+metric--semantic pipelines such as Kimera~\cite{rosinol2020kimera} and
+real-time hierarchical scene graphs~\cite{hughes2022hydra}. 3D scene graphs
+organize metric reconstructions into object-level nodes with semantic
+attributes and inter-object relations~\cite{armeni20193dsg}, and recent
+open-vocabulary variants attach language-queryable features to nodes and
+edges~\cite{koch2024open3dsg,gu2024conceptgraphs,werby2024}, enabling
+large-language-model (LLM)-driven mobile manipulation over the
+graph~\cite{honerkamp2024momallm}.
+Neural implicit language-embedding fields such as LERF~\cite{kerr2023lerf}
+provide language-queryable representations but are neither symbolic nor
+structured, making them difficult to persist as a database that downstream
+services can query and verify directly. On the knowledge side, semantic maps
+have been coupled to task planning since Galindo et
+al.~\cite{galindo2008task}, grounded in spatial databases~\cite{deeken2018semap},
+and served from ontology-backed infrastructures such as
+KnowRob~\cite{tenorth2013knowrob}; see~\cite{manzoor2021survey} for an
+application-oriented survey of ontology-based robot knowledge. These systems
+target flexible construction; verification of what enters the graph and
+maintenance after construction receive less attention.
+
+Within the Triplet Ontological Semantic Model (TOSM) lineage that this work
+extends, the original semantic modeling framework~\cite{joo2020tosm} defined
+the symbolic/explicit/implicit triplet---a Symbolic layer of identifiers and
+category labels, an Explicit layer of sensor-measurable pose, size, and shape,
+and an Implicit layer of knowledge-derived information such as movability,
+key-object indication, and spatial relations. TOSMNav~\cite{joo2022fsom}
+scaled it to a navigation framework in which an OWL/SWRL knowledge base feeds
+hierarchical PDDL planning, with per-robot on-demand databases,
+kinematics-aware traversability rules, and re-planning with map maintenance,
+validated across multi-floor and outdoor sites with four robot types. Its
+successor DK-SMF~\cite{joo2025dksmf,joo2025phd} automates object and place
+modeling from RGB-D exploration, combining zero-shot detection and visual
+question answering with domain-knowledge filtering and LLM-derived place
+semantics over SLIC-segmented regions. A recent Robot-as-a-Service
+(RaaS)-oriented semantic task management framework~\cite{kwon2025}
+normalizes robot, space, and task
+information into TOSM and allocates tasks by cost-aware reasoning, and a
+multilayer topological semantic map framework~\cite{kwon2024} produces grid,
+object, segmentation, and inference layers from an autonomously explored grid
+map. The navigation side of the lineage assumes a trustworthy semantic
+database; the framework of this dissertation supplies that database---a
+verified, incrementally maintained environment model grounded in survey-grade
+3D point clouds---and differs from DK-SMF on four axes, summarized in
+Table~\ref{tab:dksmf}: a survey-grade TLS backbone instead of RGB-D streams;
+multi-view VLM verification with escalation instead of domain-knowledge
+hallucination suppression; identity-preserving incremental upserts instead of
+build-once modeling; and a place layer derived from verified objects only, so
+that the confidence gate propagates across layers.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Positioning against DK-SMF~\cite{joo2025dksmf}. The DK-SMF column
+  paraphrases that paper's published description.}
+  \label{tab:dksmf}
+  \begin{tabularx}{\textwidth}{l X X}
+    \toprule
+    \textbf{Axis} & \textbf{DK-SMF} & \textbf{This work} \\
+    \midrule
+    Sensing & RGB-D exploration & registered TLS (BLK360) \\
+    Label trust & domain-knowledge filtering & multi-view verification + escalation \\
+    Lifecycle & build-once & mint-once IDs, incremental upsert \\
+    Place semantics & SLIC + LLM over detections & SLIC + ring codes over verified objects \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{3D Point Cloud Segmentation and Open-Vocabulary Recognition}
+\label{sec:rw-segmentation}
+
+Early efforts to attach semantics to geometric maps integrated keypoint or
+convolutional detectors into SLAM pipelines, and dense systems such as
+SemanticFusion~\cite{mccormac2017semanticfusion} and
+Kimera~\cite{rosinol2020kimera} combined 3D reconstruction with semantic
+segmentation. Most of these are limited to a fixed, pre-trained class set.
+Learned 3D instance segmentation built on point-set
+backbones~\cite{qi2017pointnet,qi2017pointnetpp}---Mask3D~\cite{schult2023mask3d},
+SPFormer~\cite{sun2023spformer}, Point Transformer~V3~\cite{wu2024ptv3}---and
+promptable point segmentation (Point-SAM~\cite{zhou2024pointsam}) dominate
+benchmark suites but inherit their training distributions; unsupervised
+alternatives such as Part2Object~\cite{shi2024part2object} relax the label
+requirement but still target curated indoor scenes. Open-vocabulary approaches
+mitigate the closed-set limitation: point--text embedding models such as
+Uni3D~\cite{zhou2024uni3d} and PointCLIP~V2~\cite{zhu2023pointclipv2} transfer
+web-scale vision--language supervision~\cite{radford2021clip} to point clouds,
+and scene-level systems attach open-vocabulary features to 3D points and
+instances~\cite{peng2023openscene,takmaz2023openmask3d,nguyen2024open3dis},
+while Grounded SAM~\cite{ren2024} couples a grounding detector with a
+promptable segmenter to segment language-specified objects. Many of these
+require posed multi-view RGB input or depth-registered 2D masks; for a
+survey-grade scanner that already produces a colored point cloud directly,
+synthesizing such imagery introduces an artificial dependency and risks
+discarding the metric accuracy of the original laser data.
+
+On industrial TLS content, this dissertation observes the transfer breaking
+down: ScanNet-pretrained segmenters hallucinate furniture on industrial
+equipment, a closed-set semantic head labels a wall-removed scene as
+\texttt{wall}, PointCLIP~V2 collapses to a single class, and Uni3D's accuracy
+\emph{drops} as the vocabulary is narrowed toward the true class list
+(Section~\ref{sec:exp-seg}). The framework therefore uses a deliberately simple
+geometric decomposition---seeded plane
+removal~\cite{fischler1981ransac,schnabel2007efficient} plus fixed-parameter
+density clustering~\cite{ester1996dbscan}---positioned not as a novel
+segmentation algorithm but as a reproducible decomposition whose determinism
+underwrites verification carry-over and incremental diffing, and treats
+open-vocabulary output as a provisional prior to be verified rather than as a
+label source.
+
+\section{Multi-View VLM Verification and Knowledge-Grounded Querying}
+\label{sec:rw-vlm}
+
+Aggregating rendered views is a classic route to 3D shape recognition
+(MVCNN~\cite{su2015mvcnn}), and using vision--language models (VLMs) to label
+rendered 3D content is increasingly common in open-set scene
+graphs~\cite{gu2024conceptgraphs} and language-driven
+maps~\cite{huang2023vlmaps}. The ICTC~2026 study of this
+dissertation~\cite{kim2026ictc} established multi-view forced-schema VLM
+classification of TLS object clusters with confidence-weighted late fusion,
+and showed that early fusion---all views in one prompt---degrades accuracy on
+sparse point renders. This dissertation extends that mechanism into a
+verification system: automatic escalation of split votes to a wider view set,
+explicit retention of unresolved objects as unverified, tier-precision
+analysis including unanimous-but-wrong failure cases, and integration of the
+resulting status into gating, update, and place layers.
+
+Grounding LLM answers in retrieved structure reduces but does not eliminate
+unsupported claims~\cite{lewis2020rag,ji2023hallucination}, and
+instruction-based guardrails are known to be brittle. The knowledge-graph
+lineage to which the author contributed~\cite{kim2025isis} observed
+hallucinated environment facts when querying ungrounded LLMs about mapped
+spaces. This dissertation contributes a structural mitigation: rather than
+instructing the model to respect verification status, the query-time view
+demotes unverified types to \texttt{unknown} and quarantines the failed label in
+a schema-documented field, an intervention in the data contract whose effect is
+isolated in an ablation (Section~\ref{sec:exp-ablation}).
+
+\section{Incremental Semantic-Map Maintenance}
+\label{sec:rw-update}
+
+Change detection in point clouds and lifelong mapping address geometric
+currency~\cite{fehr2017tsdf}, and object-permanence reasoning tracks instances
+through rearrangement in embodied settings~\cite{wald2019rescan}. Recent online
+open-vocabulary systems bring incrementality to instance-semantic
+maps~\cite{deng2026ovimap,zhai2026onlinepg,zhang2025funcgraph}, but what they
+maintain is a geometric or embedding-level instance representation, not
+verified semantic evidence. In the TOSM lineage, TOSMNav~\cite{joo2022fsom}
+maintains its map online, updating object positions from detections and pruning
+connectivity when a passage fails, which complements rather than covers the
+present concern. What is rare is maintenance of a semantic knowledge graph
+whose nodes carry verified labels, revision provenance, and stable robot-facing
+identities across scan epochs: scan-once, build-once remains the default in
+TLS-derived modeling, whose dominant line reconstructs as-built BIM or
+parametric building models from static
+scans~\cite{tang2010asbuilt,ochmann2016parametric,scan2bim}. The mint-once
+identity policy with two-pass matching and confidence-gated node-level upserts
+of Chapter~\ref{ch:semantic} targets this gap.
+
+\section{Digital Twins, Scan-to-Simulation, and RaaS-Oriented Integration}
+\label{sec:rw-digitaltwin}
+
+Digital twins---virtual replicas of physical assets that stay synchronized
+with their real counterparts---are increasingly adopted in manufacturing and
+logistics for commissioning, monitoring, and operator training of mobile robot
+fleets~\cite{tao2019}. A prerequisite for any robot-level twin is a simulation
+environment that reproduces the geometry of the real workspace with sufficient
+fidelity. In practice such environments are still largely modeled by hand.
+Automatic reconstruction of as-built models from point clouds (scan-to-BIM) has
+been studied extensively in the construction domain~\cite{scan2bim}, but its
+output (IFC/BIM) is not directly consumable by robot simulators, and
+game-engine reconstruction pipelines such as Gibson~\cite{gibson} produce
+visually convincing meshes that seldom guarantee metric consistency.
+Gazebo~\cite{koenig2004gazebo} has long been the default simulator in the ROS
+ecosystem; NVIDIA Isaac Sim~\cite{isaacsim} adds GPU-accelerated physics,
+OpenUSD scene composition, and photorealistic rendering, and has been adopted
+for robot learning~\cite{orbit} and sim-to-real research~\cite{sim2real}.
+Existing Isaac Sim workflows, however, assume the environment is authored
+beforehand, and most reported robot digital twins mirror robot state into a
+manually built scene. Table~\ref{tab:routes} contrasts the main routes from a
+captured indoor space to a robot-usable simulation environment against the
+pipeline of Chapter~\ref{ch:validation}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Routes from a captured indoor space to a simulation environment
+  (characteristics as reported by each line of work).}
+  \label{tab:routes}
+  \begin{tabularx}{\textwidth}{l l l X}
+    \toprule
+    \textbf{Approach} & \textbf{Automation} & \textbf{Turnaround} & \textbf{Metric validation} \\
+    \midrule
+    Manual modeling~\cite{tao2019} & manual & days per room & rarely reported \\
+    Scan-to-BIM~\cite{scan2bim} & semi-automatic & minutes--hours & element-level \\
+    Mesh real-to-sim~\cite{gibson} & offline pipeline & not reported & visual focus \\
+    This work (Chapter~\ref{ch:validation}) & automatic & 78.5\,s & $\le$2\%; 5.5\,cm end to end \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Prior digital-twin-based robotics studies have largely assumed RGB-D streams
+or BIM inputs and have used the environmental representation mainly for
+navigation. The RaaS-oriented control architecture provides a higher-level
+frame for coordinating heterogeneous robots over a shared
+representation~\cite{kwon2025}. In contrast to prior work, the present
+dissertation supplies both the semantic representation and the digital twin
+automatically from one survey-grade 3D point cloud, positions the verified
+knowledge graph as the single semantic store from which the console, the
+mission mediator, the twin, and the physical robot are all derived, and
+validates that chain on hardware.
+
+\section{Map Representations for Robot Tasking}
+\label{sec:rw-representations}
+
+Metric-topological maps, which combine a geometric grid map with a topological
+graph, have been a core representation for indoor navigation since
+Thrun~\cite{thrun1998}; free-space partitioning has traditionally used
+sensor-based planning and Voronoi diagrams~\cite{choset1996}, and grid-map
+room segmentation has been surveyed and made robust to
+clutter~\cite{bormann2016room,luperto2022robust}. Queryable semantic
+topological maps such as QueSTMaps~\cite{mehan2024} propose hierarchical,
+queryable representations for 3D scene understanding, but presuppose 2D grid,
+RGB-D, or neural representations as input. Table~\ref{tab:capability}
+contrasts the representations a deployment can choose from: a 2D occupancy map
+supports navigation but neither queryability nor semantics; a raw 3D scan adds
+geometry but no task language; and a verified semantic knowledge graph adds
+queryability, per-fact confidence, and, with this work, a maintenance path and a
+simulation twin. The table is analytical; its query and update columns are
+substantiated in Chapter~\ref{ch:experiments}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Capability comparison of environment representations. The 2D-map
+  and 3D-scan columns state definitional
+  properties~\cite{macenski2020marathon,tang2010asbuilt}; each ``this work''
+  cell names the section that substantiates it.}
+  \label{tab:capability}
+  \begin{tabularx}{\textwidth}{l c c X}
+    \toprule
+     & \textbf{2D map} & \textbf{3D scan} & \textbf{3D semantic KG (this work)} \\
+    \midrule
+    Metric navigation & \checkmark & \checkmark & \checkmark (derived; Section~\ref{sec:exp-missions}) \\
+    Object geometry & -- & \checkmark & \checkmark (explicit models; Section~\ref{sec:backbone}) \\
+    Task-language query & -- & -- & \checkmark (gated; Section~\ref{sec:exp-query}) \\
+    Per-fact confidence & -- & -- & \checkmark (tiers; Section~\ref{sec:exp-verify}) \\
+    Change maintenance & re-map & re-scan & node-level upsert (Section~\ref{sec:exp-update}) \\
+    Place semantics & -- & -- & \checkmark (ring codes; Section~\ref{sec:place}) \\
+    Simulation twin & -- & -- & \checkmark (scan-to-sim; Section~\ref{sec:exp-twin}) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

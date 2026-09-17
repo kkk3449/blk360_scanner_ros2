@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{NanumMyeongjo}[Path=fonts/, Extension=.ttf, UprightFont=*, BoldFont=*Bold]
+\usepackage[a4paper,margin=24mm]{geometry}
+\usepackage{setspace}\setstretch{1.25}
+\usepackage{booktabs,tabularx,xcolor,enumitem,graphicx}
+\usepackage[hidelinks]{hyperref}
+\XeTeXlinebreaklocale "ko" \XeTeXlinebreakskip = 0pt plus 1pt
+\newcommand{\chk}[1]{\textcolor{red}{\textbf{[확인: #1]}}}
+\setlength{\parindent}{1em}
+\title{\textbf{본심사판 학위논문 v2026-09-16a --- 한글 변경분 체크본}\\[4pt]\large (9/15 한글 체크본에 대한 차분; 영문판 212쪽)}
+\author{김상민}\date{2026년 9월 16일}
+\begin{document}\maketitle
+
+\section*{9/16 변경 요약}
+\begin{enumerate}[leftmargin=1.5em]
+\item \textbf{O4/O5 재스코핑 문구 삭제.} 1.2절의 "예심 대비 축소" 문단과 5.1절의 축소 문단을 지우고, O4를 원래 구상대로 \emph{3층 표현}(주행층·조작 작업층·오버헤드층)으로, O5를 "주행·조작·오버헤드 대역을 모두 갖는 이동 매니퓰레이터 1대로 검증"으로 다시 썼다. 그림 5.1 캡션도 같은 취지로 수정.
+\item \textbf{4.10절 신설: 다층 로봇 소비 표현}(그림 4.9 = T3 스캔 측면 단면에 3개 높이 대역). 주행층(0.10--1.80 m 점유격자+장소층), 조작 작업층(AMMR 도달 대역 0.40--1.60 m의 검증 객체 범위), 오버헤드층(1.80 m 이상 천장 부착 구조). 세 층은 별도 모델이 아니라 하나의 그래프에 대한 높이 대역 질의.
+\item \textbf{4.11절 신설: 오버헤드 구조 인식}(천장 모듈). 동결 규칙 6단계: 바닥+1.8 m 위 대역 → 시드 RANSAC 수평면으로 천장 레벨(최대 4, $\pm$0.06 m) → 수직면 벽(최대 8, 0.12 m) → 구조 제거 하부 점군과 함께 $\varepsilon$=0.15 m로 군집화하여 \emph{바닥과 연결된} 클러스터 제외 + 대역 컷에 바닥이 닿는 클러스터 제외 → DBSCAN 0.30 m/80점 + giant-split, 명시 모델 + 여유고·천장 간격·부착(ceiling-hung/wall-mounted/suspended) → 오버헤드 어휘 15개로 Uni3D 잠정 라벨, 아래 30°에서 렌더, 동일 late-fusion 검증기(후보 어휘 + high 높이 사전) → 동일 정체성·upsert로 그래프 편입. 바닥 패스는 전혀 건드리지 않음.
+\item \textbf{6.12절 신설: 오버헤드층 결과}(표 6.23, 그림 6.36). T3 실내 6개(검증 4: 만장일치 1·상향 3, 미검증 2; 70 호출 \$0.67), T2 실내 5개(전부 검증), 카페테리아 0개(평평한 천장·매입등 → 의도된 null 결과). 대안 규칙(바닥 객체 footprint 제외)은 T3에서 9개(벽 부착 장비 근처 3개 추가)이나 T2에서는 메가클러스터 footprint 때문에 전부 억제되어 실패 → 연결성 규칙을 동결. 에폭 간 정체성: T2·T3가 천장의 서로 다른 부분을 봄(스캔 스테이션 의존), 공통은 조명 레일뿐이며 T2 6.9 m vs T3 7.9 m로 중심이 0.52 m 어긋나 재삽입(단편화 오류 부류) + 동종 1.9 m 쌍이 거짓 이동 1건 → 길쭉한 설비는 범위 중첩 매칭 필요(향후 연구). \chk{소유자 GT 대기 — 정밀도 문단이 적색 표시로 비어 있음}
+\item \textbf{7.2절} 오버헤드 항목을 "모듈은 본문에 있고 리프트 실행만 남음"으로 수정.
+\item \textbf{교정 통독} 전 장 완료(에이전트 5개, 편집 ~70건: 문법·용어 통일·기호 충돌 해소($K$ 광선 수 → $N_r$)·각주 위치·계층 집합에서 미정의 verified\_majority 제거·출판 상태 문구 "published, accepted for presentation, or submitted"). 표 6.22에 오버헤드 결과 추가.
+\end{enumerate}
+
+\section*{소유자 GT 요청 (천장 객체 11개)}
+\texttt{\textasciitilde/Downloads/overhead\_gt\_20260916/}의 \texttt{gt\_sheet\_renders.png}(아래에서 본 렌더 4장씩), \texttt{gt\_sheet\_map.png}(KG 프레임 위치), \texttt{overhead\_gt\_sheet.csv}(OWNER\_LABEL, 신뢰도 1--5, 비고 기입). O1--O9는 footprint 규칙, O10--O11은 연결성 규칙에서만 나온 후보이며 O1·O6·O8·O9는 두 규칙 공통. 예상 후보: 형광등/LED 레일, 프로젝터, 스프링클러 배관, 매달린 표지판, 에어컨, 케이블 트레이 등. 방에 실제로 매달린 물체 중 후보에 \emph{없는} 것(누락)도 비고에 적어 주면 재현율을 계산할 수 있다.
+
+\section*{여전히 결정이 필요한 항목}
+\begin{enumerate}[leftmargin=1.5em]
+\item \chk{표지 날짜·책등 연도·심사위원} (9/15와 동일)
+\item \chk{Electronics 인용 상태} under review → 게재 시 갱신
+\item \chk{4.4절} 예심의 DL 리즈너 일관성 검증을 관계 규칙 검사(표 4.3)로 축소한 서술
+\item \chk{6.12절 오버헤드 정밀도} 소유자 GT 후 기입
+\item \chk{2.x/6.x} 저자 표기: "render audit by two annotators", 회사명은 "the company building"으로만 표기 — 회사명·시설명 명시 여부
+\end{enumerate}
+
+\section*{새 절의 한글 요지}
+\subsection*{4.10 다층 로봇 소비 표현}
+동일 3D 시맨틱 모델에서 높이별 작업에 필요한 층을 도출한다. 주행층: 바닥 위 0.10--1.80 m 점을 0.05 m 격자로 래스터화한 ROS 지도(시뮬·실 항법 공유; 탐색 SLAM 지도가 동등 산출물), 장소층은 이 격자 위에 정의. 조작 작업층: 플랫폼 도달 대역(AMMR 0.40--1.60 m)과 교차하는 검증 객체의 명시 모델(footprint·자세·상단 높이·이동성)이 접근 포즈·여유 검사·조작 가능성 스크리닝의 입력; 객체 레코드가 3D 범위를 갖고 있어 별도 래스터화 불필요. 오버헤드층: 4.11절 모듈이 인식한 천장 부착 구조를 heightLevel=high로 그래프에 병합, 포인팅·설치 작업이 지도 프레임의 오버헤드 목표로 해석됨. 각 층은 하나의 그래프에 대한 질의이며 시뮬레이션 층(5장)이 같은 레코드를 주입.
+
+\subsection*{4.11 오버헤드 구조 인식}
+TLS는 천장도 충실히 찍지만 백본은 천장면과 그에 붙은 것을 버린다. 모듈은 백본이 보존하는 제거 전 천장 참조 점군(원시 스캔에서 같은 결정론적 다운샘플로 색 부여) 위에서 6단계로 동작한다(변경 요약 3 참조). 검증된 오버헤드 객체는 같은 정체성 정책·upsert로 편입되어 에폭 간 추적되며, 관계는 아래 바닥 객체/장소에 대한 isAboveOf로 제한(설치·포인팅 작업이 소비하는 것). 구조 잔재·격자 필터는 바닥 패스에만 적용되고, 오버헤드 패스는 바닥 노드를 바꾸지 못하므로 6.3--6.8절 평가는 불변.
+
+\subsection*{6.12 오버헤드층}
+표 6.23(장면별 단계 산출): 참조 점군 989K/995K/546K, 대역 점 545K/512K/241K, 천장 레벨 3.00/3.20/3.52 · 3.00/3.17/3.49 · 3.00 m, 벽면 7/6/7, 후보 점 28.0K/39.6K/1.4K, 바닥 연결 제거 12.4K/31.4K/1.2K, 클러스터 18/12/0, 실내 5/6/0, 계층 1·4·0 / 1·3·2, 호출·비용 57/\$0.55 · 70/\$0.67. T3 실내 6개: 7.9 m 조명 레일(상향 검증 형광등), 최상단 레벨의 소형 설비 3개(빔 만장일치 1, 형광등 상향 1, 미검증 형광등 0.53), 2.4 m에 매달린 얇은 판(미검증 sign 0.35), 십자형 배관 접합부(상향 검증 beam). 전부 ceiling-hung. 정답 문단은 소유자 GT 대기(저자 렌더 감사: 레일·설비 3·판·접합부 모두 오버헤드 객체로 타당; 타입은 렌더만으로 판정 불가). 추출 규칙 대안·에폭 간 정체성·소비 문단은 변경 요약 4 참조.
+\end{document}

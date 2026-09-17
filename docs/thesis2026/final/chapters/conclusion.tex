@@ -1,0 +1,133 @@
+%%=============================================================================
+%% chapters/conclusion.tex — Conclusion and Future Works (Chapter 7)
+%%=============================================================================
+\chapter{Conclusion and Future Works}
+\label{ch:conclusion}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This dissertation proposed and validated an integrated framework that
+automates 3D mapping and point cloud semantic modeling for spatial-operation
+robots. The framework acquires survey-grade 3D point clouds with human
+intervention minimized through a stop-and-scan-integrated frontier exploration
+strategy whose scan/skip decision is driven by an occlusion-aware visibility
+coverage model; transforms the registered clouds into a verified,
+confidence-aware, and maintainable TOSM knowledge graph through a deterministic
+geometric backbone, multi-view VLM verification with automatic escalation,
+identity-preserving incremental update, structurally gated querying, an
+object-grounded place layer, and an owner-in-the-loop revision path; derives
+from the same model the occupancy, place, and simulation layers that
+conventional robot-operation pipelines consume; and supplies the resulting
+representation, as a single semantic store, to a digital twin, a management
+console, and a physical mobile manipulator.
+
+Three design decisions distinguish the framework from prior work. First, it
+makes the coverage model, not the acceptance rule, the decisive component of
+stop-and-scan placement: replacing the isotropic disk with a ray-cast
+visibility region raised line-of-sight coverage from about 77\% to 84--85\% in
+a controlled paired ablation at the cost of one to two scans, and a disk
+baseline governed by the identical marginal-gain rule performed markedly worse
+in a partitioned world (59.1\% LOS), which attributes the deficiency to the
+coverage model itself. On hardware, the visibility rule raised coverage from 77.6\% to
+92.1\%, and every visibility run's scans registered offline at survey grade
+(4--5~mm bundle error, 84--88\% overlap) whereas disk runs yielded at best a
+single-link network and once an unregistrable single scan. Second, it
+separates what can be made deterministic from what must remain probabilistic
+and controls the probabilistic part with explicit confidence machinery: the
+geometric backbone reproduces every cluster byte-identically across hosts,
+which makes verification results carryable and diffs meaningful; per-view late
+fusion with automatic escalation lifted verification accuracy from 77.8\% to
+88.9\% and from 78.1\% to 84.4\% on two configurations of an industrial room
+with 94--100\% precision on unanimous votes; structural gating answered 83.3\%
+of knowledge-grounded questions while blocking hallucination traps that
+instruction-based gating let through; mint-once identities survived three scan
+epochs with zero observed identity switches; and selective re-verification
+reduced VLM cost to 3.1\% of a rebuild on a controlled re-scan. The study also
+surfaced failure modes as valuable as the successes---phantom objects from
+ceiling soffits, unanimous-but-wrong verifications, clutter absorption of
+site-specific equipment, correlated verifier bias, and a coverage paradox in
+which a better scan over-merges density-based clustering---and either fixed
+each by a method component (raising automated recall against an owner-audited
+inventory from 28\% to 85\%) or reported it as a bounded limitation. Third, it
+treats the knowledge graph as the single source of truth for every downstream
+consumer: an automated scan-to-simulation pipeline built a physics-enabled
+Isaac Sim twin in under 80~s that preserves metric scale to within 2\%, a live
+bidirectional bridge mirrored the physical robot at 30~Hz with 5.5~cm mean
+end-to-end positioning error, and console-issued semantic missions resolved
+against the graph were executed by the physical robot with a mean arrival
+error of 0.30~m while owner-refuted phantom goals were refused with zero
+motion.
+
+Together these results establish, on one industrial test room observed across
+its working life, the end-to-end path from autonomous survey-grade acquisition,
+through verified and maintainable semantic modeling, to consumption by a real
+spatial-operation robot. The scope is stated plainly: one scanner, one
+building with a cross-floor stress scene that bounds domain transfer, one
+physical platform, and 2D visibility reasoning. Within that scope, the
+evidence supports occlusion-aware visibility rather than Euclidean proximity as
+the basis for deciding where a robot should stop and scan, tiered and gated
+verification rather than trusted labels as the basis for robot-facing
+semantics, and a single revision-tracked store rather than per-consumer exports
+as the basis for keeping a twin, a console, and a robot consistent.
+
+\section{Future Works}
+\label{sec:future}
+
+The limitations surfaced by the evaluation define the directions for future
+work.
+
+\emph{3D visibility and sensor-semantic coverage.} The placement policy
+reasons on a 2D occupancy grid, so vertical occlusions are not modeled and
+LOS coverage certifies floor-space sight lines rather than full 3D surface
+coverage; the deck-mounted scanner's low vantage makes this more consequential
+on a robotic platform than in a tripod survey. Extending the coverage model to
+a voxel-, octree-, or surface-based 3D visibility representation, refining LOS
+into a visibility-weighted coverage that accounts for incidence angle and
+range-dependent point density, and attaching a sensor-level semantic
+description (penetrating or optical, range, field of view) to the robot model,
+so that the same policy adapts across heterogeneous stop-and-scan sensors, are
+the principal directions. A downstream navigation validation in which an
+independent robot localizes against the completed map to quantify end-use
+accuracy is likewise open.
+
+\emph{Overhead layer with a lifting platform.} The overhead recognition
+module of Section~\ref{sec:overhead} recovers ceiling-mounted structure from
+the same scan and the multilayer representation exposes it as an installation
+target, but no lifting platform executed an overhead task in this
+dissertation; the mobile manipulator validated the driving band on hardware
+and the overhead band at the representation level. Executing a pointing or
+installation task against a verified overhead target, and extending the
+overhead vocabulary and ground truth beyond one room, are the next steps.
+
+\emph{Vocabulary gaps, small low-reflectance objects, and structure remnants.}
+Clutter absorption of site-specific equipment (robots, charging stations) was
+the dominant residual error, and injecting site vocabulary naively traded
+precision for recall through candidate anchoring. Close-range or re-rendered
+imagery, deployment-specific probe sets for per-site tier calibration,
+coverage-adaptive decomposition to resolve the mega-cluster paradox, and
+extension of the remnant filters to horizontal and sloped ceiling patches and
+to carpet floor noise are the next steps. Structural-change updating beyond
+the object level, wall- and doorway-aligned place boundaries, and a color-only
+perturbation study remain open.
+
+\emph{Multi-site validation and longer campaigns.} Results come from one
+scanner and one building; the cafeteria scene shows that the headline
+precision figures do not transfer to out-of-vocabulary furnishings without
+segmentation- and render-level adaptation. A second facility annotated to the
+same owner-audited standard, and a longer multi-mission, multi-robot campaign
+on the physical platform, are required before the framework's numbers can be
+claimed as general. Along the same line, the real-robot missions were issued
+one at a time from a standing start; queued and chained missions, and the
+interaction between the mission stack's stop-and-hold behavior and the
+platform's own navigation state, warrant a dedicated study.
+
+\emph{Fleet-level consumption of the semantic store.} The single-store design
+positions the knowledge graph as the supply layer of a RaaS-oriented task
+manager. Extending the TOSM robot layer with live operational state---for
+example, load or motor-current profiles reported by the low-level
+controller---would let a fleet manager monitor per-region workload on the
+same graph and allocate robots across places accordingly; this is a natural
+consumer of the representation developed here, though it lies beyond the 3D
+modeling focus of this dissertation and is noted as an outlook rather than a
+planned extension.
