@@ -194,7 +194,7 @@ function sendCam(body){const now=Date.now();
 function ovReset(){OV={s:1,tx:0,ty:0,r:0};ovApply();
   CAM.mode='top';CAM.az=90;CAM.el=60;sendCam({reset:true});
   drawOverlay();poll();}
-window.addEventListener('load',()=>{const v=document.getElementById('ovview');
+window.addEventListener('DOMContentLoaded',()=>{const v=document.getElementById('ovview');
   v.addEventListener('contextmenu',e=>e.preventDefault());
   v.addEventListener('wheel',e=>{e.preventDefault();
     OV.s=Math.min(6,Math.max(0.5,OV.s*(e.deltaY<0?1.15:1/1.15)));ovApply();},{passive:false});
@@ -289,9 +289,9 @@ function w2p(x,y){const M=MAPINFO;return [(x-M.ox)/M.res,M.h-(y-M.oy)/M.res];}
 function p2w(u,v){const M=MAPINFO;return [M.ox+u*M.res,M.oy+(M.h-v)*M.res];}
 function mapPix(e){const v=document.getElementById('mapview').getBoundingClientRect();
   return [(e.clientX-v.left-MV.tx)/MV.s,(e.clientY-v.top-MV.ty)/MV.s];}
-window.addEventListener('load',()=>{const v=document.getElementById('mapview');
+window.addEventListener('DOMContentLoaded',()=>{const v=document.getElementById('mapview');
   const img=document.getElementById('mapimg');
-  img.addEventListener('load',mapReset);
+  img.addEventListener('load',mapReset);if(img.complete&&img.naturalWidth)mapReset();
   v.addEventListener('wheel',e=>{e.preventDefault();const [u0,v0]=mapPix(e);
     const f=e.deltaY<0?1.15:1/1.15;MV.s=Math.min(12,Math.max(0.2,MV.s*f));
     const R=v.getBoundingClientRect();MV.tx=e.clientX-R.left-u0*MV.s;MV.ty=e.clientY-R.top-v0*MV.s;
@@ -354,7 +354,7 @@ function drawMap(){const img=document.getElementById('mapimg'),cv=document.getEl
   if(LASTARROW&&Date.now()-LASTARROW.t<4000){ctx.globalAlpha=0.6;arrow(LASTARROW.p0,LASTARROW.p1,LASTARROW.col);ctx.globalAlpha=1;}}
 // ---- robot map upload -> registration -> bridge offset ----------------
 let ROBMAP=null;
-window.addEventListener('load',()=>{const dz=document.getElementById('mapdrop'),fi=document.getElementById('mapfiles');
+window.addEventListener('DOMContentLoaded',()=>{const dz=document.getElementById('mapdrop'),fi=document.getElementById('mapfiles');
   dz.addEventListener('click',()=>fi.click());
   dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.background='#eef4fb';});
   dz.addEventListener('dragleave',()=>{dz.style.background='';});
@@ -371,7 +371,7 @@ function sendMapFiles(files){const fd=new FormData();let n=0;
     document.getElementById('regmsg').innerHTML=`offset X ${o[0].toFixed(3)} Y ${o[1].toFixed(3)} YAW ${o[2].toFixed(2)}&deg; &middot; mean ${(st.mean_m*100).toFixed(1)} cm, inliers&lt;15cm ${(st.inlier_frac_15cm*100).toFixed(0)}% &middot; sent to bridge`;
     ROBMAP=d.cells;drawMap();});}
 // ---- E57 upload + pipeline control ----------------------------------------
-window.addEventListener('load',()=>{const dz=document.getElementById('e57drop'),fi=document.getElementById('e57file');
+window.addEventListener('DOMContentLoaded',()=>{const dz=document.getElementById('e57drop'),fi=document.getElementById('e57file');
   dz.addEventListener('click',()=>fi.click());
   dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.background='#eef4fb';});
   dz.addEventListener('dragleave',()=>{dz.style.background='';});
