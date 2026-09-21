@@ -42,6 +42,28 @@ _ap.add_argument("--pose-source", choices=["auto", "amcl"], default="auto",
 _ap.add_argument("--amcl-topic", default="/amcl_pose",
                  help="latched robot pose topic (real robot: /kg_robot_pose from the bridge)")
 _ap.add_argument("--headless", action="store_true")
+_ap.add_argument("--fps", type=float, default=30.0,
+                 help="cap the render loop (0 = uncapped). Uncapped, the twin pins the GPU "
+                      "at 100%% and starves gnome-shell (frozen desktop, Xid faults)")
+# VDA 5050 mode: mirror the AGV from its MQTT state/visualization and send the
+# cone goal as a VDA 5050 order (instead of ROS /amcl_pose + /goal_pose)
+_ap.add_argument("--vda5050-broker", default=None, metavar="HOST[:PORT]")
+_ap.add_argument("--vda-manufacturer", default="caselab")
+_ap.add_argument("--vda-serial", default="ammr20")
+_ap.add_argument("--vda-map-id", default="map")
+_ap.add_argument("--kg-offset", nargs=3, type=float, default=None,
+                 metavar=("X", "Y", "YAW_DEG"),
+                 help="AGV map origin in the KG frame (VDA mode; default: "
+                      "~/ammr_twin/robot_map_offset.json, else 0 0 0)")
+_ap.add_argument("--heading-offset", type=float, default=180.0,
+                 help="deg added to the AGV's reported yaw (AMMR: 180)")
+# simulated twin AGV (second VDA 5050 endpoint executing the same orders)
+_ap.add_argument("--twin-serial", default="ammr20-twin",
+                 help="serialNumber of the simulated AGV ('' = disable)")
+_ap.add_argument("--sim-map", default=os.path.expanduser("~/ammr_twin/map_vis_n2_1.yaml"),
+                 help="KG-frame occupancy map the simulated AGV plans on")
+_ap.add_argument("--sim-speed", type=float, default=0.8, help="m/s (AMMR max 1.12)")
+_ap.add_argument("--sim-accel", type=float, default=0.5, help="m/s^2")
 ARGS = _ap.parse_args()
 
 sim_app = SimulationApp({"headless": ARGS.headless})
@@ -287,6 +309,156 @@ class KgTwinNode(Node):
 
 rclpy.init()
 node = KgTwinNode()
+
+# ---------------- VDA 5050 (MQTT) mode ----------------
+VDA = None
+if ARGS.vda5050_broker:
+    import sys as _sys
+    import json as _json
+    _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     "..", "src", "semantic_nav_bt"))
+    from semantic_nav_bt import vda5050 as V   # pure-python (no ROS) helpers
+
+    _koff = ARGS.kg_offset
+    if _koff is None:
+        _koff = [0.0, 0.0, 0.0]
+        _f = os.path.expanduser("~/ammr_twin/robot_map_offset.json")
+        if os.path.exists(_f):
+            try:
+                _koff = [float(v) for v in _json.load(open(_f))["map_offset"]]
+            except (ValueError, KeyError, TypeError):
+                pass
+    _KO = (_koff[0], _koff[1], math.radians(_koff[2]))
+    _H = math.radians(ARGS.heading_offset)
+
+    def agv_to_kg(x, y, yaw):
+        ox, oy, oyaw = _KO
+        c, s = math.cos(oyaw), math.sin(oyaw)
+        return (ox + c * x - s * y, oy + s * x + c * y, yaw + oyaw + _H)
+
+    def kg_to_agv(x, y, yaw):
+        ox, oy, oyaw = _KO
+        c, s = math.cos(-oyaw), math.sin(-oyaw)
+        dx, dy = x - ox, y - oy
+        return (c * dx - s * dy, s * dx + c * dy, yaw - oyaw - _H)
+
+    _agv_pos = [None]                       # (x, y, theta) in the AGV map
+
+    def _on_agv(pt, m):
+        p = m.get("agvPosition")
+        if p:
+            _agv_pos[0] = (float(p["x"]), float(p["y"]), float(p.get("theta", 0.0)))
+            node.amcl = agv_to_kg(*_agv_pos[0])
+            node.n_pose += 1
+
+    _hp = ARGS.vda5050_broker.split(":")
+    VDA = V.Mqtt(_hp[0], int(_hp[1]) if len(_hp) > 1 else 1883,
+                 client_id=f"isaac-twin-{os.getpid()}",
+                 log=lambda s: print(f"[kg-twin] {s}", flush=True))
+    VDA.subscribe(V.topic(ARGS.vda_manufacturer, ARGS.vda_serial, "state"), _on_agv)
+    VDA.subscribe(V.topic(ARGS.vda_manufacturer, ARGS.vda_serial, "visualization"), _on_agv)
+    VDA.start()
+    _order_n = [0]
+
+    def _send_order(mx, my, myaw):
+        """cone goal (KG/map frame) -> single-goal VDA 5050 order to the AGV."""
+        rx, ry, ryaw = kg_to_agv(mx, my, myaw)
+        _order_n[0] += 1
+        oid = f"twin{int(time.time() * 1000)}-{_order_n[0]}"
+        cur = _agv_pos[0]
+        nodes, edges = [], []
+        if cur is not None:
+            nodes.append(V.node(f"{oid}-n0", 0, cur[0], cur[1], cur[2],
+                                ARGS.vda_map_id, dev_xy=1.0, description="current position"))
+            nodes.append(V.node(f"{oid}-n1", 2, rx, ry, ryaw, ARGS.vda_map_id,
+                                dev_xy=0.35, description="goal (Isaac cone)"))
+            edges.append(V.edge(f"{oid}-e0", 1, nodes[0]["nodeId"], nodes[1]["nodeId"]))
+        else:
+            nodes.append(V.node(f"{oid}-n1", 0, rx, ry, ryaw, ARGS.vda_map_id,
+                                dev_xy=0.35, description="goal (Isaac cone)"))
+        VDA.publish(V.topic(ARGS.vda_manufacturer, ARGS.vda_serial, "order"),
+                    V.make_order(V.Header(ARGS.vda_manufacturer, ARGS.vda_serial),
+                                 oid, 0, nodes, edges))
+        print(f"[kg-twin] VDA order {oid} -> {ARGS.vda_serial}: KG ({mx:.2f}, {my:.2f}) "
+              f"-> AGV map ({rx:.2f}, {ry:.2f})", flush=True)
+
+    node.send_goal = _send_order
+    print(f"[kg-twin] VDA 5050 mode: broker {ARGS.vda5050_broker}, AGV "
+          f"{ARGS.vda_manufacturer}/{ARGS.vda_serial}, KG offset {_koff}, "
+          f"heading offset {ARGS.heading_offset}", flush=True)
+
+    # ---- simulated twin AGV: ghost robot + predicted path ----
+    SIM = None
+    if ARGS.twin_serial:
+        _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import sim_agv
+        _grid, _gorig, _gcell = sim_agv.load_grid(ARGS.sim_map)
+        GHOST = "/World/TwinAGV"
+        UsdGeom.Xform.Define(stage, GHOST)
+        _gb = UsdGeom.Cube.Define(stage, GHOST + "/body")
+        _gb.GetSizeAttr().Set(1.0)
+        UsdGeom.XformCommonAPI(_gb.GetPrim()).SetScale(Gf.Vec3f(1.244, 0.794, 0.45))
+        UsdGeom.XformCommonAPI(_gb.GetPrim()).SetTranslate(Gf.Vec3d(0, 0, 0.30))
+        _gb.GetDisplayColorAttr().Set([Gf.Vec3f(0.15, 0.45, 0.95)])
+        _gb.GetDisplayOpacityAttr().Set([0.35])
+        _gn = UsdGeom.Cone.Define(stage, GHOST + "/nose")     # heading marker
+        _gn.GetHeightAttr().Set(0.35)
+        _gn.GetRadiusAttr().Set(0.12)
+        _gn.GetAxisAttr().Set("X")
+        _gn.GetDisplayColorAttr().Set([Gf.Vec3f(0.15, 0.45, 0.95)])
+        _gn.GetDisplayOpacityAttr().Set([0.6])
+        UsdGeom.XformCommonAPI(_gn.GetPrim()).SetTranslate(Gf.Vec3d(0.75, 0, 0.30))
+        _gxf = UsdGeom.Xformable(stage.GetPrimAtPath(GHOST))
+        _g_tr = _gxf.AddTranslateOp()
+        _g_or = _gxf.AddOrientOp(UsdGeom.XformOp.PrecisionDouble)
+        _g_tr.Set(Gf.Vec3d(0, 0, -5.0))                     # hidden until first pose
+        _path_curve = UsdGeom.BasisCurves.Define(stage, "/World/TwinPath")
+        _path_curve.GetTypeAttr().Set("linear")
+        _path_curve.GetWidthsAttr().Set([0.06])
+        _path_curve.GetDisplayColorAttr().Set([Gf.Vec3f(0.15, 0.45, 0.95)])
+        _path_curve.GetCurveVertexCountsAttr().Set([])
+        _path_curve.GetPointsAttr().Set([])
+        _pending_path = [None, False]                        # (path, changed)
+
+        def _on_path(path):
+            _pending_path[0], _pending_path[1] = path, True   # applied on the render thread
+
+        SIM = sim_agv.SimAgv(V, VDA, ARGS.vda_manufacturer, ARGS.twin_serial,
+                             ARGS.vda_map_id, _grid, _gorig, _gcell,
+                             agv_to_kg, kg_to_agv, vmax=ARGS.sim_speed,
+                             acc=ARGS.sim_accel, log=lambda m: print(m, flush=True))
+        SIM.on_path = _on_path
+        if VDA.connected.is_set():
+            SIM.announce()
+        else:
+            VDA._user_on_connect = SIM.announce
+        _sim_last_t = [None]
+
+        def sim_tick():
+            now = time.time()
+            dt = 0.0 if _sim_last_t[0] is None else min(0.1, now - _sim_last_t[0])
+            _sim_last_t[0] = now
+            if SIM.pose is None and node.amcl is not None:   # start on the real robot
+                SIM.pose = node.amcl
+            SIM.step(dt, now)
+            pose, _v, _busy = SIM.snapshot()
+            if pose is not None:
+                ix, iy, iyaw = map_to_isaac(*pose)
+                _g_tr.Set(Gf.Vec3d(ix, iy, 0.0))
+                _g_or.Set(Gf.Quatd(math.cos(iyaw / 2), 0, 0, math.sin(iyaw / 2)))
+            if _pending_path[1]:
+                _pending_path[1] = False
+                pth = _pending_path[0]
+                if pth:
+                    pts = [Gf.Vec3f(*map_to_isaac(x, y, 0.0)[:2], 0.12) for x, y in pth]
+                    _path_curve.GetPointsAttr().Set(pts)
+                    _path_curve.GetCurveVertexCountsAttr().Set([len(pts)])
+                else:
+                    _path_curve.GetPointsAttr().Set([])
+                    _path_curve.GetCurveVertexCountsAttr().Set([])
+        print(f"[kg-twin] simulated twin AGV {ARGS.twin_serial}: map {ARGS.sim_map} "
+              f"grid {_grid.shape}, v {ARGS.sim_speed} m/s", flush=True)
+
 world.reset()
 set_twin_pose(*map_to_isaac(-2.0, 0.5, 0.0))
 if not ARGS.headless:
@@ -330,9 +502,13 @@ print("[kg-twin] live. Mirroring Gazebo/Nav2 robot (/tf map->odom + /odom, "
       "fallback /amcl_pose); drag the red cone to send /goal_pose; "
       "KG scene reloads when t4_kg_scene.usda changes.", flush=True)
 
+_frame_budget = (1.0 / ARGS.fps) if ARGS.fps > 0 else 0.0
 try:
     while sim_app.is_running():
+        _frame_t0 = time.perf_counter()
         rclpy.spin_once(node, timeout_sec=0.0)
+        if VDA is not None and SIM is not None:
+            sim_tick()
 
         p = node.pose()
         if p is not None:
@@ -400,6 +576,10 @@ try:
             settle_t = None
 
         world.step(render=not ARGS.headless)
+        if _frame_budget:
+            _left = _frame_budget - (time.perf_counter() - _frame_t0)
+            if _left > 0:
+                time.sleep(_left)
 finally:
     node.destroy_node()
     rclpy.shutdown()

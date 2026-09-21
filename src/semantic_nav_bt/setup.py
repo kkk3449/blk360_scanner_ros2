@@ -24,6 +24,8 @@ setup(
             "semantic_cli = semantic_nav_bt.semantic_cli:main",
             "ui_server = semantic_nav_bt.ui_server:main",
             "mediator_server = semantic_nav_bt.mediator_server:main",
+            "vda5050_master = semantic_nav_bt.vda5050_master:main",
+            "vda5050_agv_adapter = semantic_nav_bt.vda5050_agv_adapter:main",
         ],
     },
 )

@@ -213,3 +213,17 @@ Gazebo/Nav2 없이 **실제 AMMR**로 UI→mediator→BT→로봇 주행, Isaac 
 - 새 헬퍼: `register_scan.py`(CLI), `roomscope_any.py`(임의 T·bounds·tol), `make_room_bounds.py`(지도 최대 자유영역 → bounds json). 기존 `register_epoch_scan.py`/`roomscope_transform.py`의 하드코딩 경로 대체.
 - "load result into console": ui_server의 kg/places/naming/map 경로를 결과로 교체(지도 패널 재로드). mediator/BT는 같은 경로로 재시작 필요. `kg_to_usd.py`는 아직 경로 상수라 Isaac 반영은 수동.
 - 비용 가드: 실내 객체 수 × 13 호출 × $0.0097 추정이 예산을 넘으면 Stage B를 건너뜀(일일 ₩30,000 규칙).
+
+## 13. VDA 5050 계층 (2026-09-21) — 콘솔(EMCS 역할) ↔ MQTT ↔ AGV/트윈
+
+교수님 점검 항목 1·2(VDA 5050, 유무선)에 대응. 상세 규격은 `docs/vda5050_interface.md`.
+
+- 브로커: docker `ammr-mqtt`(eclipse-mosquitto:2, :1883, 익명). 설정 `~/ammr_twin/mosquitto/mosquitto.conf`.
+- `ros2 run semantic_nav_bt vda5050_master` — 콘솔 측 마스터 제어. `real_robot_nav_bridge.py`와 ROS 인터페이스 동일(navigate_to_pose 액션서버, /kg_goal_pose, /kg_initialpose, /semantic_stop, /kg_map_offset → /kg_robot_pose)이라 BT·콘솔·Isaac 무수정. AGV 쪽은 MQTT `order`/`instantActions`(cancelOrder, initPosition) 발행, `state`/`visualization`/`connection` 구독. `/vda5050/agv_states`(JSON 2 Hz)로 콘솔 카드에 전 AGV 상태 표시.
+- `ros2 run semantic_nav_bt vda5050_agv_adapter` — AGV 측 어댑터(로봇 또는 이 PC, 로봇 DDS 도메인). order를 노드 순서로 `/ammr/goal_pose`에 발행, `/ammr/state`→state 1 Hz+변화시, visualization 20 Hz, connection retained+LWT. cancelOrder → hold goal.
+- Isaac: `run_isaac_ammr.sh kg ... --vda5050-broker 127.0.0.1:1883 --vda-serial ammr20 [--kg-offset X Y YAW --heading-offset 0]` → MQTT state로 미러, 콘 드래그(왼쪽 버튼 뗄 때) → order.
+- 브링업: `scripts/bringup_vda5050.sh test|real|stop` (test = 목업 도메인 77 :8089, real = 도메인 56 :8080).
+- 버스 관찰: `docker exec ammr-mqtt mosquitto_sub -t 'uagv/v2/#' -v`.
+- 검증(9/21, 목업): 콘솔 goal → order → 노드별 주행 → state → 도착; BT goto_object ARRIVED(state) 5.7 s; STOP → cancelOrder → hold; initialpose → initPosition → /ammr/initialpose; Isaac MQTT 미러 + 콘 order.
+- 남은 것: 트윈을 두 번째 AGV(`ammr20-twin`)로 → 실-가상 비교/ETA/사전승인(계획 2번), 콘솔·Isaac 호스트 분리(유선, 3번), 로봇 측 네이티브 어댑터(로봇팀), 규격서 관제팀 전달(4번).
+- **계획 2번 DT 피드백 (9/21 완료):** Isaac이 두 번째 AGV `ammr20-twin`(`scripts/sim_agv.py`: 점유격자 A*·사다리꼴 속도·고스트 로봇·예측 경로선) 실행. 마스터 `--twin-serial`이 모든 order를 트윈에 미러(실로봇 포즈로 initPosition 동기화 후) → `agv_states.twin.current`(편차·ETA·경보), `history`. 시뮬 선행: 콘솔 체크박스(또는 `--sim-first`) → 트윈만 실행 → 제안(sim ok/no path, 경로·ETA) → Execute/Discard. Isaac `--fps 30` 캡 + `run_isaac_ammr.sh`의 `nice 10`(데스크톱 굶김 방지). 규격서 §7.

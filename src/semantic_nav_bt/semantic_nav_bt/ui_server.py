@@ -87,6 +87,10 @@ th{background:#eef2f7;position:sticky;top:0}
     <div id=statuslog></div>
     <div class=small id=robotpose style="margin-top:6px"></div>
   </div>
+  <div class=card style="margin-top:12px"><h3>VDA 5050 fleet link (MQTT)</h3>
+    <div class=small id=vda>no master control running</div>
+    <div class=small id=twinfb style="margin-top:8px"></div>
+  </div>
   <div class=card style="margin-top:12px"><h3>Robot map (AMCL) &rarr; KG frame</h3>
     <div id=mapdrop style="border:2px dashed #9ab;border-radius:8px;padding:10px;text-align:center;color:#567;font-size:12.5px;cursor:pointer">
       drop the robot's <b>map .pgm + .yaml</b> here (or click to choose)<br>
@@ -563,9 +567,43 @@ function poll(){fetch('/api/state').then(r=>r.json()).then(d=>{STATE=d;
     mk.style.left=(img.offsetLeft+u*img.clientWidth/960)+'px';
     mk.style.top=(img.offsetTop+v*img.clientHeight/720)+'px';
     mk.style.display='block';}
+  renderVda(d.vda5050);
   if(d.map)MAPINFO=d.map;if(!ROBMAP&&d.robot_map_cells)ROBMAP=d.robot_map_cells;
   drawOverlay();drawMap();
   render();}).catch(()=>{document.getElementById('conn').textContent=' — offline';});}
+function renderVda(v){const el=document.getElementById('vda');if(!v){el.textContent='no master control running';return;}
+  let h=`broker ${v.broker} — <b style="color:${v.connected?'#2a7':'#c33'}">${v.connected?'connected':'disconnected'}</b>; primary AGV <b>${v.primary}</b>`;
+  const ks=Object.keys(v.agvs||{});
+  if(!ks.length){el.innerHTML=h+'<div style="margin-top:4px">no AGV has announced on the broker yet</div>';return;}
+  h+='<table style="margin-top:6px"><tr><th>AGV</th><th>conn</th><th>order</th><th>last node</th><th>left</th><th>driving</th><th>pos (KG)</th><th>batt</th><th>actions</th><th>errors</th></tr>';
+  for(const k of ks){const a=v.agvs[k];const on=a.connection==='ONLINE';
+    h+=`<tr><td><b>${k}</b>${k===v.primary?' ★':''}</td><td style="color:${on?'#2a7':'#c33'}">${a.connection}${a.state_age!=null?' <span title="age of last state message">('+a.state_age+'s)</span>':''}</td>
+    <td title="${a.orderId}">${a.orderId?a.orderId.slice(-6):'—'}${a.orderUpdateId?'/'+a.orderUpdateId:''}</td><td title="${a.lastNodeId}">${a.lastNodeId?a.lastNodeId.slice(-2):'—'}</td>
+    <td>${a.nodesLeft}</td><td>${a.driving?'<b>yes</b>':'no'}${a.paused?' (paused)':''}</td>
+    <td>${a.pos_kg?`(${a.pos_kg[0]}, ${a.pos_kg[1]}, ${a.pos_kg[2]}°)`:'—'}</td><td>${a.battery!=null?a.battery.toFixed(0)+'%':'—'}</td>
+    <td>${(a.actions||[]).join('<br>')||'—'}</td><td style="color:#c33">${(a.errors||[]).join('<br>')||'—'}</td></tr>`;}
+  el.innerHTML=h+'</table>';
+  renderTwin(v.twin);}
+function vdaCmd(o){fetch('/api/vda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)});}
+function renderTwin(t){const el=document.getElementById('twinfb');if(!t||!t.serial){el.innerHTML='';return;}
+  let h=`<div style="border-top:1px solid #e3e7ee;padding-top:6px"><b>Digital-twin feedback</b> (twin AGV <b>${t.serial}</b> runs every order in Isaac Sim)
+   &nbsp;<label title="Run the order on the twin first; the real robot only moves after you press Execute"><input type=checkbox ${t.sim_first?'checked':''} onchange="vdaCmd({cmd:'sim_first',value:this.checked})"> simulate before execute</label></div>`;
+  const p=t.proposal;
+  if(p){const ok=p.status==='sim ok';const col=p.status==='no path'?'#c33':ok?'#2a7':'#b80';
+    h+=`<div style="margin-top:4px;padding:6px;border:1px solid ${col};border-radius:6px">proposal <b>${p.orderId.slice(-6)}</b> → goal (${p.goal[0]}, ${p.goal[1]}): <b style="color:${col}">${p.status}</b>
+     ${p.pathLength!=null?` · path ${p.pathLength.toFixed(2)} m · eta ${p.eta.toFixed(1)} s`:''}${p.error?` · ${p.error}`:''}
+     &nbsp;<button ${ok?'':'disabled'} style="background:#2a7;color:#fff;font-weight:700" onclick="vdaCmd({cmd:'execute'})">Execute on robot</button>
+     <button onclick="vdaCmd({cmd:'discard'})">Discard</button></div>`;}
+  const c=t.current;
+  if(c){const col=c.alarm?'#c33':'#2a7';
+    h+=`<div style="margin-top:4px">current order <b>${c.orderId.slice(-6)}</b> → (${c.goal[0]}, ${c.goal[1]}): sim eta <b>${c.sim_eta!=null?c.sim_eta.toFixed(1)+' s':'…'}</b>${c.sim_path!=null?' / '+c.sim_path.toFixed(2)+' m':''},
+     elapsed <b>${c.elapsed!=null?c.elapsed.toFixed(0):0} s</b>, off predicted path <b>${c.deviation!=null?c.deviation.toFixed(2)+' m':'…'}</b> (max ${c.max_dev.toFixed(2)} m)${c.gap!=null?', real–twin gap '+c.gap.toFixed(2)+' m':''}
+     ${c.sim_done_t?' · twin arrived':''}${c.alarm?`<div style="color:#c33;font-weight:700">⚠ ${c.alarm}</div>`:''}</div>`;}
+  if(t.history&&t.history.length){h+='<table style="margin-top:6px"><tr><th>order</th><th>goal</th><th>sim eta</th><th>real time</th><th>ratio</th><th>max off-path</th></tr>';
+    for(const m of t.history){const r=m.sim_eta?(m.real_time/m.sim_eta):null;
+      h+=`<tr><td>${m.orderId.slice(-6)}</td><td>(${m.goal[0]}, ${m.goal[1]})</td><td>${m.sim_eta!=null?m.sim_eta.toFixed(1)+' s':'—'}</td><td>${m.real_time} s</td><td style="color:${r&&r>1.5?'#c33':'#333'}">${r?r.toFixed(2)+'×':'—'}</td><td>${m.max_dev} m</td></tr>`;}
+    h+='</table>';}
+  el.innerHTML=h;}
 setInterval(poll,1000);poll();
 </script></body></html>"""
 
@@ -617,6 +655,7 @@ class UIServer(Node):
         self.cmd_pub = self.create_publisher(String, "semantic_command", 10)
         # operator STOP fan-out: the nav bridge / robot side listens here too
         self.stop_pub = self.create_publisher(String, "semantic_stop", 10)
+        self.vda_pub = self.create_publisher(String, "/vda5050/cmd", 10)
         from sensor_msgs.msg import BatteryState
         self.batt_pub = self.create_publisher(BatteryState, "battery_state",
                                               10)
@@ -624,8 +663,14 @@ class UIServer(Node):
         self.battery = 1.0
         self.robot_pose = None
         self.bt = None
+        self.vda = None
         self.create_subscription(String, "bt_snapshot",
                                  self._on_bt, 10)
+        from rclpy.qos import (QoSProfile as _QP, QoSDurabilityPolicy as _QD,
+                               QoSReliabilityPolicy as _QR)
+        self.create_subscription(
+            String, "/vda5050/agv_states", self._on_vda,
+            _QP(depth=1, reliability=_QR.RELIABLE, durability=_QD.TRANSIENT_LOCAL))
         self.create_subscription(String, "semantic_status", self._on_status,
                                  10)
         # nav2 AMCL latches amcl_pose (reliable + transient_local, depth 1);
@@ -655,6 +700,12 @@ class UIServer(Node):
         with self.frame_cv:
             self.frames[key] = bytes(msg.data)
             self.frame_cv.notify_all()
+
+    def _on_vda(self, msg):
+        try:
+            self.vda = json.loads(msg.data)
+        except ValueError:
+            pass
 
     def _on_bt(self, msg):
         try:
@@ -889,6 +940,7 @@ class UIServer(Node):
                 "status_log": self.status_log,
                 "battery": self.battery,
                 "robot_pose": self.robot_pose,
+                "vda5050": self.vda,
                 "bt": self.bt}
 
     # ------------------------------------------------------------- edits --
@@ -1196,6 +1248,9 @@ def make_handler(node):
                 self._send(200, json.dumps(node.edit_object(req)))
             elif self.path == "/api/campose":
                 self._send(200, json.dumps(node.set_campose(req)))
+            elif self.path == "/api/vda":
+                node.vda_pub.publish(String(data=json.dumps(req)))
+                self._send(200, json.dumps({"ok": True}))
             elif self.path == "/api/getjson":
                 self._send(200, json.dumps(node.get_entity_json(req)))
             elif self.path == "/api/setjson":

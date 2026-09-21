@@ -49,7 +49,7 @@ curl -s -m 3 http://localhost:8080/api/state | head -c 120; echo
 
 if [ -z "${NO_ISAAC:-}" ]; then
   echo "== 5/5 Isaac KG twin (real robot, pose from /amcl_pose) =="
-  cd $WS && AMMR_REAL=1 DISPLAY=:1 setsid nohup scripts/run_isaac_ammr.sh kg --pose-source amcl --goal-topic /kg_goal_pose --amcl-topic /kg_robot_pose > $LOG/isaac_kg.log 2>&1 &
+  cd $WS && AMMR_REAL=1 DISPLAY=${DISPLAY:-:1} setsid nohup scripts/run_isaac_ammr.sh kg --pose-source amcl --goal-topic /kg_goal_pose --amcl-topic /kg_robot_pose > $LOG/isaac_kg.log 2>&1 &
   echo "  Isaac starting (~80 s), log $LOG/isaac_kg.log"
 fi
 echo BRINGUP_REAL_DONE

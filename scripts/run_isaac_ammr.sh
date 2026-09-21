@@ -45,4 +45,7 @@ else
 fi
 
 cd "$WS"
-exec "$ISAAC/python.sh" "$SCRIPT" "${DEFAULTS[@]}" "$@"
+# Run below normal priority: Isaac must never starve Xorg/gnome-shell (an
+# input-device hotplug while the desktop is starved froze the X server on
+# 2026-09-21). Keep the render loop capped too (kg twin: --fps, default 30).
+exec nice -n 10 "$ISAAC/python.sh" "$SCRIPT" "${DEFAULTS[@]}" "$@"
