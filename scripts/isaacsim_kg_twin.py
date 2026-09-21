@@ -297,6 +297,33 @@ last_tgt = target_xy()
 published_tgt = last_tgt
 settle_t = None
 cone_parked = [False]
+# goal is sent when the LEFT mouse button is RELEASED after a cone drag (not
+# while dragging). Headless (no mouse): fall back to "still for 0.5 s".
+mouse_released = [False]
+left_was_down = [False]
+_mouse_sub = None
+if not ARGS.headless:
+    try:
+        import carb.input
+        import omni.appwindow
+        _mouse = omni.appwindow.get_default_app_window().get_mouse()
+        _inp = carb.input.acquire_input_interface()
+
+        def _on_mouse(ev, *_):
+            if ev.type == carb.input.MouseEventType.LEFT_BUTTON_UP:
+                mouse_released[0] = True
+            return True
+        _mouse_sub = _inp.subscribe_to_mouse_events(_mouse, _on_mouse)
+
+        def _left_down():
+            # polled every frame: falling edge = release (works even when the
+            # viewport gizmo consumes the button-up event)
+            return _inp.get_mouse_value(
+                _mouse, carb.input.MouseInput.LEFT_BUTTON) > 0.5
+        print("[kg-twin] goal sends on left-button release", flush=True)
+    except Exception as _e:  # noqa: BLE001
+        print(f"[kg-twin] mouse hook unavailable ({_e}); using settle mode",
+              flush=True)
 _dbg_t = [0.0]
 _chk_t = [0.0]
 print("[kg-twin] live. Mirroring Gazebo/Nav2 robot (/tf map->odom + /odom, "
@@ -341,13 +368,26 @@ try:
                 print(f"[kg-twin] KG scene reloaded ({time.ctime(mt)})",
                       flush=True)
 
-        # cone drag -> goal (moved, then still for 0.5 s)
+        # cone drag -> goal: on left-button release (or, without a mouse hook,
+        # once the cone has been still for 0.5 s)
         cur = target_xy()
         t_now = world.current_time
-        if math.dist(cur, last_tgt) > 0.01:
-            settle_t = t_now
-            last_tgt = cur
-        elif settle_t is not None and t_now - settle_t > 0.5:
+        fire = False
+        if _mouse_sub is not None:
+            down = _left_down()
+            if left_was_down[0] and not down:
+                mouse_released[0] = True
+            left_was_down[0] = down
+            if mouse_released[0]:
+                mouse_released[0] = False
+                fire = True
+        else:
+            if math.dist(cur, last_tgt) > 0.01:
+                settle_t = t_now
+                last_tgt = cur
+            elif settle_t is not None and t_now - settle_t > 0.5:
+                fire = True
+        if fire:
             if math.dist(cur, published_tgt) > 0.05:
                 rx, ry = cur
                 if p is not None:
