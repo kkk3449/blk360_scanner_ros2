@@ -8,6 +8,7 @@ stays in Python.
   ros2 run semantic_nav_bt mediator_server --ros-args -p gated:=true
 """
 import json
+import os
 
 import rclpy
 from rclpy.node import Node
@@ -15,7 +16,9 @@ from semantic_nav_msgs.srv import ResolveSemantic
 
 from .mediator import Mediator
 
-BLK = "/home/caselab/Downloads/Cyclone360_data/blk360_seg/outputs"
+# data dir; a remote console host (laptop/container) points this at its synced copy
+BLK = os.environ.get("BLK_OUTPUTS", "/home/caselab/Downloads/Cyclone360_data/blk360_seg/outputs")
+MAP_YAML_DEFAULT = os.environ.get("MAP_YAML", "/home/caselab/ammr_twin/map_vis_n2_1.yaml")
 
 
 class MediatorServer(Node):
@@ -25,8 +28,7 @@ class MediatorServer(Node):
         kg = p("kg_path", f"{BLK}/testroom_epochs_kg.json").value
         places = p("places_path", f"{BLK}/place_layer_T3_slic.json").value
         naming = p("naming_path", f"{BLK}/place_ring_naming.json").value
-        map_yaml = p("map_yaml",
-                     "/home/caselab/ammr_twin/map_vis_n2_1.yaml").value
+        map_yaml = p("map_yaml", MAP_YAML_DEFAULT).value
         gated = p("gated", True).value
         self.mediator = Mediator(kg, places, naming, map_yaml, gated=gated)
         self.create_service(ResolveSemantic, "resolve_semantic", self._on_req)

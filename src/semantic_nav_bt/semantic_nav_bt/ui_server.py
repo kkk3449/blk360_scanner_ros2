@@ -27,7 +27,60 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseWithCovarianceStamped
 
-BLK = "/home/caselab/Downloads/Cyclone360_data/blk360_seg/outputs"
+# data dir; a remote console host (laptop/container) points this at its synced
+# copy and sets KG_SOURCE_URL=http://<data host>:8090 (scripts/kg_data_server.py)
+BLK = os.environ.get("BLK_OUTPUTS", "/home/caselab/Downloads/Cyclone360_data/blk360_seg/outputs")
+MAP_YAML_DEFAULT = os.environ.get("MAP_YAML", "/home/caselab/ammr_twin/map_vis_n2_1.yaml")
+KG_SOURCE_URL = os.environ.get("KG_SOURCE_URL", "").rstrip("/")
+
+
+class KgSync:
+    """Mirror the data host's files into BLK/map dirs (pull on change) and
+    push the console's KG edits back (PUT), so the data host stays the
+    single authoritative copy in a split deployment."""
+
+    def __init__(self, url, targets, log):
+        import urllib.request as ur
+        self.ur, self.url, self.targets, self.log = ur, url, targets, log
+        self.mtimes = {}
+
+    def pull(self, force=False):
+        try:
+            with self.ur.urlopen(self.url + "/manifest", timeout=5) as r:
+                man = json.loads(r.read().decode())["files"]
+        except Exception as e:  # noqa: BLE001
+            self.log(f"kg sync: manifest failed ({e})")
+            return []
+        changed = []
+        for name, dst in self.targets.items():
+            m = man.get(name)
+            if not m or (not force and self.mtimes.get(name) == m["mtime"]):
+                continue
+            try:
+                with self.ur.urlopen(f"{self.url}/files/{name}", timeout=60) as r:
+                    data = r.read()
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                tmp = dst + ".tmp"
+                with open(tmp, "wb") as f:
+                    f.write(data)
+                os.replace(tmp, dst)
+                self.mtimes[name] = m["mtime"]
+                changed.append(name)
+            except Exception as e:  # noqa: BLE001
+                self.log(f"kg sync: {name} failed ({e})")
+        if changed:
+            self.log(f"kg sync: pulled {changed}")
+        return changed
+
+    def push(self, name, path):
+        try:
+            data = open(path, "rb").read()
+            req = self.ur.Request(f"{self.url}/files/{name}", data=data, method="PUT")
+            with self.ur.urlopen(req, timeout=30) as r:
+                self.mtimes[name] = json.loads(r.read().decode()).get("mtime")
+            self.log(f"kg sync: pushed {name} ({len(data)} B)")
+        except Exception as e:  # noqa: BLE001
+            self.log(f"kg sync: push {name} failed ({e})")
 
 
 def load_map_png(yaml_path):
@@ -620,8 +673,26 @@ class UIServer(Node):
         self.port = p("port", 8080).value
         # occupancy grid shown in the map panel (KG frame; the same map the
         # place layer and the Gazebo world are built on)
-        self.map_yaml = p("map_yaml",
-                          "/home/caselab/ammr_twin/map_vis_n2_1.yaml").value
+        self.map_yaml = p("map_yaml", MAP_YAML_DEFAULT).value
+        # split deployment: pull KG/map/scene from the data host before loading
+        self.kg_sync = None
+        if KG_SOURCE_URL:
+            mdir = os.path.dirname(self.map_yaml)
+            self.kg_sync = KgSync(KG_SOURCE_URL, {
+                "testroom_epochs_kg.json": self.kg_path,
+                "place_layer_T3_slic.json": self.places_path,
+                "place_ring_naming.json": self.naming_path,
+                "t3_place_scoped_relations.json": f"{BLK}/t3_place_scoped_relations.json",
+                "map_vis_n2_1.yaml": self.map_yaml,
+                "map_vis_n2_1.pgm": os.path.join(mdir, "map_vis_n2_1.pgm"),
+                "t4_kg_scene.usda": f"{BLK}/vis_sota_det4/t4_kg_scene.usda",
+            }, lambda s: self.get_logger().info(s))
+            self.kg_sync.pull(force=True)
+            self.create_timer(10.0, lambda: self.kg_sync.pull())
+        # KG scene (USD written by kg_to_usd --watch) served to a remote
+        # Isaac host over HTTP: GET /api/scene (file) + /api/scene/meta (mtime)
+        self.scene_path = p("scene_path", os.path.expanduser(
+            "~/Downloads/Cyclone360_data/blk360_seg/outputs/vis_sota_det4/t4_kg_scene.usda")).value
         self.map_png, self.map_info = None, None
         try:
             self.map_png, self.map_info = load_map_png(self.map_yaml)
@@ -979,6 +1050,7 @@ class UIServer(Node):
         else:
             return {"error": f"unknown action '{action}'"}
         json.dump(kg, open(self.kg_path, "w"), indent=1)
+        self._kg_saved()
         return {"ok": True}
 
     def get_entity_json(self, req):
@@ -1031,6 +1103,8 @@ class UIServer(Node):
                     _sh.copy(self.kg_path, self.kg_path + ".uiedit.bak")
                     json.dump(kg, open(self.kg_path, "w"), indent=1,
                               ensure_ascii=False)
+
+                    self._kg_saved()
                     return {"ok": True}
             return {"error": f"no object '{name}'"}
         if kind == "robot":
@@ -1041,6 +1115,8 @@ class UIServer(Node):
                     _sh.copy(self.kg_path, self.kg_path + ".uiedit.bak")
                     json.dump(kg, open(self.kg_path, "w"), indent=1,
                               ensure_ascii=False)
+
+                    self._kg_saved()
                     return {"ok": True}
             return {"error": f"no robot '{name}'"}
         if kind == "place":
@@ -1110,6 +1186,11 @@ class UIServer(Node):
             pass
         return {"cells": [], "cs": 0.05, "color": [120, 120, 120]}
 
+    def _kg_saved(self):
+        """After a local KG write: push it to the data host (split deployment)."""
+        if self.kg_sync is not None:
+            self.kg_sync.push("testroom_epochs_kg.json", self.kg_path)
+
     def publish_command(self, cmd):
         self.cmd_pub.publish(String(data=json.dumps(cmd)))
         if isinstance(cmd, dict) and cmd.get("cmd") in ("stop", "cancel"):
@@ -1151,6 +1232,25 @@ def make_handler(node):
                 if node.map_png is None:
                     return self._send(404, "{}")
                 self._send(200, node.map_png, "image/png")
+            elif self.path == "/api/scene/meta":
+                try:
+                    st = os.stat(node.scene_path)
+                    self._send(200, json.dumps({"mtime": st.st_mtime, "size": st.st_size,
+                                                "path": node.scene_path}))
+                except OSError as e:
+                    self._send(404, json.dumps({"error": str(e)}))
+            elif self.path == "/api/scene":
+                try:
+                    with open(node.scene_path, "rb") as f:
+                        data = f.read()
+                except OSError:
+                    return self._send(404, "{}")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/octet-stream")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("X-Scene-Mtime", str(os.path.getmtime(node.scene_path)))
+                self.end_headers()
+                self.wfile.write(data)
             elif self.path.startswith("/stream/"):
                 self._stream(self.path.rsplit("/", 1)[-1])
             else:

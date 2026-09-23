@@ -16,6 +16,7 @@ standard VDA 5050 master control or AGV can be swapped in.
 import datetime as _dt
 import itertools
 import json
+import os
 import threading
 
 VERSION = "2.0.0"
@@ -154,6 +155,15 @@ def action_state(action_id, action_type, status, description=""):
 
 
 # -------------------------------------------------------------------- MQTT --
+def client_id(prefix):
+    """Broker-unique client id: prefix-host-pid-random (two hosts running the
+    same role, or two containers with equal pids, must not collide: MQTT
+    disconnects the previous session with the same id)."""
+    import socket
+    import uuid
+    return f"{prefix}-{socket.gethostname()}-{os.getpid()}-{uuid.uuid4().hex[:6]}"
+
+
 class Mqtt:
     """paho wrapper: JSON publish/subscribe, background loop, optional LWT.
     Callbacks get (manufacturer, serial, topic_name, payload_dict)."""

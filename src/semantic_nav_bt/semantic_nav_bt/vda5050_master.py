@@ -117,7 +117,7 @@ class Master(Node):
 
         # -- MQTT
         self.mq = V.Mqtt(a.broker_host, a.broker_port,
-                         client_id=f"master-{a.serial}-{os.getpid()}",
+                         client_id=V.client_id(f"master-{a.serial}"),
                          log=lambda s: self.get_logger().info(s))
         base = f"{V.INTERFACE}/{V.MAJOR}/{a.manufacturer}/+/"
         self.mq.subscribe(base + "state", self._on_state)

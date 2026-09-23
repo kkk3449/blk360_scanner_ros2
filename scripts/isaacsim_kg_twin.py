@@ -89,7 +89,41 @@ from geometry_msgs.msg import (PoseStamped,                   # noqa: E402
 from nav_msgs.msg import Odometry                             # noqa: E402
 from tf2_msgs.msg import TFMessage                            # noqa: E402
 
-SCENE = os.path.abspath(os.path.expanduser(ARGS.scene))
+SCENE_URL = None
+if ARGS.scene.startswith(("http://", "https://")):
+    # remote DT host: fetch the scene from the console and re-fetch when its
+    # mtime changes (polled via /api/scene/meta); local file = cache
+    import json as _sj
+    import urllib.request as _ur
+    SCENE_URL = ARGS.scene.rstrip("/")
+    _cache = os.path.expanduser("~/ammr_twin/cache")
+    os.makedirs(_cache, exist_ok=True)
+    SCENE = os.path.join(_cache, "kg_scene.usda")
+    _remote_mtime = [0.0]
+
+    def fetch_scene():
+        with _ur.urlopen(SCENE_URL, timeout=30) as r:
+            data = r.read()
+            mt = float(r.headers.get("X-Scene-Mtime", "0") or 0)
+        tmp = SCENE + ".tmp"
+        with open(tmp, "wb") as f:
+            f.write(data)
+        os.replace(tmp, SCENE)
+        _remote_mtime[0] = mt
+        print(f"[kg-twin] scene fetched from {SCENE_URL} ({len(data)//1024} kB, "
+              f"remote mtime {time.ctime(mt)})", flush=True)
+
+    def remote_scene_changed():
+        try:
+            with _ur.urlopen(SCENE_URL + "/meta", timeout=5) as r:
+                mt = float(_sj.loads(r.read().decode())["mtime"])
+        except Exception:  # noqa: BLE001
+            return False
+        return mt > _remote_mtime[0] + 0.5
+
+    fetch_scene()
+else:
+    SCENE = os.path.abspath(os.path.expanduser(ARGS.scene))
 OFF_X, OFF_Y = ARGS.map_offset[0], ARGS.map_offset[1]
 OFF_YAW = math.radians(ARGS.map_offset[2])
 
@@ -353,7 +387,7 @@ if ARGS.vda5050_broker:
 
     _hp = ARGS.vda5050_broker.split(":")
     VDA = V.Mqtt(_hp[0], int(_hp[1]) if len(_hp) > 1 else 1883,
-                 client_id=f"isaac-twin-{os.getpid()}",
+                 client_id=V.client_id("isaac-twin"),
                  log=lambda s: print(f"[kg-twin] {s}", flush=True))
     VDA.subscribe(V.topic(ARGS.vda_manufacturer, ARGS.vda_serial, "state"), _on_agv)
     VDA.subscribe(V.topic(ARGS.vda_manufacturer, ARGS.vda_serial, "visualization"), _on_agv)
@@ -531,9 +565,15 @@ try:
                       f"{t_rb[0]:.2f},{t_rb[1]:.2f}) cone=({cx:.2f},{cy:.2f})",
                       flush=True)
 
-        # scene hot-reload (kg_to_usd --watch rewrote the file)
+        # scene hot-reload (kg_to_usd --watch rewrote the file; remote host:
+        # the console's copy changed -> re-fetch into the local cache first)
         if time.time() - _chk_t[0] > 1.0:
             _chk_t[0] = time.time()
+            if SCENE_URL and int(time.time()) % 5 == 0 and remote_scene_changed():
+                try:
+                    fetch_scene()
+                except Exception as _e:  # noqa: BLE001
+                    print(f"[kg-twin] scene re-fetch failed: {_e}", flush=True)
             try:
                 mt = os.path.getmtime(SCENE)
             except OSError:

@@ -76,7 +76,7 @@ class Adapter(Node):
 
         conn_topic = V.topic(a.manufacturer, a.serial, "connection")
         self.mq = V.Mqtt(a.broker_host, a.broker_port,
-                         client_id=f"agv-{a.serial}-{os.getpid()}",
+                         client_id=V.client_id(f"agv-{a.serial}"),
                          will=(conn_topic, V.make_connection(
                              V.Header(a.manufacturer, a.serial), "CONNECTIONBROKEN")),
                          on_connect=self._announce,

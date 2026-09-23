@@ -142,11 +142,21 @@ proposal → `sim ok` → execute → history entry. On the real robot the off-p
 value will be non-zero (Nav2 plans on its own costmap); tune
 `--deviation-alarm` from the first real runs.
 
-## 8. Not yet done (items 3–4 of the plan)
+## 8. Split hosts (item 3, verified 2026-09-22)
 
-* Console and Isaac on separate hosts over wired Ethernet (only the broker
-  address changes; DDS is no longer needed between them).
-* Robot-side native VDA 5050 adapter (robot team) — until then
-  `vda5050_agv_adapter` runs on this PC on the robot's DDS domain.
+See `docs/split_deployment.md`. Console (laptop, `docker/console/` image or
+native ROS 2) ↔ Isaac/data PC ↔ AMMR on the same WiFi, or console↔PC wired:
+only MQTT (VDA 5050) and HTTP cross machines, no DDS between hosts. The PC
+keeps the authoritative KG and serves it with `scripts/kg_data_server.py`
+(:8090, `GET /manifest`, `GET|PUT /files/<name>`); the console pulls on
+change (`KG_SOURCE_URL`) and pushes owner edits back. `bringup_vda5050.sh`
+roles: `console | dt | agv` with `BROKER`, `KG_SOURCE_URL`, `SCENE_URL`.
+
+## 9. Not yet done
+
+* Real laptop on the lab WiFi/Ethernet (image transfer + `docker run`), latency
+  and loss over the real link.
+* Robot-side native VDA 5050 adapter (robot team).
 * Twin marker on the console map panel; deviation/ETA thresholds from real runs.
-* TLS / authentication on the broker if it leaves the lab LAN.
+* TLS / authentication on the broker if it leaves the lab LAN; item 4 = hand
+  this spec + `split_deployment.md` to the EMCS control team.
